@@ -338,7 +338,15 @@ input[type="range"]{width:130px;accent-color:var(--jade)}
 .pgtext .w{position:relative;display:inline-block;border:0;background:transparent;font:inherit;line-height:1.3;padding:0 2px;margin:0 1px;border-bottom:2px solid var(--grid);border-radius:0;vertical-align:baseline}
 .pgtext .w.sel{border-bottom-color:var(--jade);background:var(--jade-soft)}
 .pgtext .w.done{border-bottom-color:transparent;color:var(--jade);cursor:default}
-.pgtext .w.done::before{content:attr(data-gloss);position:absolute;left:50%;bottom:100%;transform:translateX(-50%);font-family:var(--f-ui);font-size:.6rem;font-weight:500;line-height:1;white-space:nowrap;color:var(--jade);padding-bottom:2px}
+.pgtext{line-height:3.4}
+.pgtext .w.done{text-align:center;margin:0 4px}
+/* a solved word shows its pinyin above and English below; invisible sizers make the word as wide as its longest label */
+.pgtext .w .sz{display:block;height:0;overflow:hidden;visibility:hidden;font-family:var(--f-ui);white-space:nowrap;line-height:1}
+.pgtext .w .sz.p{font-size:.6rem;font-weight:600}
+.pgtext .w .sz.e{font-size:.5rem}
+.pgtext .w .gp,.pgtext .w .ge{position:absolute;left:50%;transform:translateX(-50%);font-family:var(--f-ui);line-height:1;white-space:nowrap}
+.pgtext .w .gp{bottom:100%;padding-bottom:3px;font-size:.6rem;font-weight:600;color:var(--jade)}
+.pgtext .w .ge{top:100%;padding-top:4px;font-size:.5rem;color:var(--muted)}
 .pgbank{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
 .pgbank button{border:1px solid var(--line);background:var(--card);border-radius:var(--r);padding:8px 12px;font-size:.92rem}
 .pgbank button.py{font-size:1.05rem}
@@ -912,11 +920,11 @@ const SETS = [
   {group:"Boya Elementary I", name:"Lesson 5", items:[["专业","zhuānyè","major field of study"],["国际","guójì","international"],["关系","guānxi","relation, relationship"],["中文","Zhōngwén","Chinese language"],["系","xì","department in a university"],["研究生","yánjiūshēng","graduate student"],["现代","xiàndài","modern"],["文学","wénxué","literature"],["东边","dōngbian","the east side"],["有","yǒu","to have; there be"],["空儿","kòngr","free time"],["时候","shíhou","time, moment"],["欢迎","huānyíng","to welcome"],["去","qù","to go"],["玩儿","wánr","to play, to have fun"],["卫生间","wèishēngjiān","restroom, toilet"],["教室","jiàoshì","classroom"],["旁边","pángbiān","side, nearby"],["西边","xībian","the west side"],["对","duì","correct"]]},
   {group:"Boya Elementary I", name:"Lesson 5 names", items:[["张红","Zhāng Hóng","a person's name (female)"],["北京大学","Běijīng Dàxué","Peking University"],["清华大学","Qīnghuá Dàxué","Tsinghua University"]]},
   {group:"Boya Elementary I", name:"Lesson 6", items:[["大学","dàxué","university, college"],["早上","zǎoshang","morning"],["几","jǐ","how many"],["点","diǎn","o'clock, hour on the clock"],["上课","shàng kè","to go to class"],["大部分","dà bùfen","the greater part, majority, most"],["部分","bùfen","part"],["九","jiǔ","nine"],["我们","wǒmen","we, us"],["八","bā","eight"],["五十","wǔshí","fifty"],["分","fēn","minute"],["下课","xià kè","to finish class"],["十","shí","ten"],["半","bàn","half"],["太","tài","too (太……了)"],["了","le","太……了: too …"],["早","zǎo","early"],["讲座","jiǎngzuò","lecture"],["开始","kāishǐ","to begin, to start"],["七","qī","seven"],["现在","xiànzài","now"],["差","chà","to lack, to be short (by some amount)"],["一","yī","one"],["刻","kè","a quarter (of an hour)"],["六","liù","six"],["一会儿","yíhuìr","in a moment, in a short while"],["见","jiàn","to see, to meet"],["想","xiǎng","to want, would like to; to think"],["超市","chāoshì","supermarket"]]},
-  {group:"Boya Elementary I", name:"Lesson 7", items:[["明天","míngtiān","tomorrow"],["课","kè","class"],["上午","shàngwǔ","morning, forenoon"],["下午","xiàwǔ","afternoon"],["没有","méiyǒu","to not have (often just 没)"],["自行车","zìxíngchē","bicycle"],["吧","ba","particle for a suggestion, request or order"],["事","shì","some matter or thing"],["可是","kěshì","but"],["没问题","méi wèntí","no problem"],["钥匙","yàoshi","key"],["桌子","zhuōzi","desk, table"],["上","shang","on"],["车","chē","bicycle, car, vehicle"],["下","xià","below, under, down"],["车棚","chēpéng","bicycle shed"],["里","li","in, inside"],["后边","hòubian","behind, at the back"],["第一","dì-yī","first"],["今天","jīntiān","today"],["晚上","wǎnshang","evening"],["时间","shíjiān","time"],["电影院","diànyǐngyuàn","movie theater"],["电影","diànyǐng","film, movie"],["听说","tīngshuō","to have heard of (something)"],["有名","yǒumíng","famous, well-known"],["当然","dāngrán","of course, certainly"]]},
-  {group:"Extra practice", name:"From my notes", items:[["知道","zhīdào","to know"],["听","tīng","to listen"],["说","shuō","to speak"],["读","dú","to read"],["写","xiě","to write"],["喜欢","xǐhuan","to like"],["一个","yí ge|yī gè","one (of something)"],["意思","yìsi","meaning"],["认识","rènshi","to know (someone)"],["字","zì","character"],["歌","gē","song"],["介绍","jièshào","to introduce"],["本科生","běnkēshēng","undergraduate student"],["博士","bóshì","PhD"],["古代","gǔdài","ancient, old"]]},
+  {group:"Boya Elementary I", name:"Lesson 7", items:[["明天","míngtiān","tomorrow"],["课","kè","class"],["上午","shàngwǔ","morning, forenoon"],["下午","xiàwǔ","afternoon"],["没有","méiyǒu","to not have (often just 没)"],["自行车","zìxíngchē","bicycle"],["吧","ba","particle for a suggestion (let's…), or \"…right?\" when checking something you think is true"],["事","shì","some matter or thing"],["可是","kěshì","but"],["没问题","méi wèntí","no problem"],["钥匙","yàoshi","key"],["桌子","zhuōzi","desk, table"],["上","shang","on"],["车","chē","bicycle, car, vehicle"],["下","xià","below, under, down"],["车棚","chēpéng","bicycle shed"],["里","li","in, inside"],["后边","hòubian","behind, at the back"],["第一","dì-yī","first"],["今天","jīntiān","today"],["晚上","wǎnshang","evening"],["时间","shíjiān","time"],["电影院","diànyǐngyuàn","movie theater"],["电影","diànyǐng","film, movie"],["听说","tīngshuō","to have heard of (something)"],["有名","yǒumíng","famous, well-known"],["当然","dāngrán","of course, certainly"],["星期五","xīngqīwǔ","Friday"],["周五","zhōuwǔ","Friday (short form)"],["不好意思","bù hǎoyìsi","sorry, excuse me (softer than 对不起)"],["下次","xià cì","next time"],["次","cì","time (one time, two times)"],["没事","méi shì","free, not busy (short for 没有事)"],["问题","wèntí","question, problem"],["事儿","shìr","matter, thing (same as 事)"],["楼下","lóu xià","downstairs"],["宿舍楼","sùshè lóu","dorm building"],["问","wèn","to ask"],["为什么","wèishénme","why"],["因为","yīnwèi","because"],["想要","xiǎngyào","to want (a thing)"]]},
+  {group:"Extra practice", name:"From my notes", items:[["知道","zhīdào","to know"],["听","tīng","to listen"],["说","shuō","to speak"],["读","dú","to read"],["写","xiě","to write"],["喜欢","xǐhuan","to like"],["一个","yí ge|yī gè","one (of something)"],["意思","yìsi","meaning"],["认识","rènshi","to know (someone)"],["字","zì","character"],["歌","gē","song"],["介绍","jièshào","to introduce"],["本科生","běnkēshēng","undergraduate student"],["留学生","liúxuéshēng","international student"],["学习","xuéxí","to study, to learn"],["大卫","Dàwèi","David (a name in the textbook)"],["玛丽","Mǎlì","Mary (a name in the textbook)"],["李军","Lǐ Jūn","Li Jun (a name in the textbook)"],["同学","tóngxué","classmate"],["美国","Měiguó","the USA"],["加拿大","Jiānádà","Canada"],["博士","bóshì","PhD"],["古代","gǔdài","ancient, old"]]},
   {group:"Extra practice", name:"My name", items:[["韦力","Wéi Lì","Wei Li (my Chinese name)"],["名字","míngzi","name"],["叫","jiào","to be called"]]},
   {group:"Extra practice", name:"Greetings", items:[["你好","nǐ hǎo","hello"],["我","wǒ","I, me"],["是","shì","to be"],["谢谢","xièxie","thank you"],["再见","zàijiàn","goodbye"],["不","bù","not"],["吗","ma","question particle"],["很","hěn","very"]]},
-  {group:"Extra practice", name:"People", items:[["人","rén","person"],["他","tā","he"],["她","tā","she"],["我们","wǒmen","we"],["老师","lǎoshī","teacher"],["学生","xuésheng","student"],["中国","Zhōngguó","China"],["什么","shénme","what"]]},
+  {group:"Extra practice", name:"People", items:[["人","rén","person"],["他","tā","he"],["她","tā","she"],["我们","wǒmen","we"],["他们","tāmen","they"],["老师","lǎoshī","teacher"],["学生","xuésheng","student"],["中国","Zhōngguó","China"],["什么","shénme","what"]]},
   {group:"Extra practice", name:"Basics", items:[["一","yī","one"],["二","èr","two"],["三","sān","three"],["十","shí","ten"],["口","kǒu","mouth"],["大","dà","big"],["小","xiǎo","small"],["日","rì","sun; day"],["月","yuè","moon; month"],["山","shān","mountain"],["水","shuǐ","water"],["火","huǒ","fire"]]}
 ];
 const CLUE={"他":"he","她":"she"};
@@ -1671,6 +1679,18 @@ const WO=[
  {l:7,en:"Of course I'll go.",t:"我|当然|去",py:"wǒ|dāngrán|qù",p:"。",r:"Adverbs like 当然, 也 and 很 go after the subject and before the verb."},
  {l:7,en:"Are you free this afternoon? I'd like to go to the supermarket with you.",t:"今天|下午|你|有|事|吗|我|想|和|你|去|超市",py:"jīntiān|xiàwǔ|nǐ|yǒu|shì|ma|wǒ|xiǎng|hé|nǐ|qù|chāoshì",p:"。",c:5,alt:["你|今天|下午|有|事|吗|我|想|和|你|去|超市"],r:"和 + person goes before the verb: 和你去超市. 去超市和你 is wrong. Time (今天下午) also comes before the verb."},
  {l:7,en:"It's none of your business.",t:"不|关|你|的|事",py:"bù|guān|nǐ|de|shì",p:"。",r:"Verb + object: the object 你的事 comes after the verb 关, and 不 goes right before the verb."},
+ {l:7,en:"Sorry, I'm busy. How about Friday?",t:"对不起|我|有|事|周五|吧",py:"duìbuqǐ|wǒ|yǒu|shì|zhōuwǔ|ba",p:"。",c:3,alt:["对不起|我|有|事|星期五|吧"],r:"对不起 first, then the reason (我有事), then the new day + 吧 as a suggestion."},
+ {l:7,en:"Sorry, I'm busy. Maybe next time.",t:"不好意思|我|有|事|下次|吧",py:"bù hǎoyìsi|wǒ|yǒu|shì|xià cì|ba",p:"。",c:3,r:"不好意思 is a softer sorry. 下次吧 = \"next time, then.\""},
+ {l:7,en:"I'm free. Let's go to the supermarket.",t:"我|没有|事|我们|去|超市|吧",py:"wǒ|méiyǒu|shì|wǒmen|qù|chāoshì|ba",p:"。",c:2,alt:["我|没|事|我们|去|超市|吧"],r:"没有事 = not busy. Then who + 去 + where + 吧."},
+ {l:7,en:"You have a bike, right?",t:"你|有|自行车|吧",py:"nǐ|yǒu|zìxíngchē|ba",p:"？",r:"吧 at the end of a statement = \"…right?\" You think it's true and want them to confirm. (吗 = you really don't know.)"},
+ {l:7,en:"David is an international student, right?",t:"大卫|是|留学生|吧",py:"Dàwèi|shì|liúxuéshēng|ba",p:"？",r:"吧 at the end of a statement = \"…right?\" You think it's true and want them to confirm. (吗 = you really don't know.)"},
+ {l:7,en:"You study Chinese at Peking University, right?",t:"你|在|北京大学|学习|汉语|吧",py:"nǐ|zài|Běijīng Dàxué|xuéxí|Hànyǔ|ba",p:"？",r:"吧 at the end of a statement = \"…right?\" You think it's true and want them to confirm. (吗 = you really don't know.)"},
+ {l:7,en:"That's the library, right?",t:"那儿|是|图书馆|吧",py:"nàr|shì|túshūguǎn|ba",p:"？",r:"吧 at the end of a statement = \"…right?\" You think it's true and want them to confirm. (吗 = you really don't know.)"},
+ {l:7,en:"Your major is international relations, right?",t:"你们|的|专业|是|国际|关系|吧",py:"nǐmen|de|zhuānyè|shì|guójì|guānxi|ba",p:"？",r:"吧 at the end of a statement = \"…right?\" You think it's true and want them to confirm. (吗 = you really don't know.)"},
+ {l:7,en:"You have Chinese class tomorrow, right?",t:"你们|明天|有|汉语|课|吧",py:"nǐmen|míngtiān|yǒu|Hànyǔ|kè|ba",alt:["明天|你们|有|汉语|课|吧"],p:"？",r:"吧 at the end of a statement = \"…right?\" You think it's true and want them to confirm. (吗 = you really don't know.)"},
+ {l:7,en:"Does Nakamura have anything on tomorrow?",t:"中村|明天|有|事|吗",py:"Zhōngcūn|míngtiān|yǒu|shì|ma",p:"？",alt:["明天|中村|有|事|吗"],r:"Time (明天) goes before the verb 有."},
+ {l:7,en:"Why does Mary ask Nakamura if she's busy?",t:"玛丽|为什么|问|中村|有没有|事",py:"Mǎlì|wèishénme|wèn|Zhōngcūn|yǒu méiyǒu|shì",p:"？",alt:["为什么|玛丽|问|中村|有没有|事"],r:"为什么 goes before the verb. 有没有 is another way to ask yes-or-no, so no 吗 at the end."},
+ {l:7,en:"Because Mary wants Nakamura's bike.",t:"因为|玛丽|想要|中村|的|自行车",py:"yīnwèi|Mǎlì|xiǎngyào|Zhōngcūn|de|zìxíngchē",p:"。",r:"因为 starts the reason. 想要 + thing; 的 shows whose bike."},
  {l:7,en:"I want to go to the library with my roommate.",t:"我|想|和|同屋|去|图书馆",py:"wǒ|xiǎng|hé|tóngwū|qù|túshūguǎn",p:"。",r:"想 + 和 + person + verb + place. The 和 phrase sits between 想 and the action."},
  // general sentences, not tied to one lesson; some use words from later lessons
  {"l": 0, "k": "time", "en": "I get up at six in the morning.", "t": "我|早上|六点|起床", "py": "wǒ|zǎoshang|liù diǎn|qǐchuáng", "p": "。", "alt": ["早上|六点|我|起床"], "r": "Time goes before the verb. Put it right after the subject, or at the very start. Never at the end like English."},
@@ -1945,6 +1965,8 @@ const PASSAGES=[
   en:"David: Mary, do you have time this evening? Mary: Yes. What's up? David: The school cinema is showing a film. Are you going? Mary: What film? David: I don't know the name, but I hear it's famous. Mary: Of course I'm going."},
  {l:7,t:"A：[明天]你有[课]吗？\nB：[上午]有[课]，[下午][没有][课]。\nA：[明天][下午]我们去图书馆[吧]。\nB：[没问题]！",
   en:"A: Do you have class tomorrow? B: I have class in the morning but no class in the afternoon. A: Let's go to the library tomorrow afternoon. B: No problem!"},
+ {l:7,t:"玛丽：[中村]，[明天]你有[课]吗？\n中村：我[上午]有[课]，[下午][没有]。\n玛丽：你有[自行车][吧]？\n中村：有。什么[事]儿？\n玛丽：我[明天][下午][去][见][朋友]，[可是]我[没有][自行车]……\n中村：[没问题]，我有。[钥匙][在][桌子][上]，[车][在][楼][下][车棚][里]。\n玛丽：是[宿舍][楼][后边]的[车棚]吗？\n中村：[对]，[第一][个][车棚]。",
+  en:"Mary: Nakamura, do you have class tomorrow? Nakamura: I have class in the morning, not in the afternoon. Mary: You have a bike, right? Nakamura: Yes. What's up? Mary: I'm going to see a friend tomorrow afternoon, but I don't have a bike… Nakamura: No problem, I have one. The key is on the table, and the bike is in the bike shed downstairs. Mary: Is it the bike shed behind the dorm building? Nakamura: Yes, the first bike shed."},
  {l:7,t:"我的[钥匙]在哪儿？[桌子][上]没有，[桌子][下]也没有。我的[自行车]在[车棚][里]，[车棚]在宿舍的[后边]。啊，[钥匙]在[自行车][上]！",
   en:"Where are my keys? They're not on the desk, and not under the desk either. My bike is in the bicycle shed, and the shed is behind the dormitory. Oh, the keys are on the bike!"},
  {l:0,t:"A：[请问]，[这]是[谁]的[书]？\nB：是我[同屋]的。她是[研究生]，她的[专业]是[现代][文学]。\nA：她[在][哪儿]？\nB：她[在][图书馆]。",
@@ -2279,13 +2301,15 @@ function pgNext(){
   pgRenderText(true);pgRenderBank(true);pgScore();
 }
 const pgGloss=w=>{const it=findWord(w);return pgKind==="py"?showPy(it[1]):it[2]};
+// first sense only, so the English under a word stays short
+function pgShort(m){m=m.replace(/\s*\([^)]*\)/g,"").split(/[;,]/)[0].trim();return m.length>18?m.slice(0,17).trim()+"…":m}
 function pgRenderText(first){
-  const box=$("pgText");box.innerHTML="";let line=-1,ln=null;
+  const box=$("pgText");box.innerHTML="";box.classList.toggle("solved",pgCur.done.size>0);let line=-1,ln=null;
   pgCur.toks.forEach((t,i)=>{
     if(t.line!==line){line=t.line;ln=document.createElement("span");ln.className="ln";box.appendChild(ln)}
     if(!t.w){ln.append(t.txt);return}
-    const b=document.createElement("button");b.type="button";b.className="w";b.textContent=t.w;
-    if(pgCur.done.has(i)){b.classList.add("done");const it=findWord(t.w);b.dataset.gloss=pgKind==="py"?it[2]:showPy(it[1]);b.disabled=true;if(!first)b.style.animation="none"}
+    const b=document.createElement("button");b.type="button";b.className="w";b.textContent=t.w;b.dataset.w=t.w;
+    if(pgCur.done.has(i)){b.classList.add("done");const it=findWord(t.w),gp=showPy(it[1]),ge=pgShort(it[2]);b.innerHTML=`<span class="sz p">${gp}</span><span class="sz e">${ge}</span>${t.w}<span class="gp">${gp}</span><span class="ge">${ge}</span>`;b.disabled=true;if(!first)b.style.animation="none"}
     else{if(i===pgSelW)b.classList.add("sel");b.onclick=()=>{pgSelW=pgSelW===i?-1:i;pgTry()}}
     ln.appendChild(b);
   });
@@ -2304,7 +2328,7 @@ function pgTry(){
   if(pgSelW>=0&&pgSelC){
     const w=pgCur.toks[pgSelW].w,ok=w===pgSelC||pgGloss(w)===pgGloss(pgSelC);
     if(ok){pgCur.done.add(pgSelW);pgSelW=-1;pgSelC=null;pgRenderText();pgRenderBank();
-      const el=[...$("pgText").querySelectorAll(".w")].find((x,k)=>x.classList.contains("done")&&x.textContent===w&&x.style.animation);if(el)el.style.animation="";}
+      const el=[...$("pgText").querySelectorAll(".w")].find((x,k)=>x.classList.contains("done")&&x.dataset.w===w&&x.style.animation);if(el)el.style.animation="";}
     else{pgMiss++;const wi=pgSelW,cw=pgSelC;pgSelW=-1;pgSelC=null;pgRenderText();pgRenderBank();
       const wb=[...$("pgText").querySelectorAll(".w")][pgCur.targets.indexOf(wi)];
       const cb=[...$("pgBank").querySelectorAll("button")].find(x=>x.dataset.w===cw);
