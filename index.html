@@ -359,6 +359,19 @@ input[type="range"]{width:130px;accent-color:var(--jade)}
 .pgfocus{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:.85rem;color:var(--muted)}
 .pgfocus .zh{font-size:1.05rem;color:var(--ink);border-bottom:2px solid var(--red-soft);padding:0 1px}
 .pgfocus .none{color:var(--faint)}
+.pgtext{position:relative}
+.pgtext .c{cursor:pointer;border-radius:3px}
+.pgtext .c:hover{background:var(--line)}
+.pgtext .c.look{background:var(--warn-soft);color:var(--warn)}
+.pglook{position:absolute;z-index:3;width:min(300px,calc(100% - 16px));background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:0 6px 20px rgba(0,0,0,.12);padding:12px 14px;font-family:var(--f-ui);line-height:1.35;display:flex;flex-direction:column;gap:6px}
+.pglook .hd{display:flex;align-items:center;gap:10px}
+.pglook .hz{font-family:var(--f-hanzi);font-size:1.7rem;line-height:1.1}
+.pglook .py{font-weight:650;color:var(--jade);font-size:1rem}
+.pglook .en{font-size:.88rem;color:var(--ink)}
+.pglook .say{margin-left:auto;border:1px solid var(--line);background:var(--card);border-radius:var(--r);width:32px;height:32px;display:grid;place-items:center;color:var(--jade)}
+.pglook .parts{display:flex;flex-direction:column;gap:2px;border-top:1px solid var(--line);padding-top:6px;font-size:.8rem;color:var(--muted)}
+.pglook .parts .zh{font-size:1rem;color:var(--ink);margin-right:6px}
+.pglook .src{font-size:.72rem;color:var(--faint)}
 .pgtrans{border-left:3px solid var(--grid);padding:4px 0 4px 12px;color:var(--muted)}
 @media (max-width:560px){.pgtext{font-size:1.22rem;padding:14px 12px}}
 
@@ -756,7 +769,7 @@ input[type="range"]{width:130px;accent-color:var(--jade)}
         <div class="pgfocus" id="pgFocus" hidden></div>
         <div class="tqtop"><span class="meta" id="pgMeta"></span><span class="tqscore" id="pgScore"></span></div>
         <div class="pgtext zh" id="pgText"></div>
-        <p class="tqask" id="pgAsk">Tap a highlighted word, then its meaning</p>
+        <p class="tqask" id="pgAsk">Tap a highlighted word, then its meaning. Tap any other character to look it up.</p>
         <div class="pgbank" id="pgBank"></div>
         <div class="verdict" id="pgDone" aria-live="polite"></div>
         <div class="pgtrans" id="pgTrans" hidden></div>
@@ -2333,11 +2346,65 @@ function pgNext(){
 const pgGloss=w=>{const it=findWord(w);return pgKind==="py"?showPy(it[1]):it[2]};
 // first sense only, so the English under a word stays short
 function pgShort(m){m=m.replace(/\s*\([^)]*\)/g,"").split(/[;,]/)[0].trim();return m.length>14?m.slice(0,13).trim()+"…":m}
+// plain text: each Chinese character can be tapped to look it up
+function pgPlain(ln,txt,ti){
+  [...txt].forEach((ch,k)=>{
+    if(!/[\u3400-\u9fff]/.test(ch)){ln.append(ch);return}
+    const c=document.createElement("span");c.className="c";c.textContent=ch;c.dataset.t=ti;c.dataset.k=k;
+    c.onclick=e=>{e.stopPropagation();pgLookup(c)};ln.appendChild(c);
+  });
+}
+// dictionary: the textbook lists first, then CC-CEDICT; skip "variant of" style entries when something better exists
+let LK=null,LKALL=null;
+const lkPy=py=>py.split(" ").map(x=>{const t=+x.slice(-1),b=x.slice(0,-1).toLowerCase().replace(/u:/g,"v");return b==="r"&&t===5?"r":markSyllable(b,t)}).join(" ").replace(/ r\b/g,"r");
+// CC-CEDICT cross-references like 什麼|什么[shen2 me5] read better as just 什么
+const lkClean=en=>en.replace(/[^\s|,;]+\|([^\s\[,;]+)\[[^\]]+\]/g,"$1").replace(/([^\s\[,;]+)\[[^\]]+\]/g,"$1");
+const lkBare=p=>p.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/ü/g,"v").replace(/[^a-z]/g,"");
+function lkIndex(){
+  if(LK)return LK;LK=new Map();LKALL=new Map();
+  const bad=/^(used in|variant of|old variant|erhua variant|surname|see )/i;
+  for(const t of SETS)for(const [w,py,mean] of t.items)if(!LK.has(w))LK.set(w,{py:showPy(py),en:mean,book:t.name});
+  const best=new Map();
+  for(const [h,py,en,rank] of (PYDICT||[])){const r=rank+(bad.test(en)?10:0);const b=best.get(h);if(!b||r<b.r)best.set(h,{r,py,en});
+    if(h.length===1&&!bad.test(en)){if(!LKALL.has(h))LKALL.set(h,[]);LKALL.get(h).push({py:lkPy(py),en:lkClean(en).split(/;\s*/)[0],r})}}
+  for(const [h,{py,en}] of best)if(!LK.has(h))LK.set(h,{py:lkPy(py),en:lkClean(en).split(/;\s*/).slice(0,3).join("; ")});
+  return LK;
+}
+function pgLookup(el){
+  const box=$("pgText"),old=box.querySelector(".pglook");
+  const was=box.querySelector(".c.look[data-first]");
+  box.querySelectorAll(".c.look").forEach(x=>{x.classList.remove("look");delete x.dataset.first});if(old)old.remove();
+  if(was===el)return; // tapping the same word again closes it
+  const L=lkIndex(),sib=[...box.querySelectorAll(`.c[data-t="${el.dataset.t}"]`)],k=sib.indexOf(el);
+  const run=[];// the characters around this one in the same stretch of text
+  let a=k;while(a>0&&+sib[a-1].dataset.k===+sib[a].dataset.k-1)a--;let b=k;while(b<sib.length-1&&+sib[b+1].dataset.k===+sib[b].dataset.k+1)b++;
+  const text=sib.slice(a,b+1).map(x=>x.textContent).join(""),pos=k-a;
+  // longest dictionary word that covers the tapped character
+  let s0=pos,len=1;
+  outer:for(let n=Math.min(4,text.length);n>1;n--)for(let st=Math.max(0,pos-n+1);st<=pos&&st+n<=text.length;st++){if(L.has(text.slice(st,st+n))){s0=st;len=n;break outer}}
+  const w=text.slice(s0,s0+len),hit=L.get(w);
+  const cells=sib.slice(a+s0,a+s0+len);cells.forEach(x=>x.classList.add("look"));el.dataset.first="";
+  const p=document.createElement("div");p.className="pglook";p.setAttribute("role","dialog");
+  // each character's own meaning, using the reading it has in this word (么 in 什么 is me, not má)
+  const sy=hit?hit.py.split(/\s+/).flatMap(x=>{const out=[];let m;const re=/[^aeiouüāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]*[aeiouüāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]+(?:ng|n(?![aeiouüāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ])|r(?![aeiouüāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]))?/gi;while((m=re.exec(x)))out.push(m[0]);return out}):[];
+  const partOf=(ch,i)=>{const all=LKALL.get(ch)||[],want=sy.length===len?lkBare(sy[i]):"";const m=want&&all.filter(x=>lkBare(x.py)===want).sort((a,b)=>a.r-b.r)[0];return m?{py:m.py,en:m.en}:L.get(ch)};
+  const parts=len>1?`<div class="parts">${[...w].map((ch,i)=>{const x=partOf(ch,i);return `<div><span class="zh">${ch}</span>${x?`${x.py}  ${x.en.split(/;\s*/)[0]}`:""}</div>`}).join("")}</div>`:"";
+  p.innerHTML=`<div class="hd"><span class="hz">${w}</span><span class="py">${hit?hit.py:""}</span><button class="say" aria-label="Hear ${w}"><svg class="ico"><use href="#i-sound"/></svg></button></div>
+    <div class="en">${hit?hit.en:"Not in the dictionary."}</div>${parts}${hit&&hit.book?`<div class="src">In your list: ${hit.book}</div>`:""}`;
+  p.querySelector(".say").onclick=e=>{e.stopPropagation();speak(w)};
+  p.onclick=e=>e.stopPropagation();
+  box.appendChild(p);
+  const r=cells[0].getBoundingClientRect(),br=box.getBoundingClientRect();
+  let left=r.left-br.left-8;left=Math.max(8,Math.min(left,box.clientWidth-p.offsetWidth-8));
+  p.style.left=left+"px";p.style.top=(r.bottom-br.top+6)+"px";
+  speak(w);
+}
+document.addEventListener("click",e=>{const b=$("pgText");if(b&&!e.target.closest(".pglook")&&!e.target.closest(".c")){const o=b.querySelector(".pglook");if(o){o.remove();b.querySelectorAll(".c.look").forEach(x=>{x.classList.remove("look");delete x.dataset.first})}}});
 function pgRenderText(first){
   const box=$("pgText");box.innerHTML="";box.classList.toggle("solved",pgCur.done.size>0);let line=-1,ln=null;
   pgCur.toks.forEach((t,i)=>{
     if(t.line!==line){line=t.line;ln=document.createElement("span");ln.className="ln";box.appendChild(ln)}
-    if(!t.w){ln.append(t.txt);return}
+    if(!t.w){pgPlain(ln,t.txt,i);return}
     const b=document.createElement("button");b.type="button";b.className="w";b.textContent=t.w;b.dataset.w=t.w;
     if(pgCur.done.has(i)){b.classList.add("done");const it=findWord(t.w),gp=showPy(it[1]),ge=pgShort(it[2]);b.innerHTML=`<span class="sz p">${gp}</span><span class="sz e">${ge}</span>${t.w}<span class="gp">${gp}</span><span class="ge">${ge}</span>`;b.disabled=true;if(!first)b.style.animation="none"}
     else{if(i===pgSelW)b.classList.add("sel");b.onclick=()=>{pgSelW=pgSelW===i?-1:i;pgTry()}}
