@@ -477,6 +477,173 @@ input[type="range"]{width:130px;accent-color:var(--jade)}
 :root.focus .desk{max-width:1040px;margin:0 auto}
 :root.focus .board{margin:0 auto}
 :root.focus .pads{justify-content:center}
+
+/* ===================== Playful skin =====================
+   Exercise-book blue page, chunky pressable buttons with a darker bottom edge,
+   rounded system type, and Kaiti (the textbook handwriting face) for every character. */
+:root{
+  --page:#eaf1fb; --card:#ffffff; --well:#f1f5fc; --line:#d5dfee; --edge:#c3d0e4;
+  --ink:#1f2541; --muted:#59617f; --faint:#8e96b0;
+  --grid:#b9c9e6; --outline:#e1e8f4;
+  --jade:#16a46a; --jade-d:#0f7f51; --jade-soft:#dcf5e9; --hl:#16a46a; --on-jade:#ffffff;
+  --red:#f0443a; --red-d:#c42e26; --red-soft:#fde4e1; --miss:#f0443a; --miss-soft:#fde4e1;
+  --sun:#ffd23f; --sun-d:#e0ab00; --sun-soft:#fff4c7;
+  --sky:#2f80ed; --sky-d:#1f62c0; --sky-soft:#e1edfd;
+  --grape:#8b5cf6; --grape-soft:#ede7fe; --tang:#ff8a1f; --tang-soft:#ffecd9;
+  --warn:#c77700; --warn-soft:#fff1d6;
+  --f-ui:ui-rounded,"SF Pro Rounded","Nunito","Varela Round",-apple-system,"PingFang SC",system-ui,sans-serif;
+  --f-hanzi:"Kaiti SC","STKaiti","KaiTi","BiauKai","Noto Serif SC","Songti SC",serif;
+  --r:14px; --r-lg:22px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --page:#141a2e; --card:#1d2440; --well:#252d4d; --line:#323b5f; --edge:#0d1222;
+  --ink:#eef1fb; --muted:#aab2d0; --faint:#7d86a8; --grid:#3c4a78; --outline:#2c3558;
+  --jade:#34d08a; --jade-d:#1e9a62; --jade-soft:#173d31; --hl:#34d08a; --on-jade:#08251a;
+  --red:#ff6b61; --red-d:#c9443c; --red-soft:#43242a; --miss:#ff6b61; --miss-soft:#43242a;
+  --sun:#ffd84f; --sun-d:#c99a00; --sun-soft:#3e3720; --sky:#5ea0ff; --sky-d:#3b78d1; --sky-soft:#1f3256;
+  --grape:#a88bff; --grape-soft:#2f2a55; --tang:#ffa04d; --tang-soft:#42301f; --warn:#ffb648; --warn-soft:#3d301a}}
+:root[data-theme="dark"]{
+  --page:#141a2e; --card:#1d2440; --well:#252d4d; --line:#323b5f; --edge:#0d1222;
+  --ink:#eef1fb; --muted:#aab2d0; --faint:#7d86a8; --grid:#3c4a78; --outline:#2c3558;
+  --jade:#34d08a; --jade-d:#1e9a62; --jade-soft:#173d31; --hl:#34d08a; --on-jade:#08251a;
+  --red:#ff6b61; --red-d:#c9443c; --red-soft:#43242a; --miss:#ff6b61; --miss-soft:#43242a;
+  --sun:#ffd84f; --sun-d:#c99a00; --sun-soft:#3e3720; --sky:#5ea0ff; --sky-d:#3b78d1; --sky-soft:#1f3256;
+  --grape:#a88bff; --grape-soft:#2f2a55; --tang:#ffa04d; --tang-soft:#42301f; --warn:#ffb648; --warn-soft:#3d301a}
+
+body{font-weight:500;letter-spacing:.005em}
+h1,h2,h3{font-weight:800;letter-spacing:-.015em}
+.qhead h2{font-size:1.75rem}
+
+/* the brand: a red 印章-style seal */
+.mark{width:42px;height:42px;border:0;border-radius:12px;background:var(--red);color:#fff;font-size:1.55rem;box-shadow:0 4px 0 var(--red-d);transform:rotate(-4deg)}
+.brand h1{font-size:1.2rem;font-weight:800}
+
+/* surfaces: one chunky edge, radius by hierarchy */
+.sheet{border:2px solid var(--line);border-radius:var(--r-lg);box-shadow:0 5px 0 var(--line);padding:24px;gap:20px}
+.well,#writerArea,#nbArea,#freeArea{border-radius:16px}
+.tqcard,.rvprompt,.woen{border-radius:18px}
+
+/* buttons you can press */
+.btn,.chip,.fsbtn,.peek,.hear,.setbtn{border:2px solid var(--line);border-bottom-width:5px;border-radius:var(--r);font-weight:700;min-height:44px;transition:transform .08s ease,border-bottom-width .08s ease}
+.btn:active:not(:disabled),.chip:active,.fsbtn:active,.peek:active,.hear:active,.setbtn:active{transform:translateY(3px);border-bottom-width:2px}
+.btn:hover:not(:disabled),.chip:hover,.fsbtn:hover,.peek:hover,.hear:hover{border-color:var(--edge)}
+.btn.primary{background:var(--jade);border-color:var(--jade-d);color:var(--on-jade);font-weight:800;letter-spacing:.01em}
+.btn.primary:hover:not(:disabled){border-color:var(--jade-d);filter:brightness(1.05)}
+.nav .btn{min-height:52px;font-size:1rem}
+.hear{color:var(--sky);border-color:var(--sky-soft);border-bottom-color:#b9d3fb;background:var(--card)}
+.peek[aria-pressed="true"]{border-color:var(--jade);border-bottom-color:var(--jade-d);color:var(--jade-d);background:var(--jade-soft)}
+.setbtn{width:44px;height:44px;padding:0}
+
+/* pill toggles */
+.seg{background:var(--well);border-radius:999px;padding:4px;border:2px solid var(--line)}
+.seg button{border-radius:999px;font-weight:700;padding:7px 14px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--card);box-shadow:none}
+.pgpick button{border:2px solid var(--line);border-radius:999px;font-weight:700;padding:6px 13px}
+.pgpick button[aria-pressed="true"]{border-color:var(--sky);color:var(--sky-d);background:var(--sky-soft)}
+
+/* Write's practice modes as chunky pills */
+.modes{gap:8px;border-bottom:0;padding-bottom:4px}
+.modes button{border:2px solid var(--line);border-bottom-width:4px;border-radius:14px;padding:8px 14px;margin:0;align-items:center;background:var(--card);font-weight:800}
+.modes button[aria-pressed="true"]{background:var(--sun);border-color:var(--sun-d);color:#3a2c00}
+.modes button[aria-pressed="true"] small{color:#6b5300}
+.modes small{font-weight:600}
+
+/* the word itself */
+.pinyin{font-size:2.3rem;font-weight:800;color:var(--sky)}
+.meaning{font-weight:600}
+.tqchar{font-size:clamp(4.5rem,16vw,7.5rem)}
+.rvzh{font-size:clamp(3.6rem,13vw,5.6rem)}
+.rven{font-weight:800}
+.board,.pad canvas{border-color:var(--red);border-radius:4px}
+.wordbox span{border-radius:8px;border-width:2px}
+.wordbox span.cur{border-color:var(--sky);color:var(--ink)}
+
+/* answer tiles */
+.tqopts{gap:12px}
+.tqopts button{border:2px solid var(--line);border-bottom-width:5px;border-radius:16px;font-weight:700;transition:transform .08s ease}
+.tqopts button:active:not(:disabled){transform:translateY(3px);border-bottom-width:2px}
+.tqopts button .k{font-weight:800;color:var(--faint)}
+.tqopts button.right{border-color:var(--jade);border-bottom-color:var(--jade-d);background:var(--jade-soft);color:var(--jade-d);animation:yay .4s cubic-bezier(.3,1.6,.5,1)}
+.tqopts button.wrong{border-color:var(--red);border-bottom-color:var(--red-d);background:var(--red-soft);color:var(--red-d);animation:shake .3s}
+.tqword .L,.tiles .t,.wot,.pgbank button,.tones button,.tqtones button,.rvgrade button,.fcrate button{border:2px solid var(--line);border-bottom-width:4px;border-radius:12px;font-weight:700}
+.tqword .L.v{border-color:var(--grid);border-bottom-color:var(--edge)}
+.tqword .L.sel,.tiles .t.sel,.pgbank button.sel{border-color:var(--sun-d);background:var(--sun-soft);color:var(--ink);box-shadow:none}
+.tqword .L.ok{border-color:var(--jade-d)} .tqword .L.no{border-color:var(--red-d)}
+.wot{border-color:var(--grid);border-bottom-color:var(--edge)}
+.rvgrade .good,.fcrate .yes{background:var(--jade);border-color:var(--jade-d);color:var(--on-jade)}
+.rvgrade .again{border-color:var(--red-soft);border-bottom-color:#f6b9b4}
+.fcrate .no{border-color:var(--red);border-bottom-color:var(--red-d);color:var(--red-d)}
+
+/* results: a coloured banner that bounces in */
+.verdict{border-radius:16px;font-weight:600;border:2px solid transparent}
+.verdict.ok{background:var(--jade-soft);border-color:var(--jade);border-left:2px solid var(--jade);color:var(--ink);animation:yay .45s cubic-bezier(.3,1.6,.5,1)}
+.verdict.no{background:var(--red-soft);border-color:var(--red);border-left:2px solid var(--red);color:var(--ink);animation:shake .3s}
+.verdict.ok::after{background:var(--jade)}
+@keyframes yay{0%{transform:scale(.92)}60%{transform:scale(1.03)}100%{transform:none}}
+
+/* progress */
+.bar{height:12px;border-radius:999px;background:var(--line)}
+.bar i{border-radius:999px;background:var(--jade);box-shadow:inset 0 -3px 0 rgba(0,0,0,.12)}
+.tally .meter{height:8px;border-radius:999px}
+.tally .meter i{border-radius:999px;background:var(--jade)}
+.big{font-weight:800;color:var(--jade)}
+
+/* passage */
+.pgtext{border-radius:18px;background:var(--well);border:2px solid var(--line)}
+.pgtext .w{border-bottom:3px solid var(--sun)}
+.pgtext .w.sel{background:var(--sun-soft);border-bottom-color:var(--sun-d)}
+.pgtext .w .gp{color:var(--sky-d)}
+.pgtext .c.look{background:var(--sun-soft);color:var(--ink)}
+.pglook{border:2px solid var(--line);border-radius:16px;box-shadow:0 5px 0 var(--line)}
+.pglook .py{color:var(--sky)}
+
+/* lists */
+.wlrows .py,.rvpy,.rvpy2,.rvpyq,.pnw .p{color:var(--sky)}
+.lessonpick select{border:2px solid var(--line);border-bottom-width:4px;border-radius:14px;font-weight:800;padding:11px 36px 11px 14px}
+
+/* the word strip only matters while writing */
+:root:not(.scr-practice) .words{display:none}
+.strip button{border:2px solid var(--line);border-radius:10px;font-family:var(--f-hanzi);font-size:1.1rem}
+.strip button.cur{border-color:var(--sky);box-shadow:none;color:var(--sky-d);background:var(--sky-soft)}
+
+/* sidebar activities: icon tile + label, each activity its own colour */
+.menu{gap:4px}
+.menu button{padding:6px 8px;border-radius:14px;font-weight:700;justify-content:flex-start;gap:12px;font-size:1rem}
+.menu button .ti{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:0 0 auto;background:var(--c-soft,var(--well));color:var(--c,var(--ink))}
+.menu button .ti .ico{width:20px;height:20px;stroke-width:2.1}
+.menu button[aria-current="page"]{background:var(--card);box-shadow:inset 0 0 0 2px var(--line),0 3px 0 var(--line)}
+.menu button[aria-current="page"] .ti{background:var(--c);color:#fff}
+.menu .due{margin-left:auto}
+.mhead{font-weight:700}
+[data-c="red"]{--c:var(--red);--c-soft:var(--red-soft)}
+[data-c="sky"]{--c:var(--sky);--c-soft:var(--sky-soft)}
+[data-c="jade"]{--c:var(--jade);--c-soft:var(--jade-soft)}
+[data-c="sun"]{--c:var(--sun-d);--c-soft:var(--sun-soft)}
+[data-c="grape"]{--c:var(--grape);--c-soft:var(--grape-soft)}
+[data-c="tang"]{--c:var(--tang);--c-soft:var(--tang-soft)}
+
+/* bottom tab bar (portrait iPad and phones) */
+.tabbar,.tabsheet{display:none}
+@media (max-width:900px){
+  .menu{display:none!important}
+  body{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
+  .brand{order:0}
+  .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:7;background:var(--card);border-top:2px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px))}
+  .tabbar button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;font-weight:800;font-size:.78rem;color:var(--muted);padding:4px 0;position:relative}
+  .tabbar .ti{width:46px;height:34px;border-radius:12px;display:grid;place-items:center;color:var(--c);transition:background .15s}
+  .tabbar .ti .ico{width:22px;height:22px;stroke-width:2.2}
+  .tabbar button[aria-current="page"]{color:var(--ink)}
+  .tabbar button[aria-current="page"] .ti{background:var(--c);color:#fff;box-shadow:0 3px 0 var(--edge)}
+  .tabbar .due{position:absolute;top:0;left:calc(50% + 10px)}
+  .tabsheet{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:8;background:var(--card);border:2px solid var(--line);border-radius:20px;box-shadow:0 6px 0 var(--line),0 20px 40px rgba(20,30,60,.18);padding:10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;animation:yay .25s ease-out}
+  .tabsheet[hidden]{display:none}
+  .tabsheet button{display:flex;align-items:center;gap:12px;border:2px solid var(--line);border-bottom-width:4px;border-radius:14px;background:var(--card);padding:10px 12px;font-weight:800;font-size:1rem;text-align:left}
+  .tabsheet button .ti{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:var(--c-soft);color:var(--c)}
+  .tabsheet button small{display:block;font-weight:600;color:var(--muted);font-size:.78rem}
+  .tabsheet button[aria-current="page"]{border-color:var(--c)}
+  :root.focus .tabbar,:root.focus .tabsheet{display:none!important}
+}
+@media (prefers-reduced-motion:reduce){.verdict.ok,.tqopts button.right,.tabsheet{animation:none}}
 </style>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5M18 7a7 7 0 0 1 0 10"/></symbol>
@@ -485,6 +652,17 @@ input[type="range"]{width:130px;accent-color:var(--jade)}
   <symbol id="i-set" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
   <symbol id="i-pen" viewBox="0 0 24 24"><path d="M5 19l3.5-.8L19 7.7 16.3 5 5.8 15.5z"/><path d="M14.5 6.8l2.7 2.7"/></symbol>
   <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/></symbol>
+  <symbol id="i-review" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3"/><path d="M18 3v4h-4M6 21v-4h4"/></symbol>
+  <symbol id="i-brush" viewBox="0 0 24 24"><path d="M14.5 4.5l5 5-7.5 7.5-5-5z"/><path d="M7 12c-2.5.5-3.5 2.5-3.5 4.5S2.5 20 2.5 20s3.5.5 5.5-1.5c1.3-1.3 1.5-2.5 1.5-2.5"/></symbol>
+  <symbol id="i-quiz" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></symbol>
+  <symbol id="i-cards" viewBox="0 0 24 24"><rect x="3" y="7" width="13" height="14" rx="3"/><path d="M8 4h10a3 3 0 0 1 3 3v10"/></symbol>
+  <symbol id="i-tones" viewBox="0 0 24 24"><path d="M3 6h5M10 9l4-4M3 18c3-6 5-6 8 0M14 13l7 6"/></symbol>
+  <symbol id="i-order" viewBox="0 0 24 24"><rect x="3" y="4" width="8" height="6" rx="2"/><rect x="13" y="14" width="8" height="6" rx="2"/><path d="M15 7h4v4M9 17H5v-4"/></symbol>
+  <symbol id="i-passage" viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 13.5h8M8 17h5"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.2"/><circle cx="4.5" cy="12" r="1.2"/><circle cx="4.5" cy="18" r="1.2"/></symbol>
+  <symbol id="i-notes" viewBox="0 0 24 24"><path d="M4 20h4l11-11-4-4L4 16z"/><path d="M13 7l4 4M12 20h8"/></symbol>
+  <symbol id="i-test" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5C6.5 4 9.5 4 12 6c2.5-2 5.5-2 8-.5V19c-2.5-1.5-5.5-1.5-8 .5-2.5-2-5.5-2-8-.5z"/><path d="M12 6v13.5"/></symbol>
 </svg>
 <button class="fsexit" id="fsExit"><svg class="ico"><use href="#i-x"/></svg>Exit full screen</button>
 
@@ -499,17 +677,17 @@ input[type="range"]{width:130px;accent-color:var(--jade)}
     <div class="tally" id="tally"></div>
     <nav class="menu" id="menu" aria-label="Activities">
       <p class="mhead">Study</p>
-      <button id="startRv" data-screen="rv">Review<span class="due" id="rvDueBtn"></span></button>
-      <button id="navWrite" data-screen="practice">Write</button>
+      <button id="startRv" data-screen="rv" data-c="red"><span class="ti"><svg class="ico"><use href="#i-review"/></svg></span>Review<span class="due" id="rvDueBtn"></span></button>
+      <button id="navWrite" data-screen="practice" data-c="sky"><span class="ti"><svg class="ico"><use href="#i-brush"/></svg></span>Write</button>
       <p class="mhead">Test yourself</p>
-      <button id="startQuiz" data-screen="quiz">Quiz</button>
-      <button id="startMc" data-screen="mc">Word cards</button>
-      <button id="startTq" data-screen="tq">Tones</button>
-      <button id="startWo" data-screen="wo">Word order</button>
-      <button id="startPg" data-screen="pg">Passage</button>
+      <button id="startQuiz" data-screen="quiz" data-c="jade"><span class="ti"><svg class="ico"><use href="#i-quiz"/></svg></span>Quiz</button>
+      <button id="startMc" data-screen="mc" data-c="sun"><span class="ti"><svg class="ico"><use href="#i-cards"/></svg></span>Word cards</button>
+      <button id="startTq" data-screen="tq" data-c="grape"><span class="ti"><svg class="ico"><use href="#i-tones"/></svg></span>Tones</button>
+      <button id="startWo" data-screen="wo" data-c="tang"><span class="ti"><svg class="ico"><use href="#i-order"/></svg></span>Word order</button>
+      <button id="startPg" data-screen="pg" data-c="jade"><span class="ti"><svg class="ico"><use href="#i-passage"/></svg></span>Passage</button>
       <p class="mhead">Look up</p>
-      <button id="startWl" data-screen="wl">Word list</button>
-      <button id="startPn" data-screen="pn">Pinyin notes</button>
+      <button id="startWl" data-screen="wl" data-c="sky"><span class="ti"><svg class="ico"><use href="#i-list"/></svg></span>Word list</button>
+      <button id="startPn" data-screen="pn" data-c="grape"><span class="ti"><svg class="ico"><use href="#i-notes"/></svg></span>Pinyin notes</button>
     </nav>
     <section class="words">
       <h2 id="wordsTitle">Words</h2>
@@ -901,6 +1079,23 @@ input[type="range"]{width:130px;accent-color:var(--jade)}
   </main>
 </div>
 <div id="toast" class="off" role="status"></div>
+<nav class="tabbar" id="tabbar" aria-label="Activities">
+  <button data-go="startRv" data-c="red" data-scr="rv"><span class="ti"><svg class="ico"><use href="#i-review"/></svg></span>Review<span class="due" id="rvDueTab"></span></button>
+  <button data-go="navWrite" data-c="sky" data-scr="practice"><span class="ti"><svg class="ico"><use href="#i-brush"/></svg></span>Write</button>
+  <button data-sheet="tsTest" data-c="jade" data-scr="quiz mc tq wo"><span class="ti"><svg class="ico"><use href="#i-test"/></svg></span>Test</button>
+  <button data-go="startPg" data-c="tang" data-scr="pg"><span class="ti"><svg class="ico"><use href="#i-passage"/></svg></span>Passage</button>
+  <button data-sheet="tsWords" data-c="grape" data-scr="wl pn"><span class="ti"><svg class="ico"><use href="#i-book"/></svg></span>Words</button>
+</nav>
+<div class="tabsheet" id="tsTest" hidden>
+  <button data-go="startQuiz" data-c="jade" data-scr="quiz"><span class="ti"><svg class="ico"><use href="#i-quiz"/></svg></span><span>Quiz<small>Hear it, write it</small></span></button>
+  <button data-go="startMc" data-c="sun" data-scr="mc"><span class="ti"><svg class="ico"><use href="#i-cards"/></svg></span><span>Word cards<small>Pick the meaning</small></span></button>
+  <button data-go="startTq" data-c="grape" data-scr="tq"><span class="ti"><svg class="ico"><use href="#i-tones"/></svg></span><span>Tones<small>Mark the tones</small></span></button>
+  <button data-go="startWo" data-c="tang" data-scr="wo"><span class="ti"><svg class="ico"><use href="#i-order"/></svg></span><span>Word order<small>Build the sentence</small></span></button>
+</div>
+<div class="tabsheet" id="tsWords" hidden>
+  <button data-go="startWl" data-c="sky" data-scr="wl"><span class="ti"><svg class="ico"><use href="#i-list"/></svg></span><span>Word list<small>Every word in the lesson</small></span></button>
+  <button data-go="startPn" data-c="grape" data-scr="pn"><span class="ti"><svg class="ico"><use href="#i-notes"/></svg></span><span>Pinyin notes<small>Pinyin to characters</small></span></button>
+</div>
 <div class="sync" id="settings" hidden>
   <div class="syncbox" role="dialog" aria-modal="true" aria-labelledby="setT">
     <h2 id="setT">Settings</h2>
@@ -1260,7 +1455,17 @@ $("lessonSel").onchange=e=>{
 const SCREENS=["practice","quiz","rv","mc","tq","wo","pg","wl","pn"];
 function currentScreen(){return SCREENS.find(id=>!$(id).hidden)||"practice"}
 // the sidebar marks whichever activity is on screen
-function syncMenu(){const cur=currentScreen();document.querySelectorAll("#menu button").forEach(b=>{if(b.dataset.screen===cur)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")})}
+function syncMenu(){const cur=currentScreen();document.querySelectorAll("#menu button").forEach(b=>{if(b.dataset.screen===cur)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});
+  document.querySelectorAll("#tabbar button,.tabsheet button").forEach(b=>{if(b.dataset.scr.split(" ").includes(cur))b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});
+  const root=document.documentElement;[...root.classList].filter(c=>c.startsWith("scr-")).forEach(c=>root.classList.remove(c));root.classList.add("scr-"+cur)}
+// bottom tab bar: plain tabs press the matching sidebar button; Test and Words open a small menu
+function closeTabSheets(){document.querySelectorAll(".tabsheet").forEach(x=>x.hidden=true)}
+document.querySelectorAll("#tabbar button,.tabsheet button").forEach(b=>b.onclick=e=>{e.stopPropagation();
+  if(b.dataset.sheet){const sh=$(b.dataset.sheet),open=sh.hidden;closeTabSheets();sh.hidden=!open;return}
+  closeTabSheets();$(b.dataset.go).click()});
+document.addEventListener("click",e=>{if(!e.target.closest(".tabsheet"))closeTabSheets()});
+setTimeout(syncMenu,0);
+new MutationObserver(()=>{const d=$("rvDueBtn"),t=$("rvDueTab");if(d&&t)t.textContent=d.textContent}).observe($("rvDueBtn"),{childList:true,characterData:true,subtree:true});
 new MutationObserver(syncMenu).observe(document.querySelector("main"),{attributes:true,subtree:true,attributeFilter:["hidden"]});
 $("navWrite").onclick=()=>{if(quizOn)exitQuiz();closeExtras();load();window.scrollTo({top:0})};
 function renderStrip(){
@@ -1699,7 +1904,7 @@ const WO=[
  {l:7,en:"It's none of your business.",t:"不|关|你|的|事",py:"bù|guān|nǐ|de|shì",p:"。",r:"Verb + object: the object 你的事 comes after the verb 关, and 不 goes right before the verb."},
  {l:7,en:"Sorry, I'm busy. How about Friday?",t:"对不起|我|有|事|周五|吧",py:"duìbuqǐ|wǒ|yǒu|shì|zhōuwǔ|ba",p:"。",c:3,alt:["对不起|我|有|事|星期五|吧"],r:"对不起 first, then the reason (我有事), then the new day + 吧 as a suggestion."},
  {l:7,en:"Sorry, I'm busy. Maybe next time.",t:"不好意思|我|有|事|下次|吧",py:"bù hǎoyìsi|wǒ|yǒu|shì|xià cì|ba",p:"。",c:3,r:"不好意思 is a softer sorry. 下次吧 = \"next time, then.\""},
- {l:7,en:"I'm free. Let's go to the supermarket.",t:"我|没有|事|我们|去|超市|吧",py:"wǒ|méiyǒu|shì|wǒmen|qù|chāoshì|ba",p:"。",c:2,alt:["我|没|事|我们|去|超市|吧"],r:"没有事 = not busy. Then who + 去 + where + 吧."},
+ {l:7,en:"I'm free. Let's go to the supermarket.",t:"我|没有|事|我们|去|超市|吧",py:"wǒ|méiyǒu|shì|wǒmen|qù|chāoshì|ba",p:"。",c:2,r:"没有事 = not busy. Then who + 去 + where + 吧."},
  {l:7,en:"You have a bike, right?",t:"你|有|自行车|吧",py:"nǐ|yǒu|zìxíngchē|ba",p:"？",r:"吧 at the end of a statement = \"…right?\" You think it's true and want them to confirm. (吗 = you really don't know.)"},
  {l:7,en:"David is an international student, right?",t:"大卫|是|留学生|吧",py:"Dàwèi|shì|liúxuéshēng|ba",p:"？",r:"吧 at the end of a statement = \"…right?\" You think it's true and want them to confirm. (吗 = you really don't know.)"},
  {l:7,en:"You study Chinese at Peking University, right?",t:"你|在|北京大学|学习|汉语|吧",py:"nǐ|zài|Běijīng Dàxué|xuéxí|Hànyǔ|ba",p:"？",r:"吧 at the end of a statement = \"…right?\" You think it's true and want them to confirm. (吗 = you really don't know.)"},
