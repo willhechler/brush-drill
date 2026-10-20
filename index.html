@@ -241,6 +241,26 @@ input[type="range"]{width:130px;accent-color:var(--jade)}
 .tqopts button.wrong{border-color:var(--red);background:var(--red-soft);color:var(--red)}
 .tqopts button.dim{opacity:.45}
 .tqmiss{display:flex;flex-direction:column;gap:6px}
+.woen{background:var(--well);border-radius:var(--r);padding:20px 16px;text-align:center;font-size:1.25rem;line-height:1.45}
+.woline{min-height:78px;border-bottom:2px solid var(--grid);display:flex;flex-wrap:wrap;align-items:flex-end;gap:6px;padding:8px 2px 10px}
+.woline:empty::before{content:"Your sentence";color:var(--faint);font-size:.9rem;padding-bottom:6px}
+.wobank{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;min-height:62px;padding:4px 0}
+.wot{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-width:48px;min-height:54px;padding:4px 12px;border:1px solid var(--grid);border-radius:6px;background:var(--card);color:var(--ink);animation:pop .18s ease-out}
+.wot .zh{font-size:1.55rem;line-height:1.15}
+.wot small{font-size:.72rem;color:var(--muted);display:none}
+.wo-py .wot small,.wot.shown small{display:block}
+.wot:hover:not(:disabled){border-color:var(--jade)}
+.wot:disabled{opacity:1}
+.woline .wot{border-color:var(--line)}
+.woline .wot.ok{border-color:var(--jade);background:var(--jade-soft);color:var(--jade)}
+.woline .wot.no{border-color:var(--red);background:var(--red-soft);color:var(--red)}
+.wopunct{font-family:var(--f-hanzi);font-size:1.5rem;align-self:flex-end;padding-bottom:6px;color:var(--muted)}
+.woans{font-family:var(--f-hanzi);font-size:1.35rem;margin:2px 0}
+.wopy{color:var(--muted);font-size:.9rem;margin-bottom:6px}
+.worule{font-size:.92rem}
+.womini{display:inline-flex;align-items:center;gap:8px;font-size:.85rem;color:var(--muted)}
+.womiss li{flex-direction:column;gap:2px;align-items:flex-start}
+.womiss .zh{font-size:1.15rem}
 .tqmiss h3,.fcsum h3,.rvupcoming h3{margin:0;font-size:.88rem;font-weight:600;color:var(--muted)}
 .tqmiss ul{margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
 .tqmiss li{display:flex;gap:12px;align-items:baseline;list-style:none;flex-wrap:wrap}
@@ -461,6 +481,7 @@ input[type="range"]{width:130px;accent-color:var(--jade)}
       <button id="startQuiz" data-screen="quiz">Quiz</button>
       <button id="startMc" data-screen="mc">Word cards</button>
       <button id="startTq" data-screen="tq">Tones</button>
+      <button id="startWo" data-screen="wo">Word order</button>
       <button id="startPg" data-screen="pg">Passage</button>
       <p class="mhead">Look up</p>
       <button id="startWl" data-screen="wl">Word list</button>
@@ -814,6 +835,40 @@ input[type="range"]{width:130px;accent-color:var(--jade)}
           <button class="btn" id="tqBack">Back to practice</button>
           <button class="btn" id="tqAgain">Start over</button>
           <button class="btn primary" id="tqRetry">Retry missed</button>
+        </div>
+      </div>
+    </section>
+    <section class="desk" id="wo" hidden>
+      <div class="qhead">
+        <h2 id="woTitle">Word order</h2>
+        <div class="tools">
+          <div class="seg" id="woScope" role="group" aria-label="Sentences"><button data-s="one">This lesson</button><button data-s="all">Up to this lesson</button></div>
+          <span class="womini"><span>Pinyin</span><button class="switch" id="woPy" aria-pressed="false" aria-label="Pinyin on tiles"></button></span>
+          <button class="chip" id="woExit">Exit word order</button>
+        </div>
+      </div>
+      <div class="bar"><i id="woBar" style="width:0"></i></div>
+      <div class="sheet" id="woRun">
+        <div class="tqtop"><span class="meta" id="woMeta"></span><span class="tqscore" id="woScore"></span></div>
+        <div class="woen" id="woEn"></div>
+        <p class="tqask">Tap the words in Chinese order. Tap a placed word to send it back.</p>
+        <div class="woline" id="woLine" aria-label="Your sentence"></div>
+        <div class="wobank" id="woBank" aria-label="Words"></div>
+        <div class="verdict" id="woVerdict"></div>
+        <div class="nav">
+          <button class="btn" id="woHear" aria-label="Hear the sentence"><svg class="ico"><use href="#i-sound"/></svg>Hear it</button>
+          <button class="btn" id="woReset">Clear</button>
+          <button class="btn primary" id="woCheck">Check</button>
+          <button class="btn primary" id="woNext" hidden>Next</button>
+        </div>
+      </div>
+      <div class="sheet summary" id="woDone" hidden>
+        <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap"><span class="big" id="woFinal"></span><span class="meaning" id="woFinalTxt"></span></div>
+        <div id="woMissed"></div>
+        <div class="nav">
+          <button class="btn" id="woBack">Back to practice</button>
+          <button class="btn" id="woAgain">Start over</button>
+          <button class="btn primary" id="woRetry">Retry missed</button>
         </div>
       </div>
     </section>
@@ -1174,9 +1229,9 @@ function renderGroups(){
 $("lessonSel").onchange=e=>{
   const scr=currentScreen();if(quizOn)exitQuiz();closeExtras();
   setIdx=+e.target.value;idx=0;store.set("bd-set3",setIdx);load();
-  ({rv:()=>startRv(),quiz:()=>startQuiz(),mc:()=>startMc(),tq:()=>startTq(),pg:()=>startPg(),wl:()=>startWl(),pn:()=>startPn()}[scr]||(()=>{}))();
+  ({rv:()=>startRv(),quiz:()=>startQuiz(),mc:()=>startMc(),tq:()=>startTq(),wo:()=>startWo(),pg:()=>startPg(),wl:()=>startWl(),pn:()=>startPn()}[scr]||(()=>{}))();
 };
-const SCREENS=["practice","quiz","rv","mc","tq","pg","wl","pn"];
+const SCREENS=["practice","quiz","rv","mc","tq","wo","pg","wl","pn"];
 function currentScreen(){return SCREENS.find(id=>!$(id).hidden)||"practice"}
 // the sidebar marks whichever activity is on screen
 function syncMenu(){const cur=currentScreen();document.querySelectorAll("#menu button").forEach(b=>{if(b.dataset.screen===cur)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")})}
@@ -1298,6 +1353,7 @@ document.addEventListener("pointerdown",()=>{started=true},{capture:true});
 let quizOn=false,qList=[],qi=0,qRes=[],qPads=null,qChecked=false;
 const pickerQ=makePicker($("pickerQ"),"q");
 function startQuiz(list){
+  woOff();
   quizOn=true;started=true;runId++;
   qList=list||SETS[setIdx].items.slice();qi=0;qRes=[];
   tqOn=false;$("tq").hidden=true;mcOn=false;$("mc").hidden=true;wlOn=false;$("wl").hidden=true;pgOn=false;$("pg").hidden=true;rvOn=false;$("rv").hidden=true;pnOn=false;$("pn").hidden=true;$("practice").hidden=true;$("quiz").hidden=false;$("qDone").hidden=true;$("qRun").hidden=false;
@@ -1577,10 +1633,147 @@ function toneChoices(p){
   return {right,options:all};
 }
 
+
+/* ---------- word order ---------- */
+// An English sentence and its Chinese words scrambled; tap them into the right order.
+// Word-order sentences. t: tiles in the right order, py: pinyin per tile, p: end punctuation, c: tile index followed by a comma,
+// alt: other orders that are also correct, r: the rule this sentence practises
+const WO=[
+ {l:3,en:"This is my book.",t:"这|是|我|的|书",py:"zhè|shì|wǒ|de|shū",p:"。",r:"Possession: owner + 的 + thing, so 我的书 is my book."},
+ {l:3,en:"Whose magazine is that?",t:"那|是|谁|的|杂志",py:"nà|shì|shéi|de|zázhì",p:"？",r:"Question words go where the answer would go. 那是我的杂志 becomes 那是谁的杂志？"},
+ {l:3,en:"She is my roommate.",t:"她|是|我|的|同屋",py:"tā|shì|wǒ|de|tóngwū",p:"。",r:"Subject + 是 + noun. The describer (我的) comes before the noun it describes."},
+ {l:3,en:"Is this a Chinese textbook?",t:"这|是|汉语|课本|吗",py:"zhè|shì|Hànyǔ|kèběn|ma",p:"？",r:"Make a yes/no question by adding 吗 to the end of a normal sentence. Nothing else moves."},
+ {l:3,en:"My friend isn't Japanese.",t:"我|的|朋友|不|是|日本人",py:"wǒ|de|péngyou|bú|shì|Rìběnrén",p:"。",r:"不 goes right before the verb it negates: 不是."},
+ {l:4,en:"The library is north of the dormitory.",t:"图书馆|在|宿舍|的|北边",py:"túshūguǎn|zài|sùshè|de|běibian",p:"。",r:"Thing + 在 + place + 的 + direction word. The reference place comes first: 宿舍的北边 is north of the dorm."},
+ {l:4,en:"Excuse me, where is the administration building?",t:"请问|办公楼|在|哪儿",py:"qǐngwèn|bàngōnglóu|zài|nǎr",p:"？",c:0,r:"哪儿 sits where the place would be. 办公楼在那儿 becomes 办公楼在哪儿？"},
+ {l:4,en:"I don't know where the teaching building is.",t:"我|不|知道|教学楼|在|哪儿",py:"wǒ|bù|zhīdào|jiàoxuélóu|zài|nǎr",p:"。",r:"After 知道, the question part keeps normal order: 我不知道 + 教学楼在哪儿."},
+ {l:4,en:"This is our school.",t:"这儿|是|我们|学校",py:"zhèr|shì|wǒmen|xuéxiào",p:"。",r:"Place word + 是 + noun. 我们学校 can drop 的 because it's a close relationship (our school)."},
+ {l:5,en:"The restroom is next to the classroom.",t:"卫生间|在|教室|的|旁边",py:"wèishēngjiān|zài|jiàoshì|de|pángbiān",p:"。",r:"Thing + 在 + place + 的 + 旁边. The place you measure from comes first."},
+ {l:5,en:"My major is modern literature.",t:"我|的|专业|是|现代|文学",py:"wǒ|de|zhuānyè|shì|xiàndài|wénxué",p:"。",r:"Describers come before the noun: 现代文学 is modern literature."},
+ {l:5,en:"She is a graduate student in the Chinese department at Peking University.",t:"她|是|北京大学|中文系|的|研究生",py:"tā|shì|Běijīng Dàxué|Zhōngwén xì|de|yánjiūshēng",p:"。",r:"Describers stack before the noun from biggest to smallest: university, then department, then 的, then 研究生."},
+ {l:5,en:"When do you have free time?",t:"你|什么时候|有|空儿",py:"nǐ|shénme shíhou|yǒu|kòngr",p:"？",r:"Time comes before the verb, so the time question 什么时候 does too: subject + 什么时候 + verb."},
+ {l:5,en:"You're welcome to come visit our school.",t:"欢迎|你|去|我们|学校|玩儿",py:"huānyíng|nǐ|qù|wǒmen|xuéxiào|wánr",p:"。",r:"欢迎 + person + action. 去 + place + 玩儿 means to go somewhere to have fun."},
+ {l:6,en:"What time is it now?",t:"现在|几|点",py:"xiànzài|jǐ|diǎn",p:"？",r:"几点 asks the hour. 现在 (now) leads the sentence."},
+ {l:6,en:"We start class at eight.",t:"我们|八|点|上课",py:"wǒmen|bā|diǎn|shàng kè",p:"。",alt:["八|点|我们|上课"],r:"Clock time goes before the verb, usually right after the subject. Never at the end like in English."},
+ {l:6,en:"The lecture starts at seven.",t:"讲座|七|点|开始",py:"jiǎngzuò|qī|diǎn|kāishǐ",p:"。",alt:["七|点|讲座|开始"],r:"Time before the verb: 讲座 + 七点 + 开始."},
+ {l:6,en:"It's a quarter to six.",t:"现在|差|一|刻|六|点",py:"xiànzài|chà|yí|kè|liù|diǎn",p:"。",r:"差 + amount + hour: 差一刻六点 is 5:45 (six o'clock, short a quarter)."},
+ {l:6,en:"What time do Japanese universities start class in the morning?",t:"日本|的|大学|早上|几|点|上课",py:"Rìběn|de|dàxué|zǎoshang|jǐ|diǎn|shàng kè",p:"？",r:"Bigger time first (早上, then 几点), and both go before the verb."},
+ {l:6,en:"That's too early!",t:"太|早|了",py:"tài|zǎo|le",p:"！",r:"太 + adjective + 了 means too much of something."},
+ {l:6,en:"I want to go to the supermarket.",t:"我|想|去|超市",py:"wǒ|xiǎng|qù|chāoshì",p:"。",r:"想 goes right before the action you want to do: 想 + 去 + place."},
+ {l:7,en:"Do you have class tomorrow?",t:"明天|你|有|课|吗",py:"míngtiān|nǐ|yǒu|kè|ma",p:"？",alt:["你|明天|有|课|吗"],r:"Time words go at the start or right after the subject, never after the verb. 吗 stays at the end."},
+ {l:7,en:"I don't have class tomorrow morning.",t:"我|明天|上午|没有|课",py:"wǒ|míngtiān|shàngwǔ|méiyǒu|kè",p:"。",alt:["明天|上午|我|没有|课"],r:"Bigger time first (明天, then 上午). Use 没有 for don't have. 不有 is wrong."},
+ {l:7,en:"The bicycle shed is behind the dormitory.",t:"车棚|在|宿舍|后边",py:"chēpéng|zài|sùshè|hòubian",p:"。",r:"Thing + 在 + place: says where something is."},
+ {l:7,en:"There's a bicycle shed behind the dormitory.",t:"宿舍|后边|有|一|个|车棚",py:"sùshè|hòubian|yǒu|yí|ge|chēpéng",p:"。",r:"Place + 有 + thing means there is. Compare 车棚在宿舍后边, which says where the shed is."},
+ {l:7,en:"The keys are on the desk.",t:"钥匙|在|桌子|上",py:"yàoshi|zài|zhuōzi|shang",p:"。",r:"The object comes first, then 上, 下 or 里: 桌子上 is on the desk."},
+ {l:7,en:"There's a film at the school cinema tonight.",t:"今天|晚上|学校|电影院|有|电影",py:"jīntiān|wǎnshang|xuéxiào|diànyǐngyuàn|yǒu|diànyǐng",p:"。",alt:["学校|电影院|今天|晚上|有|电影"],r:"Time, then place, then 有 + thing."},
+ {l:7,en:"Let's go to the library tomorrow afternoon.",t:"我们|明天|下午|去|图书馆|吧",py:"wǒmen|míngtiān|xiàwǔ|qù|túshūguǎn|ba",p:"。",alt:["明天|下午|我们|去|图书馆|吧"],r:"Time before the verb. 吧 at the end turns it into a suggestion."},
+ {l:7,en:"I don't know the name, but I hear it's famous.",t:"我|不|知道|名字|可是|听说|很|有名",py:"wǒ|bù|zhīdào|míngzi|kěshì|tīngshuō|hěn|yǒumíng",p:"。",c:3,r:"可是 starts the second half. 很 goes right before the adjective (很有名)."},
+ {l:7,en:"Of course I'll go.",t:"我|当然|去",py:"wǒ|dāngrán|qù",p:"。",r:"Adverbs like 当然, 也 and 很 go after the subject and before the verb."},
+ {l:7,en:"Are you free this afternoon? I'd like to go to the supermarket with you.",t:"今天|下午|你|有|事|吗|我|想|和|你|去|超市",py:"jīntiān|xiàwǔ|nǐ|yǒu|shì|ma|wǒ|xiǎng|hé|nǐ|qù|chāoshì",p:"。",c:5,alt:["你|今天|下午|有|事|吗|我|想|和|你|去|超市"],r:"和 + person goes before the verb: 和你去超市. 去超市和你 is wrong. Time (今天下午) also comes before the verb."},
+ {l:7,en:"It's none of your business.",t:"不|关|你|的|事",py:"bù|guān|nǐ|de|shì",p:"。",r:"Verb + object: the object 你的事 comes after the verb 关, and 不 goes right before the verb."},
+ {l:7,en:"I want to go to the library with my roommate.",t:"我|想|和|同屋|去|图书馆",py:"wǒ|xiǎng|hé|tóngwū|qù|túshūguǎn",p:"。",r:"想 + 和 + person + verb + place. The 和 phrase sits between 想 and the action."}
+];
+let woOn=false,woList=[],woI=0,woRes=[],woCur=null,woPlaced=[],woBankT=[],woAnswered=false,woScope=store.get("bd-woscope","all"),woShowPy=store.get("bd-wopy",false);
+function woOff(){if(woOn){woOn=false;$("wo").hidden=true}}
+function woLessonNum(){const st=SETS[setIdx],m=/^Lesson (\d+)/.exec(st.name);return st.group==="Boya Elementary I"&&m?+m[1]:0}
+function woPool(){
+  const n=woLessonNum();if(!n)return WO.slice();
+  const p=WO.filter(s=>woScope==="one"?s.l===n:s.l<=n);return p.length?p:WO.filter(s=>s.l<=n)
+}
+function startWo(list){
+  if(quizOn)exitQuiz();closeExtras();
+  woOn=true;runId++;try{speechSynthesis.cancel()}catch(e){}
+  woList=shuffled(list||woPool());woI=0;woRes=[];
+  $("practice").hidden=true;$("wo").hidden=false;$("woRun").hidden=false;$("woDone").hidden=true;
+  const n=woLessonNum();
+  $("woTitle").textContent=list?"Word order: missed sentences":"Word order";
+  $("woScope").hidden=!n||!!list;
+  document.querySelectorAll("#woScope button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.s===woScope));
+  $("woPy").setAttribute("aria-pressed",!!woShowPy);$("wo").classList.toggle("wo-py",!!woShowPy);
+  renderStrip();woShow();window.scrollTo({top:0});
+}
+function woTiles(s){const t=s.t.split("|"),p=s.py.split("|");return t.map((z,i)=>({z,py:p[i],id:i}))}
+function woShow(){
+  woCur=woList[woI];woAnswered=false;woPlaced=[];
+  let b=shuffled(woTiles(woCur));
+  const ords=[woCur.t,...(woCur.alt||[])];
+  for(let k=0;k<6&&ords.includes(b.map(x=>x.z).join("|"));k++)b=shuffled(b); // never start already solved
+  woBankT=b;
+  $("woBar").style.width=`${woI/woList.length*100}%`;
+  $("woMeta").textContent=`Sentence ${woI+1} of ${woList.length}`;
+  const ok=woRes.filter(r=>r.ok).length;$("woScore").innerHTML=woRes.length?`<b>${ok}</b> / ${woRes.length} right`:"";
+  $("woEn").textContent=woCur.en;
+  $("woVerdict").className="verdict";$("woVerdict").innerHTML="";
+  $("woCheck").hidden=false;$("woReset").hidden=false;$("woNext").hidden=true;
+  woRender();replay($("woRun"),"swap");
+}
+function woTileEl(t){const b=document.createElement("button");b.type="button";b.className="wot";b.innerHTML=`<span class="zh">${t.z}</span><small>${t.py}</small>`;return b}
+function woRender(marks){
+  const line=$("woLine"),bank=$("woBank");line.innerHTML="";bank.innerHTML="";
+  woPlaced.forEach((t,i)=>{const b=woTileEl(t);
+    if(marks){b.classList.add(marks[i]?"ok":"no","shown");b.disabled=true}
+    else b.onclick=()=>{woPlaced.splice(i,1);woBankT.push(t);woRender()};
+    line.appendChild(b)});
+  if(marks&&woPlaced.length){const p=document.createElement("span");p.className="wopunct";p.textContent=woCur.p;line.appendChild(p)}
+  bank.hidden=woAnswered&&!woBankT.length;
+  woBankT.forEach((t,i)=>{const b=woTileEl(t);
+    if(woAnswered)b.disabled=true;else b.onclick=()=>{woBankT.splice(i,1);woPlaced.push(t);woRender()};
+    bank.appendChild(b)});
+}
+function woSentence(s,order){const t=(order||s.t).split("|"),c=s.c;return t.map((z,i)=>z+(c===i?"，":"")).join("")+s.p}
+function woPinyin(s,order){
+  const t=s.t.split("|"),p=s.py.split("|"),seq=(order||s.t).split("|"),used=new Set();
+  const py=seq.map(z=>{const i=t.findIndex((x,k)=>x===z&&!used.has(k));used.add(i);return p[i]});
+  let out=py.map((x,i)=>x+(s.c===i?",":"")).join(" ");out=out.charAt(0).toUpperCase()+out.slice(1);
+  return out+(s.p==="？"?"?":s.p==="！"?"!":".");
+}
+function woCheckAnswer(){
+  if(woAnswered)return;
+  if(woBankT.length){toast("Place every word first");return}
+  const mine=woPlaced.map(t=>t.z),ords=[woCur.t,...(woCur.alt||[])].map(o=>o.split("|"));
+  // grade against whichever accepted order this attempt is closest to
+  let best=ords[0],bs=-1;for(const o of ords){const sc=o.filter((z,i)=>mine[i]===z).length;if(sc>bs){bs=sc;best=o}}
+  const marks=mine.map((z,i)=>best[i]===z),ok=marks.every(Boolean),order=best.join("|");
+  woAnswered=true;
+  woRes.push({s:woCur,ok,mine:mine.join("")+woCur.p});
+  woRender(marks);
+  const v=$("woVerdict");v.className="verdict "+(ok?"ok":"no");
+  const alt=ok&&order!==woCur.t?`<div class="wopy">Also right: ${woSentence(woCur)}</div>`:"";
+  v.innerHTML=`<div class="woans zh">${woSentence(woCur,order)}</div><div class="wopy">${woPinyin(woCur,order)}</div>${alt}<div class="worule">${ok?"":"<b>Rule.</b> "}${woCur.r}</div>`;
+  const n=woRes.filter(r=>r.ok).length;$("woScore").innerHTML=`<b>${n}</b> / ${woRes.length} right`;
+  speak(woSentence(woCur,order));
+  $("woCheck").hidden=true;$("woReset").hidden=true;$("woNext").hidden=false;
+  $("woNext").textContent=woI===woList.length-1?"See results":"Next";
+}
+function woNextQ(){if(!woAnswered)return;if(woI<woList.length-1){woI++;woShow()}else woSummary()}
+function woSummary(){
+  $("woBar").style.width="100%";$("woRun").hidden=true;$("woDone").hidden=false;
+  const ok=woRes.filter(r=>r.ok).length,miss=woRes.filter(r=>!r.ok);
+  $("woFinal").textContent=`${ok} / ${woRes.length}`;
+  $("woFinalTxt").textContent=miss.length?`${miss.length} to review`:"Every sentence in order. 好!";
+  $("woMissed").innerHTML=miss.length?`<div class="tqmiss womiss"><h3>Missed</h3><ul>${miss.map((r,i)=>`<li style="animation-delay:${i*45}ms"><span class="meaning">${r.s.en}</span><span class="zh r">${woSentence(r.s)}</span><span class="zh w">${r.mine}</span><span class="worule">${r.s.r}</span></li>`).join("")}</ul></div>`:"";
+  $("woRetry").hidden=!miss.length;$("woRetry").textContent=`Retry the ${miss.length} missed`;
+}
+function exitWo(){woOff();try{speechSynthesis.cancel()}catch(e){}$("practice").hidden=false;load()}
+$("startWo").onclick=()=>startWo();
+$("woCheck").onclick=woCheckAnswer;$("woNext").onclick=woNextQ;
+$("woReset").onclick=()=>{if(woAnswered)return;woBankT=woBankT.concat(woPlaced);woPlaced=[];woRender()};
+$("woHear").onclick=()=>{if(woCur)speak(woSentence(woCur))};
+$("woExit").onclick=exitWo;$("woBack").onclick=exitWo;$("woAgain").onclick=()=>startWo();
+$("woRetry").onclick=()=>startWo(woRes.filter(r=>!r.ok).map(r=>r.s));
+document.querySelectorAll("#woScope button").forEach(b=>b.onclick=()=>{woScope=b.dataset.s;store.set("bd-woscope",woScope);startWo()});
+$("woPy").onclick=()=>{woShowPy=!woShowPy;$("woPy").setAttribute("aria-pressed",woShowPy);store.set("bd-wopy",woShowPy);$("wo").classList.toggle("wo-py",woShowPy)};
+document.addEventListener("keydown",e=>{
+  if(!woOn||$("woRun").hidden||e.target.closest&&e.target.closest("input,textarea"))return;
+  if(e.key==="Enter"){e.preventDefault();woAnswered?woNextQ():woCheckAnswer()}
+  else if(e.key==="Backspace"&&!woAnswered&&woPlaced.length){e.preventDefault();woBankT.push(woPlaced.pop());woRender()}
+});
+
 /* ---------- tone quiz ---------- */
 // Shows a character; pick the right pinyin from four choices that differ only in tones.
 let tqOn=false,tqList=[],tqI=0,tqRes=[],tqCur=null,tqAnswered=false;
 function startTq(list){
+  woOff();
   if(quizOn)exitQuiz();if(pnOn){pnOn=false;$("pn").hidden=true}if(rvOn){rvOn=false;$("rv").hidden=true}if(mcOn){mcOn=false;$("mc").hidden=true}if(pgOn){pgOn=false;$("pg").hidden=true}if(wlOn){wlOn=false;$("wl").hidden=true}
   tqOn=true;runId++;try{speechSynthesis.cancel()}catch(e){}
   tqList=(list||SETS[setIdx].items).slice();
@@ -1832,6 +2025,7 @@ function pnRender(){
 }
 let pnOn=false,pnT;
 function startPn(){
+  woOff();
   if(quizOn)exitQuiz();closeExtras();
   pnOn=true;runId++;$("practice").hidden=true;$("quiz").hidden=true;$("pn").hidden=false;
   $("pnIn").value=store.get("bd-pntext","");pnRender();window.scrollTo({top:0});
@@ -1872,6 +2066,7 @@ function enMatch(typed,mean){
 const RV_NEW=8; // new words introduced per session
 function rvWords(){return rvScope==="set"?SETS[setIdx].items.map(x=>x[0]):[...allWords().keys()]}
 function startRv(extraNew){
+  woOff();
   if(quizOn)exitQuiz();closeExtras();
   rvOn=true;runId++;try{speechSynthesis.cancel()}catch(e){}
   $("practice").hidden=true;$("quiz").hidden=true;$("rv").hidden=false;
@@ -2012,6 +2207,7 @@ function renderPgLists(){
     $("pgLists").appendChild(b)});
 }
 function startPg(){
+  woOff();
   if(quizOn)exitQuiz();closeExtras();
   pgOn=true;runId++;try{speechSynthesis.cancel()}catch(e){}
   $("practice").hidden=true;$("quiz").hidden=true;$("pg").hidden=false;
@@ -2091,6 +2287,7 @@ document.querySelectorAll("#pgKind button").forEach(b=>b.onclick=()=>{pgKind=b.d
 /* ---------- word list ---------- */
 let wlOn=false,wlHide=store.get("bd-wlhide",""),wlPeek=new Set();
 function startWl(){
+  woOff();
   if(quizOn)exitQuiz();if(mcOn){mcOn=false;$("mc").hidden=true}if(tqOn){tqOn=false;$("tq").hidden=true}
   if(pgOn){pgOn=false;$("pg").hidden=true}
   if(rvOn){rvOn=false;$("rv").hidden=true}if(pnOn){pnOn=false;$("pn").hidden=true}
@@ -2125,10 +2322,12 @@ function closeExtras(){ // leave word cards / tone quiz / word list without relo
   if(tqOn){tqOn=false;$("tq").hidden=true}
   if(rvOn){rvOn=false;$("rv").hidden=true}
   if(pnOn){pnOn=false;$("pn").hidden=true}
+  woOff();
   $("practice").hidden=false;
 }
 function shuffled(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function startMc(list){
+  woOff();
   if(quizOn)exitQuiz();if(pnOn){pnOn=false;$("pn").hidden=true}if(rvOn){rvOn=false;$("rv").hidden=true}if(tqOn){tqOn=false;$("tq").hidden=true}if(pgOn){pgOn=false;$("pg").hidden=true}if(wlOn){wlOn=false;$("wl").hidden=true}
   mcOn=true;runId++;try{speechSynthesis.cancel()}catch(e){}
   mcList=shuffled(list||SETS[setIdx].items);mcI=0;mcRes=[];
