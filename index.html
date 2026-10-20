@@ -738,6 +738,34 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
 .pgbank{gap:8px}
 .pgbank button{padding:9px 14px}
 @media (min-width:901px){main>.desk{margin-inline:auto}}
+
+/* ===================== Calmer screens =====================
+   Settings that change rarely fold into one "options" line; the practice itself gets the room. */
+.opts{border:2px solid var(--line);border-radius:16px;background:var(--card)}
+.opts>summary{list-style:none;display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;font-weight:700;font-size:.92rem;color:var(--muted);min-height:46px}
+.opts>summary::-webkit-details-marker{display:none}
+.opts>summary .ico{color:var(--faint)}
+.opts .sum{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+.opts .chg{color:var(--sky);font-weight:800;font-size:.88rem}
+.opts .chg::before{content:"Change"}
+.opts[open] .chg::before{content:"Done"}
+.opts[open]>summary{border-bottom:2px solid var(--outline)}
+.optbody{padding:14px;display:flex;flex-direction:column;gap:14px}
+.optbody .pglists,.optbody .rvopts{align-items:flex-start}
+.optbody .lab{padding-top:7px}
+.optrow{display:flex;align-items:flex-start;gap:12px}
+.optrow .opts{flex:1;min-width:0;background:var(--well);border-color:transparent}
+.optrow .tqscore{padding-top:13px;white-space:nowrap}
+#pgFocus{display:none!important}
+.btn.quiet{border-color:transparent;background:transparent;color:var(--muted);border-bottom-width:2px}
+.btn.quiet:hover:not(:disabled){border-color:transparent;color:var(--ink);background:var(--well)}
+#pg .nav{gap:6px}
+#pg .nav .btn.quiet{flex:0 1 auto;min-width:0}
+#pg .nav .btn.primary{flex:1}
+.pgtext{padding:24px 22px}
+.pgbank{padding:2px 0}
+#rv .opts,#wo .opts{margin-top:-4px}
+@media (max-width:560px){#pg .nav{flex-wrap:wrap}#pg .nav .btn.primary{flex-basis:100%}}
 </style>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5M18 7a7 7 0 0 1 0 10"/></symbol>
@@ -968,6 +996,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
         </div>
       </div>
       <div class="bar"><i id="rvBar" style="width:0"></i></div>
+      <details class="opts" id="rvOpts"><summary><svg class="ico"><use href="#i-set"/></svg><span class="sum" id="rvSum"></span><span class="chg"></span></summary><div class="optbody">
       <div class="rvopts">
         <span class="lab">Show</span>
         <div class="pgpick" id="rvShowSel" role="group" aria-label="What the card shows">
@@ -981,6 +1010,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
         </div>
         <button class="peek" id="rvTones" aria-pressed="true">Grade tones</button>
       </div>
+      </div></details>
       <div class="sheet" id="rvRun">
         <div class="tqtop"><span class="meta" id="rvMeta"></span><span class="tqscore" id="rvLeft"></span></div>
         <div class="rvprompt">
@@ -1036,18 +1066,24 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
         </div>
       </div>
       <div class="sheet">
-        <div class="pglists"><span class="lab">Words from</span><div class="pgpick" id="pgLists" role="group" aria-label="Word lists to use"></div></div>
-        <div class="pglists"><span class="lab">Passages</span><div class="pgpick" id="pgOrder" role="group" aria-label="Which passages come first"><button data-o="any">Any order</button><button data-o="weak">My weak words first</button></div></div>
-        <div class="pgfocus" id="pgFocus" hidden></div>
-        <div class="tqtop"><span class="meta" id="pgMeta"></span><span class="tqscore" id="pgScore"></span></div>
+        <div class="optrow">
+          <details class="opts" id="pgOpts"><summary><svg class="ico"><use href="#i-set"/></svg><span class="sum" id="pgSum"></span><span class="chg"></span></summary>
+            <div class="optbody">
+              <div class="pglists"><span class="lab">Words from</span><div class="pgpick" id="pgLists" role="group" aria-label="Word lists to use"></div></div>
+              <div class="pglists"><span class="lab">Passages</span><div class="pgpick" id="pgOrder" role="group" aria-label="Which passages come first"><button data-o="any">Any order</button><button data-o="weak">My weak words first</button></div></div>
+            </div>
+          </details>
+          <span class="tqscore" id="pgScore"></span>
+        </div>
+        <div class="pgfocus" id="pgFocus" hidden></div><span class="meta" id="pgMeta" hidden></span>
         <div class="pgtext zh" id="pgText"></div>
-        <p class="tqask" id="pgAsk">Tap a highlighted word, then its meaning. Tap any other character to look it up.</p>
+        <p class="tqask" id="pgAsk">Tap an underlined word, then its meaning. Tap any other character to look it up.</p>
         <div class="pgbank" id="pgBank"></div>
         <div class="verdict" id="pgDone" aria-live="polite"></div>
         <div class="pgtrans" id="pgTrans" hidden></div>
         <div class="nav">
-          <button class="btn" id="pgHear"><svg class="ico"><use href="#i-sound"/></svg>Read aloud</button>
-          <button class="btn" id="pgShowTr">Show translation</button>
+          <button class="btn quiet" id="pgHear"><svg class="ico"><use href="#i-sound"/></svg>Read aloud</button>
+          <button class="btn quiet" id="pgShowTr">Show translation</button>
           <button class="btn primary" id="pgNew">New passage</button>
         </div>
       </div>
@@ -1140,12 +1176,14 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
       <div class="qhead">
         <h2 id="woTitle">Word order</h2>
         <div class="tools">
-          <div class="seg" id="woScope" role="group" aria-label="Sentences"><button data-s="one">This lesson</button><button data-s="upto">Up to this lesson</button><button data-s="all">All sentences</button></div>
-          <span class="womini"><span>Pinyin</span><button class="switch" id="woPy" aria-pressed="false" aria-label="Pinyin on tiles"></button></span>
           <button class="chip" id="woExit">Exit word order</button>
         </div>
       </div>
       <div class="bar"><i id="woBar" style="width:0"></i></div>
+      <details class="opts" id="woOpts"><summary><svg class="ico"><use href="#i-set"/></svg><span class="sum" id="woSum"></span><span class="chg"></span></summary><div class="optbody">
+        <div class="rvopts"><span class="lab">Sentences</span><div class="seg" id="woScope" role="group" aria-label="Sentences"><button data-s="one">This lesson</button><button data-s="upto">Up to this lesson</button><button data-s="all">All sentences</button></div></div>
+        <div class="rvopts"><span class="lab">Pinyin on tiles</span><button class="switch" id="woPy" aria-pressed="false" aria-label="Pinyin on tiles"></button></div>
+      </div></details>
       <div class="sheet" id="woRun">
         <div class="tqtop"><span class="meta" id="woMeta"></span><span class="tqscore" id="woScore"></span></div>
         <div class="woen" id="woEn"></div>
@@ -2068,7 +2106,8 @@ function startWo(list){
   $("practice").hidden=true;$("wo").hidden=false;$("woRun").hidden=false;$("woDone").hidden=true;
   const n=woLessonNum();
   $("woTitle").textContent=list?"Word order: missed sentences":"Word order";
-  $("woScope").hidden=!!list;
+  $("woOpts").hidden=!!list;
+  $("woSum").textContent=({one:"This lesson's sentences",upto:"Sentences up to this lesson",all:"All sentences"})[n?woScope:"all"]+(woShowPy?", pinyin on tiles":"");
   $("woScope").querySelectorAll("button:not([data-s=all])").forEach(b=>b.hidden=!n);
   document.querySelectorAll("#woScope button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.s===woScope));
   $("woPy").setAttribute("aria-pressed",!!woShowPy);$("wo").classList.toggle("wo-py",!!woShowPy);
@@ -2144,7 +2183,7 @@ $("woHear").onclick=()=>{if(woCur)speak(woSentence(woCur))};
 $("woExit").onclick=exitWo;$("woBack").onclick=exitWo;$("woAgain").onclick=()=>startWo();
 $("woRetry").onclick=()=>startWo(woRes.filter(r=>!r.ok).map(r=>r.s));
 document.querySelectorAll("#woScope button").forEach(b=>b.onclick=()=>{woScope=b.dataset.s;store.set("bd-woscope2",woScope);startWo()});
-$("woPy").onclick=()=>{woShowPy=!woShowPy;$("woPy").setAttribute("aria-pressed",woShowPy);store.set("bd-wopy",woShowPy);$("wo").classList.toggle("wo-py",woShowPy)};
+$("woPy").onclick=()=>{woShowPy=!woShowPy;$("woSum").textContent=$("woSum").textContent.replace(/, pinyin on tiles$/,"")+(woShowPy?", pinyin on tiles":"");$("woPy").setAttribute("aria-pressed",woShowPy);store.set("bd-wopy",woShowPy);$("wo").classList.toggle("wo-py",woShowPy)};
 document.addEventListener("keydown",e=>{
   if(!woOn||$("woRun").hidden||e.target.closest&&e.target.closest("input,textarea"))return;
   if(e.key==="Enter"){e.preventDefault();woAnswered?woNextQ():woCheckAnswer()}
@@ -2436,6 +2475,8 @@ const rvPicker=makePicker($("rvPick"),"rv");
 function renderRvOpts(){
   document.querySelectorAll("#rvAns button").forEach(b=>b.setAttribute("aria-pressed",rvAns.has(b.dataset.a)));
   document.querySelectorAll("#rvShowSel button").forEach(b=>b.setAttribute("aria-pressed",rvShowS.has(b.dataset.a)));
+  const NM={zh:"character",py:"pinyin",en:"English",au:"audio"},L=a=>[...a].map(x=>NM[x]).join(" and ");
+  $("rvSum").textContent=`Shows ${L(rvShowS)||"nothing"}, answer with ${L(rvAns)||"nothing"}`;
   $("rvTones").hidden=!rvAns.has("py");$("rvTones").setAttribute("aria-pressed",rvTones);$("rvTones").textContent=rvTones?"Tones graded":"Tones not graded";
 }
 // English answers are checked loosely: any key word of the meaning counts (so "library" matches "library", "dorm" doesn't need to)
@@ -2598,7 +2639,11 @@ const pgWords=()=>new Set(pgChosen().flatMap(t=>t.items.map(x=>x[0])));
 const pgCount=(p,W)=>(p.t.match(/\[[^\]]+\]/g)||[]).filter(x=>W.has(x.slice(1,-1))).length;
 // passages that use at least 3 words from the chosen lists
 function pgPool(){const W=pgWords();return PASSAGES.filter(p=>pgCount(p,W)>=3)}
-function renderPgLists(){
+function pgSummary(){
+  const n=pgChosen().map(t=>t.name);
+  $("pgSum").textContent=(n.length?(n.length>3?n.slice(0,3).join(", ")+` and ${n.length-3} more`:n.join(", ")):"No word lists picked")+(pgOrder==="weak"?", weak words first":"");
+}
+function renderPgLists(){pgSummary();
   $("pgLists").innerHTML="";
   SETS.forEach(t=>{const b=document.createElement("button");b.type="button";b.textContent=t.name;b.setAttribute("aria-pressed",pgSets.has(t.name));
     b.onclick=()=>{pgSets.has(t.name)?pgSets.delete(t.name):pgSets.add(t.name);store.set("bd-pgsets",[...pgSets]);renderPgLists();pgQueue=[];pgSeen=0;pgNext()};
@@ -2736,13 +2781,13 @@ function pgTry(){
   } else {pgRenderText();pgRenderBank()}
 }
 function pgRenderFocus(){
-  const f=$("pgFocus");document.querySelectorAll("#pgOrder button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.o===pgOrder));
+  pgSummary();const f=$("pgFocus");document.querySelectorAll("#pgOrder button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.o===pgOrder));
   if(pgOrder!=="weak"||!pgCur){f.hidden=true;return}
   const ws=[...new Set(pgCur.targets.map(i=>pgCur.toks[i].w))].map(w=>[w,wordWeakness(w)]).filter(x=>x[1]>=WEAK_AT).sort((a,b)=>b[1]-a[1]);
   f.hidden=false;
   f.innerHTML=ws.length?`<span>Focus words in this passage</span>${ws.slice(0,8).map(([w])=>`<span class="zh">${w}</span>`).join("")}`:`<span class="none">No weak words left in these lists. Nice work.</span>`;
 }
-function pgScore(){$("pgScore").innerHTML=`<b>${pgCur.done.size}</b> of ${pgCur.targets.length} matched${pgMiss?`, ${pgMiss} wrong`:""}`}
+function pgScore(){$("pgAsk").hidden=pgCur.done.size>0;$("pgScore").innerHTML=`<b>${pgCur.done.size}</b> of ${pgCur.targets.length} matched${pgMiss?`, ${pgMiss} wrong`:""}`}
 function pgFinish(){
   const v=$("pgDone");v.className="verdict "+(pgMiss<=1?"ok":"no");
   const mw=[...pgCur.missed];
