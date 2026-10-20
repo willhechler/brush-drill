@@ -766,6 +766,69 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
 .pgbank{padding:2px 0}
 #rv .opts,#wo .opts{margin-top:-4px}
 @media (max-width:560px){#pg .nav{flex-wrap:wrap}#pg .nav .btn.primary{flex-basis:100%}}
+
+/* ===================== Motion =====================
+   Quick, springy and always tied to something you did. Everything turns off with Reduce Motion. */
+:root{--spring:cubic-bezier(.3,1.5,.5,1);--ease:cubic-bezier(.2,.8,.2,1)}
+@keyframes pop{0%{transform:scale(.82);opacity:.2}60%{transform:scale(1.06);opacity:1}100%{transform:none}}
+@keyframes swap{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes enter{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes drop{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@keyframes rise{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes glow{0%{background:var(--sun)}100%{background:transparent}}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
+@keyframes letter{from{opacity:0;transform:translateY(8px) scale(.9)}to{opacity:1;transform:none}}
+
+.pop{animation:pop .35s var(--spring)}
+.swap{animation:swap .28s var(--ease)}
+.desk.enter{animation:enter .32s var(--ease)}
+.desk.enter .sheet{animation:rise .4s var(--ease) .04s both}
+
+/* everything you can press eases between states */
+button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu button,.strip button,.tqopts button,.pgbank button,.wot,.tqword .L,select,input,textarea{transition:background-color .18s ease,border-color .18s ease,color .18s ease,box-shadow .18s ease,transform .1s ease,border-bottom-width .1s ease,opacity .2s ease}
+.seg button[aria-pressed="true"],.pgpick button[aria-pressed="true"],.modes button[aria-pressed="true"]{animation:pop .3s var(--spring)}
+
+/* sidebar and tab bar */
+.menu button .ti,.tabbar .ti{transition:background-color .2s ease,color .2s ease,transform .25s var(--spring)}
+.menu button:hover .ti{transform:rotate(-6deg) scale(1.06)}
+.menu button[aria-current="page"] .ti,.tabbar button[aria-current="page"] .ti{animation:bump .4s var(--spring)}
+.tabsheet:not([hidden]){animation:rise .26s var(--spring)}
+.tabsheet button{animation:swap .3s var(--ease) both}
+.tabsheet button:nth-child(2){animation-delay:.03s}.tabsheet button:nth-child(3){animation-delay:.06s}.tabsheet button:nth-child(4){animation-delay:.09s}
+
+/* folding options */
+.opts[open] .optbody{animation:drop .22s var(--ease)}
+.opts>summary .ico{transition:transform .3s var(--spring)}
+.opts[open]>summary .ico{transform:rotate(90deg)}
+
+/* dialogs */
+.sync:not([hidden]){animation:fade .2s ease}
+.sync:not([hidden]) .syncbox{animation:rise .3s var(--spring)}
+
+/* answers and tiles */
+.tqword .L{animation:letter .3s var(--ease) both}
+.tqopts button{animation:swap .3s var(--ease) both}
+.tqopts button:nth-child(2){animation-delay:.04s}.tqopts button:nth-child(3){animation-delay:.08s}.tqopts button:nth-child(4){animation-delay:.12s}
+.tqopts button.right,.tqopts button.wrong{animation-delay:0s}
+.pgbank button{animation:pop .3s var(--spring) both}
+.pgtext .w.done{animation:pop .4s var(--spring)}
+.pgtext .w.done .gp,.pgtext .w.done .ge{animation:fade .4s ease .1s both}
+.pglook{animation:rise .22s var(--spring)}
+.rvanswer:not([hidden]){animation:rise .3s var(--ease)}
+.rvgrade:not([hidden]) button{animation:swap .3s var(--ease) both}
+.rvgrade button:nth-child(2){animation-delay:.04s}.rvgrade button:nth-child(3){animation-delay:.08s}
+.verdict.ok,.verdict.no{transform-origin:center}
+.pgtrans:not([hidden]),.tqanswer:not(:empty),.tqmean.show{animation:swap .3s var(--ease)}
+.summary:not([hidden]){animation:rise .4s var(--ease)}
+.tqmiss li{animation:swap .35s var(--ease) both}
+.wlrows li{animation:swap .3s var(--ease) both}
+.strip button.cur{animation:pop .3s var(--spring)}
+.bar i,.tally .meter i{transition:width .5s var(--spring)}
+#toast{transition:opacity .25s ease,transform .3s var(--spring)}
+#toast.off{transform:translateX(-50%) translateY(12px)}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5M18 7a7 7 0 0 1 0 10"/></symbol>
@@ -1590,7 +1653,8 @@ function currentScreen(){return SCREENS.find(id=>!$(id).hidden)||"practice"}
 // the sidebar marks whichever activity is on screen
 function syncMenu(){const cur=currentScreen();document.querySelectorAll("#menu button").forEach(b=>{if(b.dataset.screen===cur)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});
   document.querySelectorAll("#tabbar button,.tabsheet button").forEach(b=>{if(b.dataset.scr.split(" ").includes(cur))b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});
-  const root=document.documentElement;[...root.classList].filter(c=>c.startsWith("scr-")).forEach(c=>root.classList.remove(c));root.classList.add("scr-"+cur)}
+  const root=document.documentElement;[...root.classList].filter(c=>c.startsWith("scr-")).forEach(c=>root.classList.remove(c));root.classList.add("scr-"+cur);
+  if(syncMenu.last!==cur){syncMenu.last=cur;replay($(cur),"enter")}}
 // bottom tab bar: plain tabs press the matching sidebar button; Test and Words open a small menu
 function closeTabSheets(){document.querySelectorAll(".tabsheet").forEach(x=>x.hidden=true)}
 document.querySelectorAll("#tabbar button,.tabsheet button").forEach(b=>b.onclick=e=>{e.stopPropagation();
@@ -2843,6 +2907,7 @@ function renderWl(){
     const st=w in results?(results[w]?"ok":"bad"):"";
     const c=k=>wlHide===k?" cover":"";
     return `<li><span class="n ${st}">${i+1}</span><span class="cell zh${c("zh")}">${w}</span><span class="cell py${c("py")}">${showPy(py)}</span><span class="cell en${c("en")}">${mean}</span><span class="acts"><button data-say="${i}" aria-label="Hear ${w}"><svg class="ico"><use href="#i-sound"/></svg></button><button data-go="${i}" aria-label="Write ${w}"><svg class="ico"><use href="#i-pen"/></svg></button></span></li>`}).join("");
+  $("wlRows").querySelectorAll("li").forEach((li,i)=>li.style.animationDelay=`${Math.min(i,20)*18}ms`);
   $("wlRows").querySelectorAll(".cover").forEach(el=>el.onclick=()=>el.classList.remove("cover"));
   $("wlRows").querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>speak(set.items[+b.dataset.say][0]));
   $("wlRows").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{idx=+b.dataset.go;exitWl()});
