@@ -644,6 +644,100 @@ h1,h2,h3{font-weight:800;letter-spacing:-.015em}
   :root.focus .tabbar,:root.focus .tabsheet{display:none!important}
 }
 @media (prefers-reduced-motion:reduce){.verdict.ok,.tqopts button.right,.tabsheet{animation:none}}
+
+/* ===================== Polish pass ===================== */
+::selection{background:var(--sun-soft)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+.tally{display:flex;align-items:center;gap:12px;font-weight:600}
+.tally .meter{flex:1;margin-top:0;height:10px;background:var(--line)}
+.tally .meter i{box-shadow:inset 0 -2px 0 rgba(0,0,0,.12)}
+.bar{height:8px;background:var(--outline)}
+.qhead{min-height:48px}
+.desk{gap:18px}
+
+/* header: seal, name, lesson and settings on one row on the iPad */
+@media (max-width:900px){
+  .app{grid-template-columns:auto auto minmax(0,1fr) auto;column-gap:12px;row-gap:14px;align-items:center}
+  .brand{display:contents}
+  .brand .book{display:none}
+  .brand h1{font-size:1.15rem;white-space:nowrap}
+  .mark{order:0}.brand>div{order:0}.lessonpick{order:1;max-width:340px;justify-self:end;width:100%}.brand .setbtn{order:2;margin:0}
+  .tally{order:3;grid-column:1/-1;margin:0}
+  main,.words{grid-column:1/-1}
+  .tabbar{background:color-mix(in srgb,var(--card) 88%,transparent);-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4)}
+  .tabbar button[aria-current="page"]{color:var(--c)}
+}
+@media (max-width:480px){.brand h1{display:none}}
+
+/* Write modes: just the pills, no tray around them */
+.modes.seg{background:none;border:0;padding:2px 2px 6px;border-radius:0;scroll-snap-type:x proximity}
+.modes button{scroll-snap-align:start;flex:0 0 auto}
+
+/* sliders */
+input[type="range"]{-webkit-appearance:none;appearance:none;height:10px;border-radius:999px;background:var(--line);accent-color:var(--jade)}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:var(--card);border:3px solid var(--jade);box-shadow:0 2px 0 var(--jade-d);cursor:pointer}
+input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--card);border:3px solid var(--jade)}
+.sizewrap,.nbsize{font-weight:700}
+.nbsize output,.sizewrap output{font-weight:800}
+
+/* writing squares sit in the middle of their tray */
+.pads{justify-content:center}
+#writerArea .board{margin:0 auto}
+#writerArea .status{justify-content:center}
+.well .padtools,#freeArea .padtools,#nbArea .padtools{justify-content:center}
+#checkRowP{justify-content:stretch}
+#checkRowP .btn{flex:1;min-height:52px;font-size:1rem}
+.pad canvas,.board{box-shadow:0 3px 0 var(--red-soft)}
+
+/* text fields */
+.picker,.rvprompt,.tqcard{border:2px solid var(--line)}
+.picker input,.syncbox textarea,.pnwrite textarea,#rvEnIn{border:2px solid var(--line);border-radius:14px;font-weight:600;background-color:var(--card)}
+.picker input:focus,.pnwrite textarea:focus,#rvEnIn:focus{border-color:var(--sky);outline:none;box-shadow:0 0 0 4px var(--sky-soft)}
+.picker label,.pnwrite label{font-weight:700;color:var(--ink)}
+
+/* word order: a dashed slot for the sentence */
+.woline{border:2px dashed var(--grid);border-radius:16px;background:var(--well);padding:12px;min-height:84px;align-items:center}
+.woline:empty::before{padding:0 4px}
+.woen{font-weight:700;border:2px solid var(--line)}
+
+/* answer cards and the word strip */
+.tqopts button{min-height:64px}
+.strip{gap:6px}
+.strip button{border-bottom-width:3px;height:40px}
+.legend{font-weight:600}
+
+/* word list rows */
+.wlrows li{border-bottom:2px solid var(--outline);padding:10px 6px}
+.wlrows .zh{font-size:1.75rem}
+.wlrows .py{font-weight:800}
+.wlrows .acts button{border:2px solid var(--line);border-bottom-width:3px;border-radius:10px;width:38px;height:38px}
+.wlrows .n{font-weight:700}
+
+/* dialogs */
+.sync{background:rgba(20,28,55,.38);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.syncbox{border:2px solid var(--line);border-radius:24px;box-shadow:0 6px 0 var(--line),0 30px 60px rgba(20,30,60,.25);padding:24px;animation:yay .25s ease-out}
+.syncbox h2{font-size:1.4rem}
+.syncrow .btn{flex:1}
+#setClose{background:var(--jade);border-color:var(--jade-d);color:var(--on-jade)}
+.setrow{border-bottom:2px solid var(--outline);padding:14px 0;align-items:center}
+.setrow b{font-weight:800}
+.switch{width:52px;height:32px;border-radius:999px;background:var(--line);box-shadow:inset 0 2px 0 rgba(0,0,0,.06)}
+.switch::after{top:4px;left:4px;width:24px;height:24px}
+.switch[aria-pressed="true"]::after{transform:translateX(20px)}
+
+/* toast */
+#toast{border-radius:999px;padding:11px 18px;font-weight:700;bottom:calc(96px + env(safe-area-inset-bottom,0px));box-shadow:0 4px 0 rgba(0,0,0,.2)}
+@media (min-width:901px){#toast{bottom:calc(24px + env(safe-area-inset-bottom,0px))}}
+
+/* summaries */
+.summary .big{font-size:3.2rem}
+.summary table th{font-weight:700}
+.tqmiss li{background:var(--well);border-radius:12px;padding:10px 12px}
+
+/* passage chips */
+.pgbank{gap:8px}
+.pgbank button{padding:9px 14px}
+@media (min-width:901px){main>.desk{margin-inline:auto}}
 </style>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5M18 7a7 7 0 0 1 0 10"/></symbol>
@@ -1479,7 +1573,7 @@ function renderStrip(){
 function renderTally(){
   const s=SETS[setIdx].items,ok=s.filter(([w])=>results[w]).length;
   const due=dueCountAll();
-  $("tally").innerHTML=`<b>${ok}</b> of ${s.length} passed<div class="meter"><i style="width:${s.length?ok/s.length*100:0}%"></i></div>`;
+  $("tally").innerHTML=`<span><b>${ok}</b> of ${s.length} passed</span><div class="meter"><i style="width:${s.length?ok/s.length*100:0}%"></i></div>`;
   if($("rvDueBtn"))$("rvDueBtn").textContent=due||"";
 }
 
