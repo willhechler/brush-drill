@@ -842,7 +842,7 @@ input[type="range"]{width:130px;accent-color:var(--jade)}
       <div class="qhead">
         <h2 id="woTitle">Word order</h2>
         <div class="tools">
-          <div class="seg" id="woScope" role="group" aria-label="Sentences"><button data-s="one">This lesson</button><button data-s="all">Up to this lesson</button></div>
+          <div class="seg" id="woScope" role="group" aria-label="Sentences"><button data-s="one">This lesson</button><button data-s="upto">Up to this lesson</button><button data-s="all">All sentences</button></div>
           <span class="womini"><span>Pinyin</span><button class="switch" id="woPy" aria-pressed="false" aria-label="Pinyin on tiles"></button></span>
           <button class="chip" id="woExit">Exit word order</button>
         </div>
@@ -1671,14 +1671,55 @@ const WO=[
  {l:7,en:"Of course I'll go.",t:"我|当然|去",py:"wǒ|dāngrán|qù",p:"。",r:"Adverbs like 当然, 也 and 很 go after the subject and before the verb."},
  {l:7,en:"Are you free this afternoon? I'd like to go to the supermarket with you.",t:"今天|下午|你|有|事|吗|我|想|和|你|去|超市",py:"jīntiān|xiàwǔ|nǐ|yǒu|shì|ma|wǒ|xiǎng|hé|nǐ|qù|chāoshì",p:"。",c:5,alt:["你|今天|下午|有|事|吗|我|想|和|你|去|超市"],r:"和 + person goes before the verb: 和你去超市. 去超市和你 is wrong. Time (今天下午) also comes before the verb."},
  {l:7,en:"It's none of your business.",t:"不|关|你|的|事",py:"bù|guān|nǐ|de|shì",p:"。",r:"Verb + object: the object 你的事 comes after the verb 关, and 不 goes right before the verb."},
- {l:7,en:"I want to go to the library with my roommate.",t:"我|想|和|同屋|去|图书馆",py:"wǒ|xiǎng|hé|tóngwū|qù|túshūguǎn",p:"。",r:"想 + 和 + person + verb + place. The 和 phrase sits between 想 and the action."}
+ {l:7,en:"I want to go to the library with my roommate.",t:"我|想|和|同屋|去|图书馆",py:"wǒ|xiǎng|hé|tóngwū|qù|túshūguǎn",p:"。",r:"想 + 和 + person + verb + place. The 和 phrase sits between 想 and the action."},
+ // general sentences, not tied to one lesson; some use words from later lessons
+ {"l": 0, "k": "time", "en": "I get up at six in the morning.", "t": "我|早上|六点|起床", "py": "wǒ|zǎoshang|liù diǎn|qǐchuáng", "p": "。", "alt": ["早上|六点|我|起床"], "r": "Time goes before the verb. Put it right after the subject, or at the very start. Never at the end like English."},
+ {"l": 0, "k": "time", "en": "I have class at eight.", "t": "我|八点|上课", "py": "wǒ|bā diǎn|shàngkè", "p": "。", "alt": ["八点|我|上课"], "r": "Time goes before the verb. Put it right after the subject, or at the very start. Never at the end like English."},
+ {"l": 0, "k": "time", "en": "We finish class at noon.", "t": "我们|中午|十二点|下课", "py": "wǒmen|zhōngwǔ|shí'èr diǎn|xiàkè", "p": "。", "alt": ["中午|十二点|我们|下课"], "r": "Time goes before the verb. Put it right after the subject, or at the very start. Never at the end like English."},
+ {"l": 0, "k": "time", "en": "I do homework at nine in the evening.", "t": "我|晚上|九点|写作业", "py": "wǒ|wǎnshang|jiǔ diǎn|xiě zuòyè", "p": "。", "alt": ["晚上|九点|我|写作业"], "r": "Time goes before the verb. Put it right after the subject, or at the very start. Never at the end like English."},
+ {"l": 0, "k": "time", "en": "He eats breakfast at 7:30.", "t": "他|七点半|吃早饭", "py": "tā|qī diǎn bàn|chī zǎofàn", "p": "。", "alt": ["七点半|他|吃早饭"], "r": "Time goes before the verb. Put it right after the subject, or at the very start. Never at the end like English."},
+ {"l": 0, "k": "time", "en": "I go to sleep at eleven.", "t": "我|十一点|睡觉", "py": "wǒ|shíyī diǎn|shuìjiào", "p": "。", "alt": ["十一点|我|睡觉"], "r": "Time goes before the verb. Put it right after the subject, or at the very start. Never at the end like English."},
+ {"l": 0, "k": "place", "en": "I study in the library.", "t": "我|在|图书馆|学习", "py": "wǒ|zài|túshūguǎn|xuéxí", "p": "。", "r": "在 + place goes before the verb. \"I study in the library\" is 我在图书馆学习, not 我学习在图书馆."},
+ {"l": 0, "k": "place", "en": "We eat in the cafeteria.", "t": "我们|在|食堂|吃饭", "py": "wǒmen|zài|shítáng|chīfàn", "p": "。", "r": "在 + place goes before the verb. \"I study in the library\" is 我在图书馆学习, not 我学习在图书馆."},
+ {"l": 0, "k": "place", "en": "In the evening I do homework in my dorm.", "t": "我|晚上|在|宿舍|写作业", "py": "wǒ|wǎnshang|zài|sùshè|xiě zuòyè", "p": "。", "alt": ["晚上|我|在|宿舍|写作业"], "r": "在 + place goes before the verb. \"I study in the library\" is 我在图书馆学习, not 我学习在图书馆."},
+ {"l": 0, "k": "place", "en": "Tomorrow morning I'm reading in the library.", "t": "我|明天|上午|在|图书馆|看书", "py": "wǒ|míngtiān|shàngwǔ|zài|túshūguǎn|kàn shū", "p": "。", "alt": ["明天|上午|我|在|图书馆|看书"], "r": "在 + place goes before the verb. \"I study in the library\" is 我在图书馆学习, not 我学习在图书馆."},
+ {"l": 0, "k": "q", "en": "What time is your class?", "t": "你|几点|上课", "py": "nǐ|jǐ diǎn|shàngkè", "p": "？", "r": "Question words stay where the answer would go. 你几点上课？ is answered 我八点上课。 Don't move 几点 / 哪儿 / 什么 to the front."},
+ {"l": 0, "k": "q", "en": "What time does the lecture start?", "t": "讲座|几点|开始", "py": "jiǎngzuò|jǐ diǎn|kāishǐ", "p": "？", "r": "Question words stay where the answer would go. 你几点上课？ is answered 我八点上课。 Don't move 几点 / 哪儿 / 什么 to the front."},
+ {"l": 0, "k": "q", "en": "What time is it now?", "t": "现在|几点", "py": "xiànzài|jǐ diǎn", "p": "？", "r": "Question words stay where the answer would go. 你几点上课？ is answered 我八点上课。 Don't move 几点 / 哪儿 / 什么 to the front."},
+ {"l": 0, "k": "q", "en": "Where are you going?", "t": "你|去|哪儿", "py": "nǐ|qù|nǎr", "p": "？", "r": "Question words stay where the answer would go. 你几点上课？ is answered 我八点上课。 Don't move 几点 / 哪儿 / 什么 to the front."},
+ {"l": 0, "k": "q", "en": "What do you want to eat?", "t": "你|想|吃|什么", "py": "nǐ|xiǎng|chī|shénme", "p": "？", "r": "Question words stay where the answer would go. 你几点上课？ is answered 我八点上课。 Don't move 几点 / 哪儿 / 什么 to the front."},
+ {"l": 0, "k": "q", "en": "How much is this?", "t": "这个|多少|钱", "py": "Zhège|duōshao|qián", "p": "？", "r": "Question words stay where the answer would go. 你几点上课？ is answered 我八点上课。 Don't move 几点 / 哪儿 / 什么 to the front."},
+ {"l": 0, "k": "ma", "en": "Are you a student?", "t": "你|是|学生|吗", "py": "nǐ|shì|xuésheng|ma", "p": "？", "r": "吗 goes at the very end. Keep the normal sentence order and just add 吗 to make a yes/no question."},
+ {"l": 0, "k": "ma", "en": "Do you have class tomorrow?", "t": "你|明天|上课|吗", "py": "nǐ|míngtiān|shàngkè|ma", "p": "？", "alt": ["明天|你|上课|吗"], "r": "吗 goes at the very end. Keep the normal sentence order and just add 吗 to make a yes/no question."},
+ {"l": 0, "k": "ma", "en": "Is he your friend?", "t": "他|是|你|的|朋友|吗", "py": "tā|shì|nǐ|de|péngyou|ma", "p": "？", "r": "吗 goes at the very end. Keep the normal sentence order and just add 吗 to make a yes/no question."},
+ {"l": 0, "k": "qu", "en": "I want to go see a friend.", "t": "我|想|去|见|朋友", "py": "wǒ|xiǎng|qù|jiàn|péngyou", "p": "。", "r": "去 + verb + thing means \"go (and) do something\": 去见朋友, 去吃饭, 去听讲座."},
+ {"l": 0, "k": "qu", "en": "Let's go eat.", "t": "我们|去|吃饭|吧", "py": "wǒmen|qù|chīfàn|ba", "p": "。", "r": "去 + verb + thing means \"go (and) do something\": 去见朋友, 去吃饭, 去听讲座."},
+ {"l": 0, "k": "qu", "en": "Tomorrow I'm going to a lecture.", "t": "我|明天|去|听|讲座", "py": "wǒ|míngtiān|qù|tīng|jiǎngzuò", "p": "。", "alt": ["明天|我|去|听|讲座"], "r": "去 + verb + thing means \"go (and) do something\": 去见朋友, 去吃饭, 去听讲座."},
+ {"l": 0, "k": "want", "en": "I want to study Chinese now!", "t": "我|现在|要|学|中文", "py": "wǒ|xiànzài|yào|xué|Zhōngwén", "p": "！", "alt": ["现在|我|要|学|中文"], "r": "想 / 要 go right before the verb. Subject + (time) + 想/要 + verb + object."},
+ {"l": 0, "k": "want", "en": "Tonight I want to go see a movie.", "t": "我|今天|晚上|想|去|看|电影", "py": "wǒ|jīntiān|wǎnshang|xiǎng|qù|kàn|diànyǐng", "p": "。", "alt": ["今天|晚上|我|想|去|看|电影"], "r": "想 / 要 go right before the verb. Subject + (time) + 想/要 + verb + object."},
+ {"l": 0, "k": "want", "en": "I'd like to drink coffee.", "t": "我|想|喝|咖啡", "py": "wǒ|xiǎng|hē|kāfēi", "p": "。", "r": "想 / 要 go right before the verb. Subject + (time) + 想/要 + verb + object."},
+ {"l": 0, "k": "ye", "en": "I'm a student too.", "t": "我|也|是|学生", "py": "wǒ|yě|shì|xuésheng", "p": "。", "r": "也 and 都 go after the subject, right before the verb (or 是). Never at the end like English \"too\"."},
+ {"l": 0, "k": "ye", "en": "We all have class at eight.", "t": "我们|都|八点|上课", "py": "wǒmen|dōu|bā diǎn|shàngkè", "p": "。", "alt": ["我们|八点|都|上课"], "r": "也 and 都 go after the subject, right before the verb (or 是). Never at the end like English \"too\"."},
+ {"l": 0, "k": "ye", "en": "They are all American too.", "t": "他们|也|都|是|美国人", "py": "tāmen|yě|dōu|shì|Měiguórén", "p": "。", "r": "也 and 都 go after the subject, right before the verb (or 是). Never at the end like English \"too\"."},
+ {"l": 0, "k": "mei", "en": "The lecture hasn't started yet.", "t": "讲座|还|没|开始", "py": "jiǎngzuò|hái|méi|kāishǐ", "p": "。", "r": "还没 + verb means \"not … yet\". 还没 sits right before the verb."},
+ {"l": 0, "k": "mei", "en": "I haven't eaten breakfast yet.", "t": "我|还|没|吃|早饭", "py": "wǒ|hái|méi|chī|zǎofàn", "p": "。", "r": "还没 + verb means \"not … yet\". 还没 sits right before the verb."},
+ {"l": 0, "k": "li", "en": "The dorm is close to the cafeteria.", "t": "宿舍|离|食堂|很|近", "py": "sùshè|lí|shítáng|hěn|jìn", "p": "。", "r": "A 离 B + 很近 / 很远: \"A is close to / far from B\"."},
+ {"l": 0, "k": "li", "en": "The mall is a little far from my home.", "t": "商场|离|我家|有点儿|远", "py": "shāngchǎng|lí|wǒ jiā|yǒudiǎnr|yuǎn", "p": "。", "r": "A 离 B + 很近 / 很远: \"A is close to / far from B\"."},
+ {"l": 0, "k": "dir", "en": "Turn right.", "t": "你|往|右|拐", "py": "nǐ|wǎng|yòu|guǎi", "p": "。", "r": "往 + direction + verb: 往右拐, 往前走. A place where it happens (在路口) goes first."},
+ {"l": 0, "k": "dir", "en": "Turn left at the intersection.", "t": "在|路口|往|左|拐", "py": "zài|lùkǒu|wǎng|zuǒ|guǎi", "p": "。", "r": "往 + direction + verb: 往右拐, 往前走. A place where it happens (在路口) goes first."},
+ {"l": 0, "k": "dir", "en": "First go straight ahead.", "t": "先|往|前|走", "py": "xiān|wǎng|qián|zǒu", "p": "。", "r": "往 + direction + verb: 往右拐, 往前走. A place where it happens (在路口) goes first."},
+ {"l": 0, "k": "de", "en": "This is my book.", "t": "这|是|我|的|书", "py": "Zhè|shì|wǒ|de|shū", "p": "。", "r": "Describer + 的 + noun. The owner or description comes first: 我的书, 我的中国朋友."},
+ {"l": 0, "k": "de", "en": "He is my Chinese friend.", "t": "他|是|我|的|中国|朋友", "py": "tā|shì|wǒ|de|Zhōngguó|péngyou", "p": "。", "r": "Describer + 的 + noun. The owner or description comes first: 我的书, 我的中国朋友."},
+ {"l": 0, "k": "you", "en": "There's a mall near my home.", "t": "我家|附近|有|一个|商场", "py": "wǒ jiā|fùjìn|yǒu|yí ge|shāngchǎng", "p": "。", "r": "Place + 有 + thing means \"there is a thing at the place\": 我家附近有一个商场."},
+ {"l": 0, "k": "you", "en": "There's a library in the school.", "t": "学校|里|有|一个|图书馆", "py": "xuéxiào|li|yǒu|yí ge|túshūguǎn", "p": "。", "r": "Place + 有 + thing means \"there is a thing at the place\": 我家附近有一个商场."},
+ {"l": 0, "k": "time", "en": "See you in a bit!", "t": "我们|一会儿|见", "py": "wǒmen|yíhuìr|jiàn", "p": "！", "alt": ["一会儿|我们|见"], "r": "Time goes before the verb. Put it right after the subject, or at the very start. Never at the end like English."}
 ];
-let woOn=false,woList=[],woI=0,woRes=[],woCur=null,woPlaced=[],woBankT=[],woAnswered=false,woScope=store.get("bd-woscope","all"),woShowPy=store.get("bd-wopy",false);
+let woOn=false,woList=[],woI=0,woRes=[],woCur=null,woPlaced=[],woBankT=[],woAnswered=false,woScope=store.get("bd-woscope2","upto"),woShowPy=store.get("bd-wopy",false);
 function woOff(){if(woOn){woOn=false;$("wo").hidden=true}}
 function woLessonNum(){const st=SETS[setIdx],m=/^Lesson (\d+)/.exec(st.name);return st.group==="Boya Elementary I"&&m?+m[1]:0}
 function woPool(){
-  const n=woLessonNum();if(!n)return WO.slice();
-  const p=WO.filter(s=>woScope==="one"?s.l===n:s.l<=n);return p.length?p:WO.filter(s=>s.l<=n)
+  const n=woLessonNum();if(!n||woScope==="all")return WO.slice();
+  const p=WO.filter(s=>s.l&&(woScope==="one"?s.l===n:s.l<=n));return p.length?p:WO.filter(s=>s.l&&s.l<=n)
 }
 function startWo(list){
   if(quizOn)exitQuiz();closeExtras();
@@ -1687,7 +1728,8 @@ function startWo(list){
   $("practice").hidden=true;$("wo").hidden=false;$("woRun").hidden=false;$("woDone").hidden=true;
   const n=woLessonNum();
   $("woTitle").textContent=list?"Word order: missed sentences":"Word order";
-  $("woScope").hidden=!n||!!list;
+  $("woScope").hidden=!!list;
+  $("woScope").querySelectorAll("button:not([data-s=all])").forEach(b=>b.hidden=!n);
   document.querySelectorAll("#woScope button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.s===woScope));
   $("woPy").setAttribute("aria-pressed",!!woShowPy);$("wo").classList.toggle("wo-py",!!woShowPy);
   renderStrip();woShow();window.scrollTo({top:0});
@@ -1761,7 +1803,7 @@ $("woReset").onclick=()=>{if(woAnswered)return;woBankT=woBankT.concat(woPlaced);
 $("woHear").onclick=()=>{if(woCur)speak(woSentence(woCur))};
 $("woExit").onclick=exitWo;$("woBack").onclick=exitWo;$("woAgain").onclick=()=>startWo();
 $("woRetry").onclick=()=>startWo(woRes.filter(r=>!r.ok).map(r=>r.s));
-document.querySelectorAll("#woScope button").forEach(b=>b.onclick=()=>{woScope=b.dataset.s;store.set("bd-woscope",woScope);startWo()});
+document.querySelectorAll("#woScope button").forEach(b=>b.onclick=()=>{woScope=b.dataset.s;store.set("bd-woscope2",woScope);startWo()});
 $("woPy").onclick=()=>{woShowPy=!woShowPy;$("woPy").setAttribute("aria-pressed",woShowPy);store.set("bd-wopy",woShowPy);$("wo").classList.toggle("wo-py",woShowPy)};
 document.addEventListener("keydown",e=>{
   if(!woOn||$("woRun").hidden||e.target.closest&&e.target.closest("input,textarea"))return;
