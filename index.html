@@ -856,7 +856,7 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
 #spPatCard .spwho{color:var(--muted)}
 .spen{font-size:1.35rem;font-weight:800;line-height:1.3}
 .sppy{color:var(--sky-d);font-weight:700}
-.spzh{font-size:1.9rem;line-height:1.3}
+.spzh{width:100%}
 .spact{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:6px;width:100%}
 .spmic{display:inline-flex;align-items:center;gap:10px;border:0;background:var(--red);color:#fff;border-radius:999px;padding:14px 26px 14px 20px;font-weight:800;font-size:1.05rem;box-shadow:0 5px 0 var(--red-d);transition:transform .1s ease,box-shadow .1s ease}
 .spmic .ico{width:24px;height:24px;stroke:#fff;stroke-width:2.2}
@@ -1266,12 +1266,12 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
           <div class="spwho" id="spTurnWho"></div>
           <div class="spen" id="spTurnEn"></div>
           <div class="sppy" id="spTurnPy"></div>
-          <div class="spzh zh" id="spTurnZh"></div>
+          <div class="spzh" id="spTurnZh"></div>
           <div class="spheard" id="spHeard"></div>
           <div class="spact">
             <button class="spmic" id="spMic"><svg class="ico" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg><span id="spMicLab">Tap and say it</span></button>
             <button class="btn" id="spReveal">Show answer</button>
-            <div class="spgrade" id="spGrade" hidden><button class="btn quiet" id="spHear"><svg class="ico"><use href="#i-sound"/></svg>Hear it</button><button class="btn" id="spBad">Again later</button><button class="btn primary" id="spGood">I said it</button></div>
+            <div class="spgrade" id="spGrade" hidden><button class="btn quiet" id="spHide"><svg class="ico"><use href="#i-eye"/></svg>Hide answer</button><button class="btn quiet" id="spHear"><svg class="ico"><use href="#i-sound"/></svg>Hear it</button><button class="btn" id="spBad">Again later</button><button class="btn primary" id="spGood">I said it</button></div>
           </div>
         </div>
         <div class="verdict ok" id="spDone" hidden><div id="spDoneTxt"></div><div class="nav" style="margin-top:12px"><button class="btn" id="spSwitch">Switch role</button><button class="btn primary" id="spAgain">Play again</button></div></div>
@@ -1283,12 +1283,12 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
           <div class="spwho">Say this in Chinese</div>
           <div class="spen" id="spPatEn"></div>
           <div class="sppy" id="spPatPy"></div>
-          <div class="spzh zh" id="spPatZh"></div>
+          <div class="spzh" id="spPatZh"></div>
           <div class="spheard" id="spPatHeard"></div>
           <div class="spact">
             <button class="spmic" id="spPatMic"><svg class="ico" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg><span>Tap and say it</span></button>
             <button class="btn" id="spPatReveal">Show answer</button>
-            <div class="spgrade" id="spPatGrade" hidden><button class="btn quiet" id="spPatHear"><svg class="ico"><use href="#i-sound"/></svg>Hear it</button><button class="btn" id="spPatBad">Missed it</button><button class="btn primary" id="spPatGood">Got it</button></div>
+            <div class="spgrade" id="spPatGrade" hidden><button class="btn quiet" id="spPatHide"><svg class="ico"><use href="#i-eye"/></svg>Hide answer</button><button class="btn quiet" id="spPatHear"><svg class="ico"><use href="#i-sound"/></svg>Hear it</button><button class="btn" id="spPatBad">Missed it</button><button class="btn primary" id="spPatGood">Got it</button></div>
           </div>
         </div>
         <div class="nav"><button class="btn quiet" id="spPatSkip">Skip</button></div>
@@ -2528,10 +2528,15 @@ document.querySelectorAll("#spHint button").forEach(b=>b.onclick=()=>{spHint=b.d
 $("spSlow").onclick=()=>{spSlow=!spSlow;store.set("bd-spslow",spSlow);spRenderOpts()};
 $("spRestart").onclick=()=>spPickDialogue();$("spAgain").onclick=()=>spPickDialogue();
 $("spSwitch").onclick=()=>{const R=spDlg.roles;spRole=R[(R.indexOf(spRole)+1)%R.length];spPickDialogue()};
-$("spReveal").onclick=spReveal;$("spHear").onclick=()=>sayThen(spDlg.lines[spI][1]);
+$("spReveal").onclick=spReveal;
+// hide the answer again to practise the same line from memory; Show answer brings it back
+$("spHide").onclick=()=>{try{speechSynthesis.cancel()}catch(e){}$("spTurnPy").hidden=true;$("spTurnZh").hidden=true;$("spHeard").innerHTML="";$("spHeard").className="spheard";
+  $("spGrade").hidden=true;$("spReveal").hidden=false;$("spMicLab").textContent="Tap and say it";toast("Answer hidden. Say it again from memory")};
+$("spPatHide").onclick=()=>{try{speechSynthesis.cancel()}catch(e){}$("spPatPy").hidden=true;$("spPatZh").hidden=true;$("spPatHeard").innerHTML="";$("spPatHeard").className="spheard";
+  $("spPatGrade").hidden=true;$("spPatReveal").hidden=false;toast("Answer hidden. Say it again from memory")};$("spHear").onclick=()=>sayThen(spDlg.lines[spI][1]);
 $("spGood").onclick=()=>spAdvance(true);$("spBad").onclick=()=>spAdvance(false);
 $("spMic").onclick=()=>spMicGo(spDlg.lines[spI][1],(T,m)=>{const ok=spShowResult(T,m.heard,m.score,m.hit);
-  $("spTurnPy").hidden=false;$("spTurnPy").classList.remove("nohz");$("spTurnZh").hidden=false;$("spReveal").hidden=true;$("spGrade").hidden=false;if(ok)setTimeout(()=>{if(!$("spTurn").hidden)spAdvance(true)},1100)});
+  $("spTurnPy").hidden=false;$("spTurnPy").classList.remove("nohz");$("spTurnZh").hidden=false;$("spReveal").hidden=true;$("spGrade").hidden=false;if(ok)setTimeout(()=>{if(!$("spTurn").hidden&&!$("spGrade").hidden)spAdvance(true)},1600)});
 $("spPatHear").onclick=()=>sayThen(spPat[0]);
 $("spPatReveal").onclick=()=>{$("spPatPy").hidden=false;$("spPatPy").classList.remove("nohz");$("spPatZh").hidden=false;$("spPatReveal").hidden=true;$("spPatGrade").hidden=false;sayThen(spPat[0])};
 $("spPatGood").onclick=()=>spPatDone(true);$("spPatBad").onclick=()=>spPatDone(false);$("spPatSkip").onclick=spNextPattern;
