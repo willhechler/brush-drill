@@ -866,6 +866,17 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
 @keyframes micpulse{0%,100%{box-shadow:0 5px 0 var(--red-d),0 0 0 0 rgba(240,68,58,.45)}50%{box-shadow:0 5px 0 var(--red-d),0 0 0 14px rgba(240,68,58,0)}}
 .spgrade{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:100%}
 .spgrade .btn{flex:1;min-width:120px}
+.stmiss{background:var(--red-soft);border:2px solid var(--red);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.stmiss .lab{font-weight:800}
+.stres{display:flex;align-items:center;gap:18px;margin-bottom:14px}
+.stgrade{width:76px;height:76px;flex:0 0 auto;border-radius:50%;border:3px solid var(--red);color:var(--red);display:grid;place-items:center;font-size:2.4rem;font-weight:800;font-family:var(--f-hanzi)}
+.stgrade.g-A,.stgrade.g-B{border-color:var(--jade);color:var(--jade)}
+.summary .big.st-C,.summary .big.st-D{color:var(--warn)}.summary .big.st-F{color:var(--red)}
+.summary tr.stbad td{background:var(--red-soft)}
+.summary td .stmk{font-size:1.05rem;letter-spacing:.03em}.summary td .stmk .y{color:var(--jade)}.summary td .stmk .n{color:var(--red);text-decoration:underline wavy;text-underline-offset:3px}
+.summary td.good,.summary td.poor{font-weight:800;font-size:1.1rem}
+#stBody{display:flex;flex-direction:column;gap:14px}
+#stBody .sthear{min-height:32px;padding:4px 8px}
 .spheard:empty{display:none}
 .spheard{width:100%;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:10px 12px;text-align:left;animation:swap .25s var(--ease)}
 .spheard.ok{border-color:var(--jade)}.spheard.no{border-color:var(--red)}
@@ -1379,7 +1390,7 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
       <div class="qhead">
         <h2>Speak</h2>
         <div class="tools">
-          <div class="seg" role="group" aria-label="Speaking practice" id="spMode"><button data-m="dlg">Role-play</button><button data-m="talk">Talk</button><button data-m="map">Map</button><button data-m="pat">Patterns</button><button data-m="foc">Focus</button><button data-m="read">Read aloud</button></div>
+          <div class="seg" role="group" aria-label="Speaking practice" id="spMode"><button data-m="dlg">Role-play</button><button data-m="talk">Talk</button><button data-m="map">Map</button><button data-m="pat">Patterns</button><button data-m="foc">Focus</button><button data-m="read">Read aloud</button><button data-m="test">Test</button></div>
           <button class="chip" id="spExit">Back to practice</button>
         </div>
       </div>
@@ -1493,6 +1504,8 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
         <div class="spheard" id="spReadHeard"></div>
         <div class="nav"><button class="btn" id="spReadHear"><svg class="ico"><use href="#i-sound"/></svg>Hear it</button><button class="spmic sm" id="spReadMic"><svg class="ico" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg><span>Read it to me</span></button></div>
       </div>
+
+      <div class="sheet" id="spTestWrap" hidden><div id="stBody"></div></div>
     </section>
 
     <!-- WORD LIST -->
@@ -2632,8 +2645,8 @@ function spRenderOpts(){
 function spGo(){
   spRun++;try{speechSynthesis.cancel()}catch(e){}
   document.querySelectorAll("#spMode button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.m===spMode));
-  $("spDlgWrap").hidden=spMode!=="dlg";$("spTalkWrap").hidden=spMode!=="talk";$("spMapWrap").hidden=spMode!=="map";$("spFocWrap").hidden=spMode!=="foc";$("spPatWrap").hidden=spMode!=="pat";$("spReadWrap").hidden=spMode!=="read";
-  if(spMode==="dlg")spPickDialogue();else if(spMode==="foc"){foStart();wtRender()}else if(spMode==="map")mpNext();else if(spMode==="talk"){if(!$("tkChat").children.length)tkStart();else tkRenderSuggest()}else if(spMode==="pat"){spPatN=0;spPatOk=0;spNextPattern()}else spRenderRead();
+  $("spDlgWrap").hidden=spMode!=="dlg";$("spTalkWrap").hidden=spMode!=="talk";$("spMapWrap").hidden=spMode!=="map";$("spFocWrap").hidden=spMode!=="foc";$("spPatWrap").hidden=spMode!=="pat";$("spReadWrap").hidden=spMode!=="read";$("spTestWrap").hidden=spMode!=="test";
+  if(spMode==="dlg")spPickDialogue();else if(spMode==="foc"){foStart();wtRender()}else if(spMode==="map")mpNext();else if(spMode==="talk"){if(!$("tkChat").children.length)tkStart();else tkRenderSuggest()}else if(spMode==="pat"){spPatN=0;spPatOk=0;spNextPattern()}else if(spMode==="test")stRender();else spRenderRead();
 }
 /* role-play */
 function spDialogues(){return [...spLesson().dialogues,{name:"Ask the way (new each time)",random:true},{name:"Challenge: you ask the way",challenge:"ask"},{name:"Challenge: you give directions",challenge:"give"}]}
@@ -2765,6 +2778,114 @@ $("spReadMic").onclick=async()=>{const b=$("spReadMic");if(b.classList.contains(
     const h=$("spReadHeard");h.className="spheard "+(pct>=80?"ok":"no");
     h.innerHTML=`<div class="lab">${pct}% of the passage came through</div><div class="zh mark">${[...T].map((c,i)=>`<span class="${m.hit[i]?"y":"n"}">${c}</span>`).join("")}</div>`;
   }catch(e){b.classList.remove("on");toast("Speech recognition isn't working here.")}};
+
+/* ---------- test: see the English, say it in Chinese, graded at the end ---------- */
+// Questions come from the lesson's dialogue lines and/or the pattern drills. Misses are saved per lesson so they can be reviewed or retested later.
+let st=null,stLen=store.get("bd-stlen","10"),stSrc=store.get("bd-stsrc","lines");
+const ST_MIC=`<svg class="ico" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>`;
+const stKey=()=>"bd-stmiss-"+spSet;
+const stMissed=()=>store.get(stKey(),[]);
+const stEsc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function stLines(){const seen=new Set(),out=[];spLesson().dialogues.forEach(d=>d.lines.forEach(l=>{if(!seen.has(l[1])){seen.add(l[1]);out.push({zh:l[1],py:l[2],en:l[3]})}}));return out}
+function stPatterns(n){const out=[],seen=new Set();let g=0;while(out.length<n&&g++<n*30){const p=spPick(SP_PATTERNS)();if(!seen.has(p[0])){seen.add(p[0]);out.push({zh:p[0],py:p[1],en:p[2]})}}return out}
+function stPool(){
+  const n=stLen==="all"?Infinity:+stLen;
+  const L=stSrc==="pat"?[]:shuffled(stLines()),P=stSrc==="lines"?[]:stPatterns(n===Infinity?20:n);
+  const all=stSrc==="both"?shuffled([...L.slice(0,Math.ceil((n===Infinity?L.length*2:n)/2)),...P]):[...L,...P];
+  return n===Infinity?all:all.slice(0,n);
+}
+function stSeg(id,val,set){const el=$(id);el.querySelectorAll("button").forEach(b=>{b.setAttribute("aria-pressed",b.dataset.v===val);b.onclick=()=>{set(b.dataset.v);stRender()}})}
+function stRender(){
+  st=null;spRun++;const miss=stMissed(),b=$("stBody");
+  b.innerHTML=`<p class="tqask">You see the English and say it in Chinese. No pinyin, no hints. You get your grade at the end.</p>
+  <div class="rvopts"><span class="lab">Questions from</span><div class="seg" id="stSrc" role="group" aria-label="Questions from"><button data-v="lines">Lesson lines</button><button data-v="pat">Patterns</button><button data-v="both">Both</button></div></div>
+  <div class="rvopts"><span class="lab">How many</span><div class="seg" id="stLen" role="group" aria-label="How many questions"><button data-v="10">10</button><button data-v="20">20</button><button data-v="all">All</button></div></div>
+  <div class="nav"><button class="btn primary" id="stGo">Start test</button></div>
+  ${miss.length?`<div class="stmiss"><div class="lab">You have ${miss.length} missed line${miss.length>1?"s":""} saved from ${stEsc(spLesson().name)}</div><div class="nav"><button class="btn" id="stMissRev">Review them</button><button class="btn" id="stMissGo">Retest them</button></div></div>`:""}
+  ${SR?"":`<p class="wlhint">This browser can't listen, so say each line out loud, tap Check, and mark yourself honestly. On the iPad, the home-screen app in Safari can listen.</p>`}`;
+  stSeg("stSrc",stSrc,v=>{stSrc=v;store.set("bd-stsrc",v)});stSeg("stLen",stLen,v=>{stLen=v;store.set("bd-stlen",v)});
+  $("stGo").onclick=()=>stStart(stPool(),false);
+  if(miss.length){$("stMissRev").onclick=()=>stReview(miss.slice(),true);$("stMissGo").onclick=()=>stStart(shuffled(miss),true)}
+}
+function stStart(items,retest){if(!items.length){toast("No questions for this choice");return}st={items,i:0,res:[],retest};stAsk()}
+function stAsk(){
+  const it=st.items[st.i],b=$("stBody");spRun++;try{speechSynthesis.cancel()}catch(e){}
+  b.innerHTML=`<div class="tqtop"><span class="meta">${st.retest?"Retest · ":""}Question ${st.i+1} of ${st.items.length}</span><button class="btn quiet" id="stQuit">End test</button></div>
+  <div class="bar"><i style="width:${st.i/st.items.length*100}%"></i></div>
+  <div class="spturn" id="stCard"><div class="spwho">Say this in Chinese</div><div class="spen">${stEsc(it.en)}</div>
+    <div class="spheard" id="stHeard"></div><div class="sppy" id="stAns" hidden></div>
+    <div class="spact" id="stAct">${SR?`<button class="spmic" id="stMic">${ST_MIC}<span id="stMicLab">Tap and say it</span></button>`:`<button class="btn primary" id="stCheck">Check</button>`}
+      <div class="spgrade" id="stNextRow" hidden><button class="btn" id="stRetry">Say it again</button><button class="btn primary" id="stNext">Next</button></div>
+      <div class="spgrade" id="stSelf" hidden><button class="btn quiet" id="stHear"><svg class="ico"><use href="#i-sound"/></svg>Hear it</button><button class="btn" id="stBad">Missed it</button><button class="btn primary" id="stGood">Got it</button></div>
+      <button class="btn quiet" id="stSkip">I don't know</button></div></div>`;
+  replay($("stCard"),"swap");
+  let last=null;
+  const rec=(ok,heard,hit)=>{st.res.push({it,ok,heard:heard||"",hit:hit||null});st.i++;st.i>=st.items.length?stFinish():stAsk()};
+  $("stSkip").onclick=()=>rec(false,"");
+  $("stQuit").onclick=()=>{if(!st.res.length){stRender();return}stFinish()};
+  if(SR){
+    const listen=async()=>{const btn=$("stMic");if(btn.classList.contains("on")){try{spListen.cur.stop()}catch(e){}return}
+      btn.classList.add("on");$("stMicLab").textContent="Listening… tap to stop";
+      try{const alts=await spListen(p=>{$("stHeard").className="spheard";$("stHeard").innerHTML=`<div class="you">Heard: <span class="zh">${stEsc(p)}</span></div>`});
+        btn.classList.remove("on");const T=spNorm(it.zh);let best={score:-1};
+        for(const a of alts.length?alts:[""]){const m=spMatch(T,spNorm(a));if(m.score>best.score)best={...m,heard:a}}
+        last=best;$("stHeard").className="spheard";$("stHeard").innerHTML=`<div class="you">Heard: <span class="zh">${stEsc(best.heard||"nothing")}</span></div>`;
+        btn.hidden=true;$("stNextRow").hidden=false;$("stSkip").hidden=true;
+      }catch(e){btn.classList.remove("on");$("stMicLab").textContent="Tap and say it";
+        toast(e==="no-speech"?"Didn't hear anything. Try again.":e==="not-allowed"||e==="service-not-allowed"?"The microphone isn't allowed here.":"Speech recognition isn't working. Try again.")}};
+    $("stMic").onclick=listen;
+    $("stRetry").onclick=()=>{$("stNextRow").hidden=true;$("stMic").hidden=false;$("stSkip").hidden=false;$("stHeard").innerHTML="";listen()};
+    $("stNext").onclick=()=>rec(last&&last.score>=.8,last&&last.heard,last&&last.hit);
+  }else{
+    $("stCheck").onclick=()=>{$("stAns").innerHTML=spGloss(it.zh,it.py);$("stAns").hidden=false;$("stCheck").hidden=true;$("stSkip").hidden=true;$("stSelf").hidden=false;sayThen(it.zh)};
+    $("stHear").onclick=()=>sayThen(it.zh);
+    $("stGood").onclick=()=>rec(true,"(marked yourself)");$("stBad").onclick=()=>rec(false,"(marked yourself)");
+  }
+  $("stCard").scrollIntoView({block:"nearest",behavior:"smooth"});
+}
+function stGradeLetter(p){return p>=90?"A":p>=80?"B":p>=70?"C":p>=60?"D":"F"}
+function stFinish(){
+  spRun++;try{speechSynthesis.cancel()}catch(e){}try{spListen.cur&&spListen.cur.abort()}catch(e){}
+  const R=st.res,n=R.length,ok=R.filter(r=>r.ok).length,pct=n?Math.round(ok/n*100):0,missed=R.filter(r=>!r.ok).map(r=>r.it);
+  // saved misses: drop anything you just got right, add anything you just missed
+  const M=new Map(stMissed().map(x=>[x.zh,x]));R.forEach(r=>{if(r.ok)M.delete(r.it.zh);else M.set(r.it.zh,r.it)});store.set(stKey(),[...M.values()]);
+  const L=stGradeLetter(pct),msg=pct>=90?"Excellent!":pct>=75?"Nice work.":pct>=50?"Getting there.":"Keep practicing. Review the ones you missed.";
+  const b=$("stBody");
+  b.innerHTML=`<div class="summary"><div class="stres"><div class="stgrade g-${L}">${L}</div><div><div class="big st-${L}">${pct}%</div><div class="meta">${ok} of ${n} right · ${msg}</div></div></div>
+  <div class="nav">${missed.length?`<button class="btn primary" id="stRev">Review the ${missed.length} I missed</button><button class="btn" id="stRe">Retest just those</button>`:""}<button class="btn${missed.length?"":" primary"}" id="stNew">New test</button></div>
+  <div class="tbl"><table><thead><tr><th></th><th>English</th><th>Answer</th><th>You said</th><th></th></tr></thead><tbody>${R.map((r,k)=>`<tr class="${r.ok?"":"stbad"}"><td class="${r.ok?"good":"poor"}">${r.ok?"✓":"✗"}</td><td>${stEsc(r.it.en)}</td><td><span class="zh">${stEsc(r.it.zh)}</span><div class="meta">${stEsc(r.it.py)}</div></td><td>${r.hit?`<span class="zh stmk">${[...spNorm(r.it.zh)].map((c,i)=>`<span class="${r.hit[i]?"y":"n"}">${c}</span>`).join("")}</span><div class="meta">Heard: <span class="zh">${stEsc(r.heard||"nothing")}</span></div>`:`<span class="meta">${stEsc(r.heard||"skipped")}</span>`}</td><td><button class="btn quiet sthear" data-k="${k}" aria-label="Hear it"><svg class="ico"><use href="#i-sound"/></svg></button></td></tr>`).join("")}</tbody></table></div></div>`;
+  b.querySelectorAll(".sthear").forEach(x=>x.onclick=()=>sayThen(R[+x.dataset.k].it.zh));
+  if(missed.length){$("stRev").onclick=()=>stReview(missed,false);$("stRe").onclick=()=>stStart(shuffled(missed),true)}
+  $("stNew").onclick=stRender;
+  b.scrollIntoView({block:"start",behavior:"smooth"});
+}
+// walk through missed lines with the answer, word-by-word glosses and audio; you can practise saying each one
+function stReview(items,saved){
+  let i=0;const b=$("stBody");
+  const show=()=>{
+    if(!items.length){stRender();return}
+    if(i>=items.length)i=items.length-1;const it=items[i];spRun++;
+    b.innerHTML=`<div class="tqtop"><span class="meta">Reviewing missed · ${i+1} of ${items.length}</span><button class="btn quiet" id="srvDone">Done</button></div>
+    <div class="spturn" id="srvCard"><div class="spwho">You missed this one</div><div class="spen">${stEsc(it.en)}</div>
+      <div class="sppy">${spGloss(it.zh,it.py)}</div><div class="spzh">${spOrder(it.zh)}</div>
+      <div class="spheard" id="srvHeard"></div>
+      <div class="spact"><div class="spgrade"><button class="btn" id="srvHear"><svg class="ico"><use href="#i-sound"/></svg>Hear it</button>${SR?`<button class="spmic sm" id="srvMic">${ST_MIC}<span>Practice saying it</span></button>`:""}</div>
+      <div class="spgrade"><button class="btn quiet" id="srvPrev" ${i?"":"disabled"}>Back</button>${saved?`<button class="btn" id="srvKnow">I know this now</button>`:""}<button class="btn primary" id="srvNext">${i<items.length-1?"Next":"Retest these"}</button></div></div></div>`;
+    replay($("srvCard"),"swap");sayThen(it.zh);
+    $("srvHear").onclick=()=>sayThen(it.zh);
+    $("srvDone").onclick=stRender;
+    $("srvPrev").onclick=()=>{i--;show()};
+    $("srvNext").onclick=()=>{if(i<items.length-1){i++;show()}else stStart(shuffled(items),true)};
+    if(saved)$("srvKnow").onclick=()=>{store.set(stKey(),stMissed().filter(x=>x.zh!==it.zh));items.splice(i,1);toast("Removed from your missed list");show()};
+    if(SR)$("srvMic").onclick=async()=>{const btn=$("srvMic");if(btn.classList.contains("on")){try{spListen.cur.stop()}catch(e){}return}
+      btn.classList.add("on");try{const alts=await spListen();btn.classList.remove("on");const T=spNorm(it.zh);let best={score:-1};
+        for(const a of alts.length?alts:[""]){const m=spMatch(T,spNorm(a));if(m.score>best.score)best={...m,heard:a}}
+        const ok=best.score>=.8,h=$("srvHeard");h.className="spheard "+(ok?"ok":"no");
+        h.innerHTML=`<div class="lab">${ok?"Sounds right":"Not quite. Green is what came through"}</div><div class="zh mark">${[...T].map((c,k)=>`<span class="${best.hit[k]?"y":"n"}">${c}</span>`).join("")}</div><div class="you">Heard: <span class="zh">${stEsc(best.heard||"nothing")}</span></div>`;
+      }catch(e){btn.classList.remove("on");toast("Didn't catch that. Try again.")}};
+  };
+  show();
+}
 
 /* ---------- free conversation: a classmate on campus answers whatever you ask ---------- */
 // Campus facts the classmate knows. You're standing at the main gate (学校大门).
