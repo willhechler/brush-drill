@@ -1023,6 +1023,12 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
 .chopts button.wrong{border-color:var(--red);border-bottom-color:var(--red-d);background:var(--red-soft);animation:shake .3s}
 .chmodel{width:100%;background:var(--card);border-radius:14px;padding:10px;text-align:left}
 #chTurn .tkbar{width:100%}
+.wpy{font-size:1.05rem;font-weight:800;color:var(--sky-d)}
+.foopts button small{display:block;font-size:.8rem;font-weight:700;color:var(--sky-d)}
+.wpybig{font-size:2.2rem!important;color:var(--sky-d);letter-spacing:.02em}
+#wtOpts .rvopts{align-items:flex-start}
+.wtrefd .wtchg::before{content:"Show"}.wtrefd[open] .wtchg::before{content:"Hide"}
+.wtrefd .wtgrid{margin-top:0}
 </style>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5M18 7a7 7 0 0 1 0 10"/></symbol>
@@ -1415,6 +1421,11 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
         <div id="wtBox" hidden>
           <div class="pgpick" id="wtPick" role="group" aria-label="Word type"></div>
           <div id="wtRef"></div>
+          <details class="opts" id="wtOpts"><summary><svg class="ico"><use href="#i-set"/></svg><span class="sum" id="wtSum"></span><span class="chg"></span></summary><div class="optbody">
+            <div class="rvopts"><span class="lab">Questions</span><div class="pgpick" id="wtKinds" role="group" aria-label="Question types">
+              <button data-k="py">Pinyin → English</button><button data-k="zh">Characters → English</button><button data-k="en">English → word</button><button data-k="listen">Listen → word</button><button data-k="pic">Picture → word</button><button data-k="tap">Sentence → tap the spot</button></div></div>
+            <div class="rvopts"><span class="lab">Word choices show</span><div class="seg" id="wtShow" role="group" aria-label="How answer choices look"><button data-s="zh">Characters</button><button data-s="py">Pinyin</button><button data-s="both">Both</button></div></div>
+          </div></details>
           <div class="tqtop"><span class="meta">Practice</span><span class="tqscore" id="wtScore"></span></div>
           <div class="foq" id="wtQ"></div>
         </div>
@@ -2947,7 +2958,7 @@ const WT=[
   {id:"time",name:"Time words",note:"Time words go before the verb, at the start or right after the subject. Bigger units come first: 明天上午 (tomorrow morning).",items:[
     ["今天","jīntiān","today"],["明天","míngtiān","tomorrow"],["早上","zǎoshang","early morning"],["上午","shàngwǔ","morning (before noon)"],["中午","zhōngwǔ","noon"],["下午","xiàwǔ","afternoon"],["晚上","wǎnshang","evening"],["现在","xiànzài","now"],["周末","zhōumò","weekend"]]}
 ];
-let wtId=store.get("bd-wtid","pos"),wtCur=null,wtN=0,wtOk=0,foTab=store.get("bd-fotab","w");
+let wtKinds=store.get("bd-wtkinds",["py","zh","en","listen","pic","tap"]),wtShow=store.get("bd-wtshow","zh"),wtId=store.get("bd-wtid","pos"),wtCur=null,wtN=0,wtOk=0,foTab=store.get("bd-fotab","w");
 const wtGroup=()=>WT.find(g=>g.id===wtId)||WT[0];
 const WT_LM=["银行","食堂","书店","邮局","宿舍"],WT_TH=["超市","医院","图书馆","书店","食堂","银行","邮局"];
 // slot positions in a 300x300 picture
@@ -2970,13 +2981,20 @@ function wtRender(){
   const G=wtGroup();
   $("wtPick").innerHTML=WT.map(g=>`<button data-g="${g.id}" aria-pressed="${g.id===G.id}">${g.name}</button>`).join("");
   $("wtPick").querySelectorAll("button").forEach(b=>b.onclick=()=>{wtId=b.dataset.g;store.set("bd-wtid",wtId);wtN=0;wtOk=0;wtRender()});
-  $("wtRef").innerHTML=`<p class="wtnote">${G.note}</p><div class="wtgrid">${G.items.map(i=>`<button class="wtc" data-say="${i[0]}"><span class="zh">${i[0]}</span><span class="py">${i[1]}</span><span class="en">${i[2]}</span></button>`).join("")}</div>`;
+  $("wtRef").innerHTML=`<details class="opts wtrefd"><summary><svg class="ico"><use href="#i-eye"/></svg><span class="sum">Study the ${G.name.toLowerCase()} first</span><span class="chg wtchg"></span></summary><div class="optbody"><p class="wtnote">${G.note}</p><div class="wtgrid">${G.items.map(i=>`<button class="wtc" data-say="${i[0]}"><span class="zh">${i[0]}</span><span class="py">${i[1]}</span><span class="en">${i[2]}</span></button>`).join("")}</div></div></details>`;
   $("wtRef").querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>sayThen(b.dataset.say));
   wtNext();
 }
-function wtNext(){
+const wtLab=o=>wtShow==="py"?`<span class="wpy">${o[1]}</span>`:wtShow==="both"?`<span class="zh">${o[0]}</span><small>${o[1]}</small>`:`<span class="zh">${o[0]}</span>`;
+function wtRenderOpts(){
+  document.querySelectorAll("#wtKinds button").forEach(b=>b.setAttribute("aria-pressed",wtKinds.includes(b.dataset.k)));
+  document.querySelectorAll("#wtShow button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.s===wtShow));
+  const N={py:"pinyin → English",zh:"characters → English",en:"English → word",listen:"listening",pic:"pictures",tap:"tap the spot"};
+  $("wtSum").textContent=`Questions: ${wtKinds.map(k=>N[k]).join(", ")}`;
+}
+function wtNext(){wtRenderOpts();
   const G=wtGroup(),items=G.items,picItems=items.filter(i=>i[3]);
-  const kinds=G.pic?["pic","pic","tap","en","zh","listen"]:["en","zh","listen","en"];
+  let kinds=wtKinds.filter(k=>G.pic||(k!=="pic"&&k!=="tap"));if(!kinds.length)kinds=["py"];
   let kind=spPick(kinds);const pool=(kind==="pic"||kind==="tap")?picItems:items;
   const it=spPick(pool),others=shuffled(pool.filter(x=>x!==it)).slice(0,3),opts=shuffled([it,...others]);
   const lm=spPick(WT_LM);let th;do th=spPick(WT_TH);while(th===lm);
@@ -2986,11 +3004,12 @@ function wtNext(){
   const sent=`${th}在${lm}${it[3]==="in"?"":de}${zhPos}`;
   let h="";
   if(kind==="pic"){h=`<div class="fokind">Where is the ${th==="超市"?"supermarket":"marked place"}? Pick the word</div><div class="foen zh">${th}在${lm}的哪边？</div>${wtPic(G.pic,lm,it[3],th)}
-    <div class="foopts">${opts.map(o=>`<button data-o="${o[0]}"><span class="zh">${o[0]}</span></button>`).join("")}</div>`}
+    <div class="foopts">${opts.map(o=>`<button data-o="${o[0]}">${wtLab(o)}</button>`).join("")}</div>`}
   else if(kind==="tap"){h=`<div class="fokind">Tap where it is</div><div class="foen zh">${sent}。</div><div class="fopy">${it[1]} = ${it[2]}</div>${wtPic(G.pic,lm,null,"",true)}`}
-  else if(kind==="en"){h=`<div class="fokind">Which word means</div><div class="foen">${it[2]}</div><div class="foopts">${opts.map(o=>`<button data-o="${o[0]}"><span class="zh">${o[0]}</span></button>`).join("")}</div>`}
+  else if(kind==="en"){h=`<div class="fokind">Which word means</div><div class="foen">${it[2]}</div><div class="foopts">${opts.map(o=>`<button data-o="${o[0]}">${wtLab(o)}</button>`).join("")}</div>`}
+  else if(kind==="py"){h=`<div class="fokind">What does this pinyin mean?</div><div class="foen wpybig">${it[1]}</div><div class="foopts en">${opts.map(o=>`<button data-o="${o[0]}">${o[2]}</button>`).join("")}</div>`}
   else if(kind==="zh"){h=`<div class="fokind">What does this mean?</div><div class="foen zh wbig">${it[0]}</div><div class="foopts en">${opts.map(o=>`<button data-o="${o[0]}">${o[2]}</button>`).join("")}</div>`}
-  else{h=`<div class="fokind">Listen and pick the word</div><button class="spmic sm wlisten" id="wtPlay"><svg class="ico"><use href="#i-sound"/></svg><span>Play again</span></button><div class="foopts">${opts.map(o=>`<button data-o="${o[0]}"><span class="zh">${o[0]}</span></button>`).join("")}</div>`;setTimeout(()=>sayThen(it[0]),200)}
+  else{h=`<div class="fokind">Listen and pick the word</div><button class="spmic sm wlisten" id="wtPlay"><svg class="ico"><use href="#i-sound"/></svg><span>Play again</span></button><div class="foopts">${opts.map(o=>`<button data-o="${o[0]}">${wtLab(o)}</button>`).join("")}</div>`;setTimeout(()=>sayThen(it[0]),200)}
   h+=`<div class="fores"></div>`;
   $("wtQ").innerHTML=h;replay($("wtQ"),"swap");
   if($("wtPlay"))$("wtPlay").onclick=()=>sayThen(it[0]);
@@ -3003,6 +3022,8 @@ function wtNext(){
   $("wtQ").querySelectorAll("[data-slot]").forEach(s=>s.onclick=()=>{if(wtCur.done)return;const ok=s.dataset.slot===it[3];s.classList.add(ok?"right":"wrong");
     if(!ok){const c=$("wtQ").querySelector(`[data-slot="${it[3]}"]`);c&&c.classList.add("right")}finish(ok)});
 }
+document.querySelectorAll("#wtKinds button").forEach(b=>b.onclick=()=>{const k=b.dataset.k;wtKinds=wtKinds.includes(k)?wtKinds.filter(x=>x!==k):[...wtKinds,k];if(!wtKinds.length)wtKinds=[k];store.set("bd-wtkinds",wtKinds);wtNext()});
+document.querySelectorAll("#wtShow button").forEach(b=>b.onclick=()=>{wtShow=b.dataset.s;store.set("bd-wtshow",wtShow);wtNext()});
 document.querySelectorAll("#foTab button").forEach(b=>b.onclick=()=>{foTab=b.dataset.t;store.set("bd-fotab",foTab);wtRender()});
 /* ---------- challenge role-play: listen without text, answer without prompts ---------- */
 // what kind of thing a line is asking or saying
