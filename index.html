@@ -935,6 +935,43 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
 .tkfix .zh{font-size:1rem;font-weight:700}
 .tkfix .py{color:var(--sky-d);font-weight:700}
 .spl.me.tk .bub{padding-right:14px}
+
+.fopick button{display:inline-flex;flex-direction:column;align-items:center;line-height:1.2;padding:6px 12px}
+.fopick button .zh{font-size:1.15rem}
+.fopick button small{font-size:.66rem;font-weight:600;color:var(--faint)}
+#foExplain{display:flex;flex-direction:column;gap:12px}
+.fox{border:2px solid var(--line);border-radius:18px;padding:14px 16px;background:var(--well);display:flex;flex-direction:column;gap:8px}
+.foh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.foh .zh{font-size:2.2rem;line-height:1}
+.foh .py{font-weight:800;color:var(--sky);font-size:1.2rem}
+.foh .en{font-weight:700;color:var(--muted)}
+.foh .say{margin-left:auto;border:2px solid var(--line);background:var(--card);border-radius:12px;width:38px;height:38px;display:grid;place-items:center;color:var(--sky)}
+.fox p{margin:0;font-size:.92rem;line-height:1.5}
+.fox p b{color:var(--tang)}
+.fopat{font-size:.88rem}.fopat b{margin-right:6px}.fopat .zh{font-size:1.1rem;color:var(--tang);font-weight:700}
+.foex{background:var(--card);border-radius:14px;padding:8px 10px}
+.foex .en{font-size:.82rem;color:var(--muted);margin-top:2px}
+.spw.fomark{background:var(--sun);box-shadow:0 2px 0 var(--sun-d)}
+.spw.fomark .p,.spw.fomark .e{color:#3a2c00}
+.foq{border:2px solid var(--sun-d);background:var(--sun-soft);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center}
+.fokind{font-size:.82rem;font-weight:800;color:#7a5b00}
+.fokind .zh{font-size:1rem}
+.foen{font-size:1.25rem;font-weight:800;line-height:1.3}
+.fosent{font-size:1.7rem;line-height:1.6}
+.foblank{display:inline-block;min-width:2.2em;border-bottom:3px solid var(--sun-d);color:var(--sun-d);margin:0 3px}
+.foopts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.foopts button{border:2px solid var(--line);border-bottom-width:5px;background:var(--card);border-radius:14px;padding:10px 20px;font-size:1.4rem}
+.foopts button.right{border-color:var(--jade);border-bottom-color:var(--jade-d);background:var(--jade-soft)}
+.foopts button.wrong{border-color:var(--red);border-bottom-color:var(--red-d);background:var(--red-soft);animation:shake .3s}
+.foplace{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:2px}
+.fogap{border:2px dashed var(--sun-d);background:var(--card);color:var(--sun-d);border-radius:10px;min-width:34px;height:40px;font-size:1.1rem;font-weight:800;margin:0 3px;padding:0 6px}
+.fogap.right{border:2px solid var(--jade);background:var(--jade-soft);color:var(--jade-d);font-family:var(--f-hanzi);font-size:1.4rem}
+.fogap.wrong{border-color:var(--red);color:var(--red);animation:shake .3s}
+.foanswer{width:100%}
+.fores:empty{display:none}
+.fores{width:100%;text-align:left}
+.fofull{margin-top:8px}.forule{font-size:.86rem;margin-top:6px;line-height:1.45}.forule b{color:var(--tang)}
+.fores .nav{margin-top:10px}
 </style>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5M18 7a7 7 0 0 1 0 10"/></symbol>
@@ -1265,7 +1302,7 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
       <div class="qhead">
         <h2>Speak</h2>
         <div class="tools">
-          <div class="seg" role="group" aria-label="Speaking practice" id="spMode"><button data-m="dlg">Role-play</button><button data-m="talk">Talk</button><button data-m="pat">Patterns</button><button data-m="read">Read aloud</button></div>
+          <div class="seg" role="group" aria-label="Speaking practice" id="spMode"><button data-m="dlg">Role-play</button><button data-m="talk">Talk</button><button data-m="pat">Patterns</button><button data-m="foc">Focus</button><button data-m="read">Read aloud</button></div>
           <button class="chip" id="spExit">Back to practice</button>
         </div>
       </div>
@@ -1305,6 +1342,13 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
           <button class="btn primary" id="tkSend">Send</button>
         </div>
         <div class="nav"><button class="btn quiet" id="tkNew">Start a new conversation</button></div>
+      </div>
+
+      <div class="sheet" id="spFocWrap" hidden>
+        <details class="opts foopts-d" open><summary><svg class="ico"><use href="#i-set"/></svg><span class="sum">Words I'm working on: <span class="zh" id="foSum"></span></span><span class="chg"></span></summary><div class="optbody"><div class="pgpick fopick" id="foPick"></div></div></details>
+        <div id="foExplain"></div>
+        <div class="tqtop"><span class="meta">Practice</span><span class="tqscore" id="foScore"></span></div>
+        <div class="foq" id="foQ"></div>
       </div>
 
       <div class="sheet" id="spPatWrap" hidden>
@@ -2472,8 +2516,8 @@ function spRenderOpts(){
 function spGo(){
   spRun++;try{speechSynthesis.cancel()}catch(e){}
   document.querySelectorAll("#spMode button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.m===spMode));
-  $("spDlgWrap").hidden=spMode!=="dlg";$("spTalkWrap").hidden=spMode!=="talk";$("spPatWrap").hidden=spMode!=="pat";$("spReadWrap").hidden=spMode!=="read";
-  if(spMode==="dlg")spPickDialogue();else if(spMode==="talk"){if(!$("tkChat").children.length)tkStart();else tkRenderSuggest()}else if(spMode==="pat"){spPatN=0;spPatOk=0;spNextPattern()}else spRenderRead();
+  $("spDlgWrap").hidden=spMode!=="dlg";$("spTalkWrap").hidden=spMode!=="talk";$("spFocWrap").hidden=spMode!=="foc";$("spPatWrap").hidden=spMode!=="pat";$("spReadWrap").hidden=spMode!=="read";
+  if(spMode==="dlg")spPickDialogue();else if(spMode==="foc")foStart();else if(spMode==="talk"){if(!$("tkChat").children.length)tkStart();else tkRenderSuggest()}else if(spMode==="pat"){spPatN=0;spPatOk=0;spNextPattern()}else spRenderRead();
 }
 /* role-play */
 function spDialogues(){return [...spLesson().dialogues,{name:"Ask the way (new each time)",random:true}]}
@@ -2727,6 +2771,86 @@ async function tkSend(text){
     else r={zh:"对不起，我没听懂。你可以说：“请问，……在哪儿？”",py:"Duìbuqǐ, wǒ méi tīngdǒng. Nǐ kěyǐ shuō: “Qǐngwèn, …… zài nǎr?”",en:"Sorry, I didn't understand. You could say: \"Excuse me, where is …?\""};
   }
   setTimeout(()=>{tkSay(r);tkRenderSuggest()},350);
+}
+
+/* ---------- focus words: explain one tricky word, then drill it ---------- */
+const FOCUS={
+  "往":{py:"wǎng",en:"toward",pat:"往 + 左/右/前 + 拐/走",how:"往 points the way. It goes with a direction (左 left, 右 right, 前 forward) and that whole piece comes right <b>before</b> the verb: 往左拐 (turn toward the left), 往前走 (walk toward the front). Never put it after the verb: 拐往左 is wrong."},
+  "一直":{py:"yìzhí",en:"straight on, keep (doing)",pat:"一直 + 往前 + 走",how:"Think of 一直 as <b>keep going</b>. It sits before the verb, and before 往 if there is one: 一直往前走 (keep going straight ahead), 一直走 (keep walking). It's never at the end of the sentence."},
+  "拐":{py:"guǎi",en:"to turn",pat:"往 + direction + 拐",how:"拐 is the verb and it comes <b>last</b>: the direction goes first, then 拐. 往右拐 (turn right), 第一个路口往左拐 (turn left at the first intersection)."},
+  "离":{py:"lí",en:"from (distance)",pat:"A + 离 + B + 远/近",how:"离 measures the distance between two places. The place you're talking about comes first, the reference place comes right after 离, and 远 (far) or 近 (near) comes last: 我家离学校不远 (my home isn't far from school)."},
+  "从":{py:"cóng",en:"from",pat:"从 + A + 到 + B + …",how:"从 marks the starting point and pairs with 到 for the end point. The whole 从……到…… piece goes <b>before</b> the verb or the question: 从宿舍到教室走路五分钟."},
+  "到":{py:"dào",en:"to, arrive",pat:"从 A 到 B / 就到了",how:"After 从 it means <b>to</b> (从这儿到银行 = from here to the bank). As a verb it means <b>arrive</b>: 就到了 (and you've arrived)."},
+  "就":{py:"jiù",en:"just, right, then",pat:"就 + 在 / 就 + 到了",how:"就 goes right before the verb. 就在学校附近 = <b>right</b> near the school. After a step, 就到了 = and <b>then</b> you're there."},
+  "然后":{py:"ránhòu",en:"then, after that",pat:"先……，然后……",how:"然后 starts the next step of a sequence, at the beginning of the clause: 先一直往前走，然后往左拐. To ask what comes next, say 然后呢？"},
+  "再":{py:"zài",en:"then (next step)",pat:"…，再 + 往… + 拐",how:"再 also means then, but it sits right <b>before the next verb</b>, not at the start: 走二百米，再往左拐 (walk 200 meters, then turn left)."},
+  "先":{py:"xiān",en:"first",pat:"先 + verb，然后 + …",how:"先 comes before the first action, and usually 然后 introduces the next one: 先往前走，然后往右拐."},
+  "附近":{py:"fùjìn",en:"nearby",pat:"place + 附近",how:"附近 comes <b>after</b> the place it's near (the reverse of English): 学校附近 = near the school. 学校附近有书店吗？= Is there a bookstore near the school?"},
+  "旁边":{py:"pángbiān",en:"next to",pat:"在 + place + 旁边",how:"Like 附近, 旁边 follows the place: 在食堂旁边 = next to the canteen. The landmark always comes first."},
+  "对面":{py:"duìmiàn",en:"across from",pat:"在 + place + 的对面",how:"Place + 的对面: 在超市的对面 = across from the supermarket. Landmark first, then 的对面."},
+  "有点儿":{py:"yǒudiǎnr",en:"a little",pat:"有点儿 + adjective",how:"有点儿 goes right before an adjective, usually for something not ideal: 有点儿远 = a bit far."},
+  "带":{py:"dài",en:"to take (someone)",pat:"带 + person + 去 + place",how:"带 + the person + 去 + where: 我带你去吧 (I'll take you), 我带你去银行."},
+  "怎么":{py:"zěnme",en:"how",pat:"怎么 + verb",how:"怎么 goes right before the verb it asks about: 怎么走 (how do I go), 去银行怎么走 (how do I get to the bank). The destination comes before 怎么."},
+  "在":{py:"zài",en:"at, in",pat:"thing + 在 + place",how:"在 says where something is: the thing first, then 在, then the place: 银行在食堂旁边. To ask, put 哪儿 where the place goes: 银行在哪儿？"}
+};
+const FO_CONFUSE=["往","一直","拐","再","就","先","然后","从","到","离","在","附近","旁边","走"];
+let foWords=store.get("bd-spfocus",["往","一直"]),foPool=[],foCur=null,foN=0,foOk=0,foDone=false;
+// every sentence in the speaking material that uses one of the chosen words
+function foBuildPool(){
+  const lines=[];SPEAK.forEach(L=>L.dialogues.forEach(d=>d.lines.forEach(l=>lines.push([l[1],l[2],l[3]]))));
+  for(let k=0;k<160;k++){const f=SP_PATTERNS[k%SP_PATTERNS.length]();lines.push([f[0],f[1],f[2]])}
+  for(let k=0;k<20;k++)spRandomDialogue().lines.forEach(l=>lines.push([l[1],l[2],l[3]]));
+  if(typeof WO!=="undefined")WO.forEach(w=>lines.push([w.t.split("|").map((z,i)=>z+(w.c===i?"，":"")).join("")+w.p,"",w.en]));
+  const seen=new Set();foPool=[];
+  for(const [zh,py,en] of lines){if(seen.has(zh))continue;seen.add(zh);
+    const W=spWords(zh);const ws=foWords.filter(f=>W.some(x=>x.w===f));if(ws.length)foPool.push({zh,py,en,W,ws})}
+}
+function foRenderPick(){
+  const all=[...new Set([...Object.keys(FOCUS),...foWords])];
+  $("foPick").innerHTML=all.map(w=>`<button data-w="${w}" aria-pressed="${foWords.includes(w)}"><span class="zh">${w}</span>${FOCUS[w]?`<small>${FOCUS[w].en.split(",")[0]}</small>`:""}</button>`).join("");
+  $("foPick").querySelectorAll("button").forEach(b=>b.onclick=()=>{const w=b.dataset.w;foWords=foWords.includes(w)?foWords.filter(x=>x!==w):[...foWords,w];if(!foWords.length)foWords=[w];store.set("bd-spfocus",foWords);foStart()});
+  $("foSum").textContent=foWords.join("、");
+}
+function foExplain(){
+  $("foExplain").innerHTML=foWords.map(w=>{const F=FOCUS[w],ex=foPool.filter(p=>p.ws.includes(w)&&p.py).slice(0,2);
+    const it=F?null:findWord(w);
+    return `<div class="fox"><div class="foh"><span class="zh">${w}</span><span class="py">${F?F.py:showPy(it[1])}</span><span class="en">${F?F.en:it[2]}</span><button class="say" data-say="${w}" aria-label="Hear ${w}"><svg class="ico"><use href="#i-sound"/></svg></button></div>
+      ${F?`<div class="fopat"><b>Pattern</b> <span class="zh">${F.pat}</span></div><p>${F.how}</p>`:""}
+      ${ex.map(e=>`<div class="foex">${spGloss(e.zh,e.py)}<div class="en">${e.en}</div></div>`).join("")}</div>`}).join("");
+  $("foExplain").querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>sayThen(b.dataset.say));
+  $("foExplain").querySelectorAll(".spw .h").forEach(h=>{if(foWords.includes(h.textContent))h.parentElement.classList.add("fomark")});
+}
+function foStart(){foRenderPick();foBuildPool();foExplain();foN=0;foOk=0;foNext()}
+// three kinds of question: fill the gap, find where the word goes, say the whole sentence
+function foNext(){
+  if(!foPool.length){$("foQ").innerHTML=`<p class="tqask">No practice sentences use these words yet. Pick another word.</p>`;return}
+  const item=spPick(foPool),w=spPick(item.ws),kinds=["gap","place","say"],kind=spPick(kinds);
+  foCur={item,w,kind};foDone=false;
+  $("foScore").innerHTML=foN?`<b>${foOk}</b> of ${foN} right`:"";
+  const toks=item.W,fi=toks.findIndex(x=>x.w===w);
+  let html=`<div class="fokind">${{gap:"Fill the gap",place:`Where does <span class="zh">${w}</span> go?`,say:"Say it in Chinese"}[kind]}</div><div class="foen">${item.en}</div>`;
+  if(kind==="gap"){
+    const opts=shuffled([w,...shuffled(FO_CONFUSE.filter(x=>x!==w&&!toks.some(t=>t.w===x))).slice(0,3)]);
+    html+=`<div class="fosent zh">${toks.map((t,i)=>i===fi?`<span class="foblank">？</span>`:(t.w||t.p)).join("")}</div><div class="foopts">${opts.map(o=>`<button data-o="${o}"><span class="zh">${o}</span></button>`).join("")}</div>`;
+  } else if(kind==="place"){
+    const rest=toks.filter((t,i)=>i!==fi);let g=0;
+    html+=`<div class="fosent zh foplace">${rest.map((t,i)=>`<button class="fogap" data-g="${i}">＋</button>${t.w||t.p}`).join("")}<button class="fogap" data-g="${rest.length}">＋</button></div><p class="tqask">Tap the ＋ where <span class="zh">${w}</span> belongs.</p>`;
+  } else {
+    html+=`<div class="foanswer" hidden>${spGloss(item.zh,item.py)}${spOrder(item.zh)}</div><div class="spact"><button class="btn" id="foReveal">Show answer</button></div>`;
+  }
+  html+=`<div class="fores"></div>`;
+  $("foQ").innerHTML=html;replay($("foQ"),"swap");
+  const finish=(ok,msg)=>{if(foDone)return;foDone=true;foN++;if(ok)foOk++;
+    const r=$("foQ").querySelector(".fores");r.className="fores verdict "+(ok?"ok":"no");
+    r.innerHTML=`${msg}<div class="fofull">${spGloss(item.zh,item.py)}</div><div class="forule">${FOCUS[w]?FOCUS[w].how:""}</div><div class="nav"><button class="btn quiet" id="foHear"><svg class="ico"><use href="#i-sound"/></svg>Hear it</button><button class="btn primary" id="foNextB">Next</button></div>`;
+    r.querySelectorAll(".spw .h").forEach(h=>{if(h.textContent===w)h.parentElement.classList.add("fomark")});
+    $("foHear").onclick=()=>sayThen(item.zh);$("foNextB").onclick=foNext;$("foScore").innerHTML=`<b>${foOk}</b> of ${foN} right`;sayThen(item.zh)};
+  $("foQ").querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{const ok=b.dataset.o===w;b.classList.add(ok?"right":"wrong");
+    if(!ok)$("foQ").querySelector(`[data-o="${w}"]`).classList.add("right");finish(ok,ok?"Right.":`It's <span class="zh">${w}</span>.`)});
+  $("foQ").querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{const g=+b.dataset.g,ok=g===fi;b.classList.add(ok?"right":"wrong");
+    const c=$("foQ").querySelector(`[data-g="${fi}"]`);c.classList.add("right");c.textContent=w;finish(ok,ok?"Right place.":`Not there. <span class="zh">${w}</span> goes where it's shown in green.`)});
+  const rv=$("foReveal");if(rv)rv.onclick=()=>{$("foQ").querySelector(".foanswer").hidden=false;rv.parentElement.innerHTML=`<div class="spgrade"><button class="btn" id="foBad">Missed it</button><button class="btn primary" id="foGood">Got it</button></div>`;
+    sayThen(item.zh);$("foGood").onclick=()=>finish(true,"Nice.");$("foBad").onclick=()=>finish(false,"Keep at it.")};
 }
 
 /* ---------- word order ---------- */
