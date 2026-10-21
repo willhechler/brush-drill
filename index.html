@@ -919,6 +919,10 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
 .r-ref{--c:var(--tang);--c-soft:var(--tang-soft)}
 .r-pos{--c:var(--red);--c-soft:var(--red-soft)}
 .r-dir{--c:var(--grape);--c-soft:var(--grape-soft)}
+.r-veh{--c:var(--grape);--c-soft:var(--grape-soft)}
+.r-where{--c:var(--tang);--c-soft:var(--tang-soft)}
+.r-amt{--c:var(--sun-d);--c-soft:var(--sun-soft)}
+.r-modal{--c:var(--faint);--c-soft:var(--card)}
 .r-move{--c:var(--ink);--c-soft:var(--well)}
 .r-far,.r-long{--c:var(--sun-d);--c-soft:var(--sun-soft)}
 .r-who,.r-name{--c:var(--grape);--c-soft:var(--card)}
@@ -2456,6 +2460,42 @@ const SPEAK=[{
   passage:{zh:"王山不住学校，住自己家。他家离学校不远，就在学校附近。出了学校往右拐，然后一直往前走，就到王山家了。从王山家到学校走路十五分钟。你家离学校远吗？去学校怎么走？",
     py:"Wáng Shān bú zhù xuéxiào, zhù zìjǐ jiā. Tā jiā lí xuéxiào bù yuǎn, jiù zài xuéxiào fùjìn. Chūle xuéxiào wǎng yòu guǎi, ránhòu yìzhí wǎng qián zǒu, jiù dào Wáng Shān jiā le. Cóng Wáng Shān jiā dào xuéxiào zǒulù shíwǔ fēnzhōng. Nǐ jiā lí xuéxiào yuǎn ma? Qù xuéxiào zěnme zǒu?",
     en:"Wang Shan doesn't live at school, he lives at his own home. His home isn't far from school, it's right nearby. Leave the school and turn right, then go straight ahead and you reach Wang Shan's home. From his home to school is a fifteen-minute walk. Is your home far from school? How do you get to school?"}
+},{
+  id:"s6",name:"Speaking 6",title:"去大使馆坐几路车？",en:"Which bus should I take to the embassy?",
+  dialogues:[
+    {name:"Taking a taxi",roles:["玛丽","司机"],lines:[
+      ["司机","您好，去哪儿？","Nín hǎo, qù nǎr?","Hello, where to?"],
+      ["玛丽","我去北京饭店，远吗？","Wǒ qù Běijīng Fàndiàn, yuǎn ma?","I'm going to the Beijing Hotel. Is it far?"],
+      ["司机","不远，二十分钟就到。","Bù yuǎn, èrshí fēnzhōng jiù dào.","Not far, we'll be there in twenty minutes."],
+      ["司机","北京饭店到了。","Běijīng Fàndiàn dào le.","Here's the Beijing Hotel."],
+      ["玛丽","请您停在门口。","Qǐng nín tíng zài ménkǒu.","Please stop at the entrance."],
+      ["玛丽","多少钱？","Duōshao qián?","How much is it?"],
+      ["司机","三十五块。","Sānshíwǔ kuài.","Thirty-five yuan."],
+      ["玛丽","谢谢！","Xièxie!","Thanks!"]]},
+    {name:"Which bus to the embassy?",roles:["大卫","中国学生"],lines:[
+      ["大卫","请问，去大使馆坐几路车？","Qǐngwèn, qù dàshǐguǎn zuò jǐ lù chē?","Excuse me, which bus do I take to the embassy?"],
+      ["中国学生","坐二十路。","Zuò èrshí lù.","Take bus 20."],
+      ["大卫","能直接到吗？","Néng zhíjiē dào ma?","Does it go there directly?"],
+      ["中国学生","不能，你得换车。","Bù néng, nǐ děi huàn chē.","No, you have to transfer."],
+      ["大卫","在哪儿换车？","Zài nǎr huàn chē?","Where do I transfer?"],
+      ["中国学生","在动物园站换三路车。","Zài dòngwùyuán zhàn huàn sān lù chē.","At the zoo stop, switch to bus 3."],
+      ["大卫","车票多少钱？","Chēpiào duōshao qián?","How much is the ticket?"],
+      ["中国学生","两块。","Liǎng kuài.","Two yuan."],
+      ["大卫","谢谢你！","Xièxie nǐ!","Thank you!"],
+      ["中国学生","不客气。","Bú kèqi.","You're welcome."]]},
+    {name:"Which subway line?",roles:["玛丽","同学"],lines:[
+      ["玛丽","我要坐几号线去上海站？","Wǒ yào zuò jǐ hào xiàn qù Shànghǎi Zhàn?","Which line do I take to Shanghai Station?"],
+      ["同学","先坐二号线，然后换一号线。","Xiān zuò èr hào xiàn, ránhòu huàn yī hào xiàn.","First take Line 2, then switch to Line 1."],
+      ["玛丽","在哪个站换？","Zài nǎge zhàn huàn?","Which station do I change at?"],
+      ["同学","在人民广场站换。","Zài Rénmín Guǎngchǎng zhàn huàn.","Change at People's Square."],
+      ["玛丽","从这儿到上海站多长时间？","Cóng zhèr dào Shànghǎi Zhàn duō cháng shíjiān?","How long from here to Shanghai Station?"],
+      ["同学","坐地铁三十分钟。","Zuò dìtiě sānshí fēnzhōng.","Thirty minutes by subway."],
+      ["玛丽","你去过上海站吗？","Nǐ qù guo Shànghǎi Zhàn ma?","Have you ever been to Shanghai Station?"],
+      ["同学","我去过。","Wǒ qù guo.","Yes, I have."]]}
+  ],
+  passage:{zh:"周末我不坐出租车，我坐地铁。去上海站，先坐二号线，然后在人民广场站换一号线。从学校到上海站坐地铁三十分钟。下个月我要去纽约，我要买一张从上海到纽约的往返机票。你去过纽约吗？",
+    py:"Zhōumò wǒ bú zuò chūzūchē, wǒ zuò dìtiě. Qù Shànghǎi Zhàn, xiān zuò èr hào xiàn, ránhòu zài Rénmín Guǎngchǎng zhàn huàn yī hào xiàn. Cóng xuéxiào dào Shànghǎi Zhàn zuò dìtiě sānshí fēnzhōng. Xià ge yuè wǒ yào qù Niǔyuē, wǒ yào mǎi yì zhāng cóng Shànghǎi dào Niǔyuē de wǎngfǎn jīpiào. Nǐ qù guo Niǔyuē ma?",
+    en:"On weekends I don't take taxis, I take the subway. To get to Shanghai Station, first take Line 2, then change to Line 1 at People's Square. From school to Shanghai Station is thirty minutes by subway. Next month I'm going to New York, and I want to buy a round-trip plane ticket from Shanghai to New York. Have you ever been to New York?"}
 }];
 // pieces for generated phrases: [hanzi, pinyin, english]
 const SP_PLACE=[["银行","yínháng","bank"],["食堂","shítáng","canteen"],["书店","shūdiàn","bookstore"],["图书馆","túshūguǎn","library"],["超市","chāoshì","supermarket"],["医院","yīyuàn","hospital"],["邮局","yóujú","post office"],["宿舍","sùshè","dorm"],["教学楼","jiàoxuélóu","teaching building"]];
@@ -2504,6 +2544,49 @@ function spRandomDialogue(){
   L.push(["同学","不客气。","Bú kèqi.","You're welcome.","set phrase"]);
   return {name:"Ask the way (new each time)",roles:["你","同学"],roleLabels:{"你":"Ask the way","同学":"Give directions"},lines:L,random:true};
 }
+
+// ---- Speaking 6: getting around by bus, subway and taxi
+const S6_PLACE=[["大使馆","dàshǐguǎn","the embassy"],["动物园","dòngwùyuán","the zoo"],["博物馆","bówùguǎn","the museum"],["图书馆","túshūguǎn","the library"],["北京饭店","Běijīng Fàndiàn","the Beijing Hotel"],["上海站","Shànghǎi Zhàn","Shanghai Station"]];
+const S6_LINE=[["一","yī","1"],["二","èr","2"],["三","sān","3"],["四","sì","4"],["八","bā","8"],["十","shí","10"]];
+const S6_BUS=[["三","sān","3"],["十五","shíwǔ","15"],["二十","èrshí","20"],["四十","sìshí","40"]];
+const S6_CITY=[["上海","Shànghǎi","Shanghai"],["北京","Běijīng","Beijing"],["纽约","Niǔyuē","New York"],["伦敦","Lúndūn","London"]];
+const S6_T=[["十","shí","10"],["二十","èrshí","20"],["三十","sānshí","30"],["四十","sìshí","40"]];
+function s6Two(a){const x=spPick(a);let y;do y=spPick(a);while(y===x);return [x,y]}
+const S6_PATTERNS=[
+  [()=>{const p=spPick(S6_PLACE);return [`请问，去${p[0]}坐几路车？`,`Qǐngwèn, qù ${p[1]} zuò jǐ lù chē?`,`Excuse me, which bus do I take to ${p[2]}?`,"去……坐几路车？"]},"a"],
+  [()=>{const p=spPick(S6_PLACE);return [`我要坐几号线去${p[0]}？`,`Wǒ yào zuò jǐ hào xiàn qù ${p[1]}?`,`Which subway line do I take to ${p[2]}?`,"坐几号线去……？"]},"a"],
+  [()=>{const b=spPick(S6_BUS);return [`坐${b[0]}路车。`,`Zuò ${b[1]} lù chē.`,`Take bus ${b[2]}.`,"坐……路车"]},"g"],
+  [()=>{const l=spPick(S6_LINE);return [`坐${l[0]}号线。`,`Zuò ${l[1]} hào xiàn.`,`Take Line ${l[2]}.`,"坐……号线"]},"g"],
+  [()=>["能直接到吗？","Néng zhíjiē dào ma?","Does it go there directly?","能直接到吗？"],"a"],
+  [()=>["不能，你得换车。","Bù néng, nǐ děi huàn chē.","No, you have to transfer.","你得换车"],"g"],
+  [()=>{const [a,b]=s6Two(S6_LINE);return [`先坐${a[0]}号线，然后换${b[0]}号线。`,`Xiān zuò ${a[1]} hào xiàn, ránhòu huàn ${b[1]} hào xiàn.`,`First take Line ${a[2]}, then switch to Line ${b[2]}.`,"先坐……，然后换……"]},"g"],
+  [()=>{const p=spPick(S6_PLACE),b=spPick(S6_BUS);return [`在${p[0]}站换${b[0]}路车。`,`Zài ${p[1]} zhàn huàn ${b[1]} lù chē.`,`Switch to bus ${b[2]} at the ${p[2].replace(/^the /,"")} stop.`,"在……站换……"]},"g"],
+  [()=>{const p=spPick(S6_PLACE);return [`我去${p[0]}，远吗？`,`Wǒ qù ${p[1]}, yuǎn ma?`,`I'm going to ${p[2]}. Is it far?`,"我去……，远吗？"]},"a"],
+  [()=>["请您停在门口。","Qǐng nín tíng zài ménkǒu.","Please stop at the entrance.","请您停在……"],"a"],
+  [()=>{const t=spPick(S6_T);return [`坐地铁${t[0]}分钟。`,`Zuò dìtiě ${t[1]} fēnzhōng.`,`${t[2]} minutes by subway.`,"坐地铁……分钟"]},"g"],
+  [()=>{const [a,b]=s6Two(S6_CITY),k=Math.random()<.5?["往返","wǎngfǎn","round-trip"]:["单程","dānchéng","one-way"];return [`我要买一张从${a[0]}到${b[0]}的${k[0]}机票。`,`Wǒ yào mǎi yì zhāng cóng ${a[1]} dào ${b[1]} de ${k[1]} jīpiào.`,`I want to buy a ${k[2]} plane ticket from ${a[2]} to ${b[2]}.`,"一张从……到……的……机票"]},"a"],
+  [()=>{const p=spPick(S6_PLACE);return [`你去过${p[0]}吗？`,`Nǐ qù guo ${p[1]} ma?`,`Have you ever been to ${p[2]}?`,"你去过……吗？"]},"a"],
+  [()=>{const p=spPick(S6_PLACE);return Math.random()<.5?[`我去过${p[0]}。`,`Wǒ qù guo ${p[1]}.`,`I've been to ${p[2]}.`,"我去过……"]:[`我没去过${p[0]}。`,`Wǒ méi qù guo ${p[1]}.`,`I've never been to ${p[2]}.`,"我没去过……"]},"g"],
+  [()=>["车票多少钱？","Chēpiào duōshao qián?","How much is the ticket?","……多少钱？"],"a"]
+];
+// which pattern list the current lesson drills
+function spPats(){const L=spLesson();return L.id==="s6"?{list:S6_PATTERNS.map(x=>x[0]),kinds:S6_PATTERNS.map(x=>x[1])}:{list:SP_PATTERNS,kinds:SP_PAT_KIND}}
+// a fresh subway conversation for Speaking 6
+function spRandomTransit(){
+  const p=spPick(S6_PLACE),[a,b]=s6Two(S6_LINE),t=spPick(S6_T),direct=Math.random()<.4;
+  const L=[["你",`请问，去${p[0]}坐几号线？`,`Qǐngwèn, qù ${p[1]} zuò jǐ hào xiàn?`,`Excuse me, which line goes to ${p[2]}?`]];
+  L.push(["同学",`坐${a[0]}号线。`,`Zuò ${a[1]} hào xiàn.`,`Take Line ${a[2]}.`]);
+  L.push(["你","能直接到吗？","Néng zhíjiē dào ma?","Does it go there directly?"]);
+  if(direct)L.push(["同学","能，直接到。","Néng, zhíjiē dào.","Yes, it goes straight there."]);
+  else{L.push(["同学",`不能，你得换${b[0]}号线。`,`Bù néng, nǐ děi huàn ${b[1]} hào xiàn.`,`No, you have to switch to Line ${b[2]}.`]);
+    L.push(["你","在哪个站换？","Zài nǎge zhàn huàn?","Which station do I change at?"]);
+    L.push(["同学","在人民广场站换。","Zài Rénmín Guǎngchǎng zhàn huàn.","Change at People's Square."])}
+  L.push(["你",`从这儿到${p[0]}多长时间？`,`Cóng zhèr dào ${p[1]} duō cháng shíjiān?`,`How long from here to ${p[2]}?`]);
+  L.push(["同学",`坐地铁${t[0]}分钟。`,`Zuò dìtiě ${t[1]} fēnzhōng.`,`${t[2]} minutes by subway.`]);
+  L.push(["你","谢谢你！","Xièxie nǐ!","Thank you!"]);
+  L.push(["同学","不客气。","Bú kèqi.","You're welcome."]);
+  return {name:"Take the subway (new each time)",roles:["你","同学"],roleLabels:{"你":"Ask","同学":"Answer"},lines:L,random:true};
+}
 // ---- speech recognition (iPad Safari / Chrome); everything works without it via Show answer
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 const ZH_DIG=["零","一","二","三","四","五","六","七","八","九"];
@@ -2531,8 +2614,8 @@ function spListen(onPartial){
 
 const SP_ORDER={"请问，银行在哪儿？": "请问 + place + 在 + 哪儿？", "在那边。": "在 + where (the subject is dropped)", "远吗？": "adjective + 吗？", "有点儿远，在食堂旁边。": "有点儿 + adjective，在 + place + 旁边", "食堂在哪儿？": "place + 在 + 哪儿？", "我带你去吧。": "I + 带 + you + 去 + 吧", "谢谢你！": "谢谢 + person", "山本，学校附近有书店吗？": "name，place + 附近 + 有 + thing + 吗？", "有。": "answer a 有 question with just 有", "不远。": "不 + adjective", "怎么走？": "怎么 + verb？", "出学校大门一直往前走。": "出 + place，一直 + 往 + direction + 走", "然后呢？": "然后 + 呢？", "走二百米，再往左拐。": "走 + distance，再 + 往 + direction + 拐", "王山，你家离学校远吗？": "name，A + 离 + B + 远吗？", "不远，就在学校附近。": "不远，就 + 在 + place + 附近", "从你家到学校多长时间？": "从 + A + 到 + B + 多长时间？", "走路十五分钟。": "how you go + time", "去你家怎么走？": "去 + place + 怎么走？", "出学校大门往右拐。": "出 + place + 往 + direction + 拐", "然后一直走吗？": "然后 + 一直 + verb + 吗？", "一直往前走，就到了。": "一直往前走，就 + 到 + 了"};
 // word-by-word glosses: split a line into dictionary words and give each its own pinyin and meaning
-const SP_NAMES={"玛莎":"Masha (name)","山本":"Yamamoto (name)","王山":"Wang Shan (name)","欧文":"Owen (name)","心美":"Xinmei (name)","玛丽":"Mary (name)","大卫":"David (name)","中国学生":"Chinese student","同学":"classmate"};
-const SP_GL={"在":"at, in","去":"go","有":"have, there is","不":"not","吗":"(question)","呢":"(and…?)","吧":"(suggestion)","了":"(done)","的":"'s, of","就":"just, right","再":"then","往":"toward","走":"walk, go","拐":"turn","出":"exit","到":"to, arrive","从":"from","离":"from (distance)","多":"how","长":"long","我":"I","你":"you","他":"he","家":"home","这儿":"here","那边":"over there","哪儿":"where","二百":"200","一百":"100","三百":"300","十五":"fifteen","二十":"twenty","了":"(done)","住":"live","自己":"own","不客气":"you're welcome","谢谢":"thank you","请问":"excuse me","然后":"then","一直":"straight on","先":"first","第":"(ordinal)","个":"(measure word)","米":"meters","分钟":"minutes","教学楼":"teaching building","旁边":"next to","对面":"across from","附近":"nearby","哪儿":"where","怎么":"how"};
+const SP_NAMES={"司机":"driver","上海":"Shanghai","北京":"Beijing","人民广场":"People's Square","上海站":"Shanghai Station","北京饭店":"Beijing Hotel","纽约":"New York","伦敦":"London","玛莎":"Masha (name)","山本":"Yamamoto (name)","王山":"Wang Shan (name)","欧文":"Owen (name)","心美":"Xinmei (name)","玛丽":"Mary (name)","大卫":"David (name)","中国学生":"Chinese student","同学":"classmate"};
+const SP_GL={"请":"please","您好":"hello (polite)","坐":"ride, take","几":"which number","路":"(bus) route","号":"number","线":"line","换":"switch, transfer","站":"station, stop","得":"must (děi)","能":"can","直接":"directly","停":"stop","门口":"entrance","张":"(for tickets)","往返":"round-trip","单程":"one-way","机票":"plane ticket","车票":"ticket","车":"bus, car","过":"(have done)","没":"not (did not)","多少":"how much","钱":"money","块":"yuan","您":"you (polite)","地铁":"subway","出租车":"taxi","哪个":"which","买":"buy","要":"want to, need to","下个月":"next month","周末":"weekend","两":"two","在":"at, in","去":"go","有":"have, there is","不":"not","吗":"(question)","呢":"(and…?)","吧":"(suggestion)","了":"(done)","的":"'s, of","就":"just, right","再":"then","往":"toward","走":"walk, go","拐":"turn","出":"exit","到":"to, arrive","从":"from","离":"from (distance)","多":"how","长":"long","我":"I","你":"you","他":"he","家":"home","这儿":"here","那边":"over there","哪儿":"where","二百":"200","一百":"100","三百":"300","十五":"fifteen","二十":"twenty","了":"(done)","住":"live","自己":"own","不客气":"you're welcome","谢谢":"thank you","请问":"excuse me","然后":"then","一直":"straight on","先":"first","第":"(ordinal)","个":"(measure word)","米":"meters","分钟":"minutes","教学楼":"teaching building","旁边":"next to","对面":"across from","附近":"nearby","哪儿":"where","怎么":"how"};
 function zhVal(z){const D={零:0,一:1,二:2,两:2,三:3,四:4,五:5,六:6,七:7,八:8,九:9};let t=0,cur=0;
   for(const c of z){if(c in D)cur=D[c];else if(c==="十"){t+=(cur||1)*10;cur=0}else if(c==="百"){t+=(cur||1)*100;cur=0}else return null}return t+cur}
 function spNumEn(v){const W=["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"],T=["","","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];
@@ -2542,7 +2625,7 @@ function spWords(zh){
   while(i<ch.length){
     if(!/[㐀-鿿]/.test(ch[i])){out.push({p:ch[i]});i++;continue}
     // numbers first, so 十分钟 reads 十 + 分钟 (ten minutes), not 十分 (very) + 钟 (clock)
-    {const nm=ch.slice(i).join("").match(/^[一二两三四五六七八九十百零]+(?=分钟|米|个|点|号|月|年|天|岁|块)/);
+    {const nm=ch.slice(i).join("").match(/^[一二两三四五六七八九十百零]+(?=分钟|米|个|点|号|月|年|天|岁|块|路|张)/);
     if(nm&&ch[i-1]!=="第"){const v=zhVal(nm[0]);out.push({w:nm[0],en:v===null?"":spNumEn(v),dpy:""});i+=nm[0].length;continue}}
     let n=Math.min(4,ch.length-i),w=null;
     for(;n>0;n--){const c=ch.slice(i,i+n).join("");if(!/^[㐀-鿿]+$/.test(c))continue;if(SP_NAMES[c]||SP_GL[c]||L.has(c)||n===1){w=c;break}}
@@ -2551,18 +2634,29 @@ function spWords(zh){
   return out;
 }
 // sentence roles: tag each chunk by its job (thing, landmark, position, direction, destination…) and explain the order
-const SR_PLACES=new Set(["学校","大门","家","食堂","书店","银行","宿舍","教室","图书馆","超市","医院","邮局","教学楼","路口","电影院","商场","车棚","卫生间","办公楼"]);
+const SR_PLACES=new Set(["大使馆","动物园","博物馆","北京饭店","上海站","人民广场","纽约","上海","北京","伦敦","门口","站","学校","大门","家","食堂","书店","银行","宿舍","教室","图书馆","超市","医院","邮局","教学楼","路口","电影院","商场","车棚","卫生间","办公楼"]);
 const SR_POS=new Set(["旁边","附近","对面","前边","后边","左边","右边","那边","这边","这儿","那儿","东边","西边","南边","北边","里","上","下"]);
 const SR_Q=new Set(["哪儿","哪里","怎么","吗","呢","几","多少","什么","谁"]);
-const SR_MOVE=new Set(["走","拐","出","去","带","来","回家","走路","住","坐","骑","到了"]);
+const SR_MOVE=new Set(["换","停","买","走","拐","出","去","带","来","回家","走路","住","坐","骑","到了"]);
 const SR_LINK=new Set(["一直","然后","再","先","就"]);
 const SR_NUM=/^[一二两三四五六七八九十百零]+$/;
-const SR_LAB={thing:"Thing",who:"Person",name:"Name",ref:"Landmark",pos:"Position",dir:"Direction",dest:"Destination",start:"Starting point",move:"Action",far:"How far",long:"How long",q:"Question",link:"Link word",polite:"Polite",part:"Particle",at:"at",from:"from",to:"to",adj:"Describe",have:"there is"};
+const SR_LAB={veh:"Vehicle",modal:"Can / must",amt:"How many",where:"Place",thing:"Thing",who:"Person",name:"Name",ref:"Landmark",pos:"Position",dir:"Direction",dest:"Destination",start:"Starting point",move:"Action",far:"How far",long:"How long",q:"Question",link:"Link word",polite:"Polite",part:"Particle",at:"at",from:"from",to:"to",adj:"Describe",have:"there is"};
 function spRoles(zh){
   const W=spWords(zh).filter(x=>x.w),T=[];
   for(let i=0;i<W.length;i++){
     const w=W[i].w,n=W[i+1]&&W[i+1].w,n2=W[i+2]&&W[i+2].w;let r="";
     if(w==="多"&&n==="长"&&n2==="时间"){T.push({w:"多长时间",r:"q",en:"how long"});i+=2;continue}
+    if(w==="几"&&n==="路"){const c=n2==="车";T.push({w:"几路"+(c?"车":""),r:"q",en:"which bus"});i+=c?2:1;continue}
+    if(w==="几"&&n==="号"&&n2==="线"){T.push({w:"几号线",r:"q",en:"which line"});i+=2;continue}
+    if(SR_NUM.test(w)&&n==="路"){const c=n2==="车";T.push({w:w+"路"+(c?"车":""),r:"veh",en:"bus "+(zhVal(w)??w)});i+=c?2:1;continue}
+    if(SR_NUM.test(w)&&n==="号"&&n2==="线"){T.push({w:w+"号线",r:"veh",en:"Line "+(zhVal(w)??w)});i+=2;continue}
+    if(SR_NUM.test(w)&&/^(张|块)$/.test(n||"")){T.push({w:w+n,r:n==="块"?"thing":"amt",en:n==="块"?W[i].en+" yuan":W[i].en});i++;continue}
+    if(w==="多少"&&n==="钱"){T.push({w:"多少钱",r:"q",en:"how much money"});i++;continue}
+    if(/^(地铁|车|出租车|网约车|公交车)$/.test(w)){T.push({w,r:"veh",en:W[i].en});continue}
+    if(/^(能|得|要)$/.test(w)){T.push({w,r:"modal",en:W[i].en});continue}
+    if(/^(往返|单程)$/.test(w)){T.push({w,r:"adj",en:W[i].en});continue}
+    if(/^(机票|车票|钱)$/.test(w)){T.push({w,r:"thing",en:W[i].en});continue}
+    if(w==="过"){T.push({w,r:"part",en:W[i].en});continue}
     if(w==="往"&&/^(左|右|前|后)$/.test(n||"")){T.push({w:w+n,r:"dir",en:"toward "+({左:"left",右:"right",前:"forward",后:"back"})[n]});i++;continue}
     if(w==="第"&&n&&SR_NUM.test(n)&&n2==="个"&&W[i+3]&&W[i+3].w==="路口"){T.push({w:"第"+n+"个路口",r:"ref",en:"the "+({一:"first",二:"second",三:"third"}[n]||n+"th")+" intersection"});i+=3;continue}
     if(/^第[一二三四五]$/.test(w)&&n==="个"&&n2==="路口"){const k=w[1];T.push({w:w+"个路口",r:"ref",en:"the "+({一:"first",二:"second",三:"third",四:"fourth",五:"fifth"}[k])+" intersection"});i+=2;continue}
@@ -2581,7 +2675,7 @@ function spRoles(zh){
   }
   // places get their job from their neighbours
   T.forEach((t,i)=>{if(t.r!=="place")return;const p=T[i-1]&&T[i-1].r,pw=T[i-1]&&T[i-1].w,nx=T[i+1]&&T[i+1].r,nw=T[i+1]&&T[i+1].w;
-    if(nx==="pos")t.r="ref";else if(pw==="从")t.r="start";else if(pw==="去"||pw==="到"||p==="to")t.r="dest";else if(pw==="出")t.r="ref";else if(pw==="离")t.r="ref";
+    if(nx==="pos")t.r="ref";else if(pw==="从")t.r="start";else if(pw==="过"||pw==="去")t.r="dest";else if(p==="at")t.r="where";else if(pw==="去"||pw==="到"||p==="to")t.r="dest";else if(pw==="出")t.r="ref";else if(pw==="离")t.r="ref";
     else if(p==="have")t.r="thing";else t.r="thing"});
   return T;
 }
@@ -2598,6 +2692,11 @@ function spNotes(T){
   const hi=idx("have");if(hi>0&&T.slice(0,hi).some(t=>t.r==="ref"||t.r==="pos")&&T[hi+1]&&T[hi+1].r==="thing")N.push(`Place + <span class="zh">有</span> + thing means there is a thing at that place.`);
   if(has("far")&&T.some(t=>t.w==="走"))N.push(`The distance comes right after <span class="zh">走</span>.`);
   if(T.some(t=>t.w==="就"&&t.r==="link"))N.push(`<span class="zh">就</span> goes right before the verb: it means just or right (就在 = right at, 就到了 = and you're there).`);
+  {const zi=T.findIndex(t=>t.w==="坐");if(zi>=0&&T[zi+1]&&(T[zi+1].r==="veh"||T[zi+1].r==="q")&&T.slice(zi+2).some(t=>t.w==="去"))N.push(`How you go comes first: <span class="zh">坐</span> + vehicle + <span class="zh">去</span> + place.`)}
+  if(T.some(t=>t.w==="过"))N.push(`Verb + <span class="zh">过</span>: you've done it before. Say no with <span class="zh">没</span> + verb + <span class="zh">过</span>, never 不.`);
+  if(T.some(t=>t.w==="的")&&T.some(t=>t.w==="从")&&T.some(t=>t.r==="thing"))N.push(`Everything describing the ticket comes before it: how many, then <span class="zh">从……到……的</span>, then the kind of ticket.`);
+  if(T.some(t=>t.w==="得"))N.push(`<span class="zh">得</span> (děi) = have to. It goes before the verb, like <span class="zh">要</span>.`);
+  if(T.some(t=>t.r==="where")&&T.some(t=>t.w==="换"))N.push(`Where it happens (<span class="zh">在</span> + place) comes before the verb <span class="zh">换</span>.`);
   if(T.some(t=>t.w==="带"))N.push(`<span class="zh">带</span> + person + <span class="zh">去</span>: take someone somewhere.`);
   if(T.length&&T[T.length-1].w==="吗"&&N.length<2)N.push(`Yes/no question: normal word order with <span class="zh">吗</span> at the end.`);
   return N.slice(0,3);
@@ -2650,7 +2749,7 @@ function spGo(){
   if(spMode==="dlg")spPickDialogue();else if(spMode==="foc"){foStart();wtRender()}else if(spMode==="map")mpNext();else if(spMode==="talk"){if(!$("tkChat").children.length)tkStart();else tkRenderSuggest()}else if(spMode==="pat"){spPatN=0;spPatOk=0;spNextPattern()}else if(spMode==="test")stRender();else spRenderRead();
 }
 /* role-play */
-function spDialogues(){return [...spLesson().dialogues,{name:"Ask the way (new each time)",random:true},{name:"Challenge: you ask the way",challenge:"ask"},{name:"Challenge: you give directions",challenge:"give"}]}
+function spDialogues(){const L=spLesson();if(L.id==="s6")return [...L.dialogues,{name:"Take the subway (new each time)",random:true,gen:spRandomTransit}];return [...L.dialogues,{name:"Ask the way (new each time)",random:true},{name:"Challenge: you ask the way",challenge:"ask"},{name:"Challenge: you give directions",challenge:"give"}]}
 function spPickDialogue(){
   const D=spDialogues();if(spDlgIdx>=D.length)spDlgIdx=0;
   $("spDlgs").innerHTML=D.map((d,i)=>`<button data-i="${i}" aria-pressed="${i===spDlgIdx}" class="${d.challenge?"chpill":""}">${d.random||d.challenge?d.name:`Dialogue ${i+1}: ${d.name}`}</button>`).join("");
@@ -2658,7 +2757,7 @@ function spPickDialogue(){
   const d=D[spDlgIdx];
   const isCh=!!d.challenge;$("chWrap").hidden=!isCh;$("spChat").hidden=isCh;$("spTurn").hidden=true;$("spDone").hidden=true;document.querySelector(".sproles").hidden=isCh;
   if(isCh){spRun++;try{speechSynthesis.cancel()}catch(e){}chStart(d.challenge==="ask");return}
-  spDlg=d.random?spRandomDialogue():d;
+  spDlg=d.random?(d.gen||spRandomDialogue)():d;
   if(!spRole||!spDlg.roles.includes(spRole))spRole=spDlg.roles[0];
   $("spRoles").innerHTML=spDlg.roles.map(r=>`<button data-r="${r}" aria-pressed="${r===spRole}">${spDlg.roleLabels?spDlg.roleLabels[r]:`<span class="zh">${r}</span>`}</button>`).join("");
   $("spRoles").querySelectorAll("button").forEach(b=>b.onclick=()=>{spRole=b.dataset.r;spPickDialogue()});
@@ -2722,7 +2821,7 @@ function spFinish(){
 /* patterns */
 function spNextPattern(){
   spRun++;document.querySelectorAll("#spPatKind button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.k===spPatKind));
-  const pool=SP_PATTERNS.filter((f,i)=>spPatKind==="b"||SP_PAT_KIND[i]===spPatKind);
+  const P=spPats(),pool=P.list.filter((f,i)=>spPatKind==="b"||P.kinds[i]===spPatKind);
   let next;do next=spPick(pool)();while(pool.length>1&&spPat&&next[3]===spPat[3]&&Math.random()<.85);spPat=next;
   const [zh,py,en,label]=spPat;
   $("spPatMeta").textContent=`Pattern: ${label}`;$("spPatScore").innerHTML=spPatN?`<b>${spPatOk}</b> of ${spPatN} right`:"";
@@ -2788,7 +2887,7 @@ const stKey=()=>"bd-stmiss-"+spSet;
 const stMissed=()=>store.get(stKey(),[]);
 const stEsc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function stLines(){const seen=new Set(),out=[];spLesson().dialogues.forEach(d=>d.lines.forEach(l=>{if(!seen.has(l[1])){seen.add(l[1]);out.push({zh:l[1],py:l[2],en:l[3]})}}));return out}
-function stPatterns(n){const out=[],seen=new Set();let g=0;while(out.length<n&&g++<n*30){const p=spPick(SP_PATTERNS)();if(!seen.has(p[0])){seen.add(p[0]);out.push({zh:p[0],py:p[1],en:p[2]})}}return out}
+function stPatterns(n){const out=[],seen=new Set();let g=0;while(out.length<n&&g++<n*30){const p=spPick(spPats().list)();if(!seen.has(p[0])){seen.add(p[0]);out.push({zh:p[0],py:p[1],en:p[2]})}}return out}
 function stPool(){
   const n=stLen==="all"?Infinity:+stLen;
   const L=stSrc==="pat"?[]:shuffled(stLines()),P=stSrc==="lines"?[]:stPatterns(n===Infinity?20:n);
