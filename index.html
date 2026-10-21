@@ -2330,10 +2330,17 @@ const SP_ORDER={"请问，银行在哪儿？": "请问 + place + 在 + 哪儿？
 // word-by-word glosses: split a line into dictionary words and give each its own pinyin and meaning
 const SP_NAMES={"玛莎":"Masha (name)","山本":"Yamamoto (name)","王山":"Wang Shan (name)","欧文":"Owen (name)","心美":"Xinmei (name)","玛丽":"Mary (name)","大卫":"David (name)","中国学生":"Chinese student","同学":"classmate"};
 const SP_GL={"在":"at, in","去":"go","有":"have, there is","不":"not","吗":"(question)","呢":"(and…?)","吧":"(suggestion)","了":"(done)","的":"'s, of","就":"just, right","再":"then","往":"toward","走":"walk, go","拐":"turn","出":"exit","到":"to, arrive","从":"from","离":"from (distance)","多":"how","长":"long","我":"I","你":"you","他":"he","家":"home","这儿":"here","那边":"over there","哪儿":"where","二百":"200","一百":"100","三百":"300","十五":"fifteen","二十":"twenty","了":"(done)","住":"live","自己":"own","不客气":"you're welcome","谢谢":"thank you","请问":"excuse me","然后":"then","一直":"straight on","先":"first","第":"(ordinal)","个":"(measure word)","米":"meters","分钟":"minutes","教学楼":"teaching building","旁边":"next to","对面":"across from","附近":"nearby","哪儿":"where","怎么":"how"};
+function zhVal(z){const D={零:0,一:1,二:2,两:2,三:3,四:4,五:5,六:6,七:7,八:8,九:9};let t=0,cur=0;
+  for(const c of z){if(c in D)cur=D[c];else if(c==="十"){t+=(cur||1)*10;cur=0}else if(c==="百"){t+=(cur||1)*100;cur=0}else return null}return t+cur}
+function spNumEn(v){const W=["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"],T=["","","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];
+  if(v<20)return W[v];if(v<100)return T[Math.floor(v/10)]+(v%10?"-"+W[v%10]:"");return String(v)}
 function spWords(zh){
   const L=lkIndex(),out=[],ch=[...zh];let i=0;
   while(i<ch.length){
     if(!/[㐀-鿿]/.test(ch[i])){out.push({p:ch[i]});i++;continue}
+    // numbers first, so 十分钟 reads 十 + 分钟 (ten minutes), not 十分 (very) + 钟 (clock)
+    {const nm=ch.slice(i).join("").match(/^[一二两三四五六七八九十百零]+(?=分钟|米|个|点|号|月|年|天|岁|块)/);
+    if(nm&&ch[i-1]!=="第"){const v=zhVal(nm[0]);out.push({w:nm[0],en:v===null?"":spNumEn(v),dpy:""});i+=nm[0].length;continue}}
     let n=Math.min(4,ch.length-i),w=null;
     for(;n>0;n--){const c=ch.slice(i,i+n).join("");if(!/^[㐀-鿿]+$/.test(c))continue;if(SP_NAMES[c]||SP_GL[c]||L.has(c)||n===1){w=c;break}}
     const hit=L.get(w);out.push({w,en:SP_NAMES[w]||SP_GL[w]||(hit?pgShort(hit.en):""),dpy:hit?hit.py:""});i+=n;
@@ -2402,7 +2409,7 @@ function spGloss(zh,py){
   let k=0,ok=true;
   for(const x of W){if(!x.w)continue;let parts=[];
     for(const c of x.w){const prev=parts[parts.length-1]||"";if(c==="儿"&&prev&&/r$/.test(prev)&&!/^[eé ěè]r$/i.test(prev))continue;if(k>=syl.length){ok=false;break}parts.push(syl[k++])}
-    x.py=SP_NAMES[x.w]&&/\(name\)/.test(SP_NAMES[x.w])?parts.join(" "):parts.join("")}
+    x.py=/^[王张李]/.test(x.w)&&SP_NAMES[x.w]?parts.join(" "):parts.join("")}
   if(!ok||k!==syl.length)W.forEach(x=>{if(x.w)x.py=x.dpy}); // fall back to dictionary pinyin if the line's pinyin doesn't line up
   return `<div class="spws">${W.map(x=>x.w?`<span class="spw"><span class="h zh">${x.w}</span><span class="p">${x.py||""}</span><span class="e">${x.en}</span></span>`:`<span class="spp zh">${x.p}</span>`).join("")}</div>`;
 }
@@ -3316,7 +3323,7 @@ function pgLookup(el){
   const text=sib.slice(a,b+1).map(x=>x.textContent).join(""),pos=k-a;
   // longest dictionary word that covers the tapped character
   let s0=pos,len=1;
-  outer:for(let n=Math.min(4,text.length);n>1;n--)for(let st=Math.max(0,pos-n+1);st<=pos&&st+n<=text.length;st++){if(L.has(text.slice(st,st+n))){s0=st;len=n;break outer}}
+  outer:for(let n=Math.min(4,text.length);n>1;n--)for(let st=Math.max(0,pos-n+1);st<=pos&&st+n<=text.length;st++){const c=text.slice(st,st+n);if(c==="十分"&&text[st+n]==="钟")continue;if(L.has(c)){s0=st;len=n;break outer}}
   const w=text.slice(s0,s0+len),hit=L.get(w);
   const cells=sib.slice(a+s0,a+s0+len);cells.forEach(x=>x.classList.add("look"));el.dataset.first="";
   const p=document.createElement("div");p.className="pglook";p.setAttribute("role","dialog");
