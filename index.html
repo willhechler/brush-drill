@@ -1029,6 +1029,26 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
 #wtOpts .rvopts{align-items:flex-start}
 .wtrefd .wtchg::before{content:"Show"}.wtrefd[open] .wtchg::before{content:"Hide"}
 .wtrefd .wtgrid{margin-top:0}
+
+.mpmap{display:flex;justify-content:center}
+.mpsvg{width:min(420px,100%);height:auto;background:var(--card);border:2px solid var(--line);border-radius:18px}
+.mpsvg .mroad{stroke:var(--line);stroke-width:16;stroke-linecap:round}
+.mpsvg .mblk{fill:var(--well);stroke:var(--outline);stroke-width:2}
+.mpsvg .mgate{fill:var(--sky-soft);stroke:var(--sky);stroke-width:2.5}
+.mpsvg .mlab{font-family:var(--f-hanzi);font-size:13px;font-weight:700;fill:var(--ink)}
+.mpsvg .mlab.sm{font-family:var(--f-ui);font-size:12px;fill:var(--red)}
+.mpsvg .mroute{fill:none;stroke:var(--red);stroke-width:5;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:2 9}
+.mpsvg .marrow{fill:none;stroke:var(--red);stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+.mpsvg .mstart{fill:var(--red);stroke:#fff;stroke-width:3}
+.mpsvg .mdest rect{fill:var(--sun);stroke:var(--sun-d);stroke-width:2.5}
+.mpsvg .mdest text{font-family:var(--f-hanzi);font-size:14px;font-weight:700;fill:#3a2c00}
+.mpask{margin:0;text-align:center;font-weight:600}
+.mpask .zh{font-size:1.1rem}
+.mpchk{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.mpchk span{border-radius:10px;padding:3px 8px;font-weight:700}
+.mpchk .y{background:var(--jade-soft);color:var(--jade-d)}.mpchk .n{background:var(--red-soft);color:var(--red-d);text-decoration:line-through}
+.mpchk small{font-weight:600;opacity:.8}
+#spMapWrap .nav{flex-wrap:wrap}
 </style>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5M18 7a7 7 0 0 1 0 10"/></symbol>
@@ -1359,7 +1379,7 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
       <div class="qhead">
         <h2>Speak</h2>
         <div class="tools">
-          <div class="seg" role="group" aria-label="Speaking practice" id="spMode"><button data-m="dlg">Role-play</button><button data-m="talk">Talk</button><button data-m="pat">Patterns</button><button data-m="foc">Focus</button><button data-m="read">Read aloud</button></div>
+          <div class="seg" role="group" aria-label="Speaking practice" id="spMode"><button data-m="dlg">Role-play</button><button data-m="talk">Talk</button><button data-m="map">Map</button><button data-m="pat">Patterns</button><button data-m="foc">Focus</button><button data-m="read">Read aloud</button></div>
           <button class="chip" id="spExit">Back to practice</button>
         </div>
       </div>
@@ -1435,6 +1455,16 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
         <div class="tqtop"><span class="meta">Practice</span><span class="tqscore" id="foScore"></span></div>
         <div class="foq" id="foQ"></div>
         </div>
+      </div>
+
+      <div class="sheet" id="spMapWrap" hidden>
+        <div class="tqtop"><span class="meta">Describe the red route in Chinese</span><span class="tqscore" id="mpScore"></span></div>
+        <div class="mpmap" id="mpMap"></div>
+        <p class="mpask" id="mpAsk"></p>
+        <div class="tkbar"><input id="mpIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Say or type the directions (Chinese or pinyin)"><button class="spmic sm" id="mpMic" aria-label="Say it"><svg class="ico" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></button><button class="btn primary" id="mpSend">Check</button></div>
+        <div class="spheard" id="mpFb"></div>
+        <div class="chmodel" id="mpModel" hidden></div>
+        <div class="nav"><button class="btn quiet" id="mpShow">Show answer</button><button class="btn quiet" id="mpHear"><svg class="ico"><use href="#i-sound"/></svg>Hear it</button><button class="btn" id="mpSkip">New map</button><button class="btn primary" id="mpNextB" hidden>Next map</button></div>
       </div>
 
       <div class="sheet" id="spPatWrap" hidden>
@@ -2602,8 +2632,8 @@ function spRenderOpts(){
 function spGo(){
   spRun++;try{speechSynthesis.cancel()}catch(e){}
   document.querySelectorAll("#spMode button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.m===spMode));
-  $("spDlgWrap").hidden=spMode!=="dlg";$("spTalkWrap").hidden=spMode!=="talk";$("spFocWrap").hidden=spMode!=="foc";$("spPatWrap").hidden=spMode!=="pat";$("spReadWrap").hidden=spMode!=="read";
-  if(spMode==="dlg")spPickDialogue();else if(spMode==="foc"){foStart();wtRender()}else if(spMode==="talk"){if(!$("tkChat").children.length)tkStart();else tkRenderSuggest()}else if(spMode==="pat"){spPatN=0;spPatOk=0;spNextPattern()}else spRenderRead();
+  $("spDlgWrap").hidden=spMode!=="dlg";$("spTalkWrap").hidden=spMode!=="talk";$("spMapWrap").hidden=spMode!=="map";$("spFocWrap").hidden=spMode!=="foc";$("spPatWrap").hidden=spMode!=="pat";$("spReadWrap").hidden=spMode!=="read";
+  if(spMode==="dlg")spPickDialogue();else if(spMode==="foc"){foStart();wtRender()}else if(spMode==="map")mpNext();else if(spMode==="talk"){if(!$("tkChat").children.length)tkStart();else tkRenderSuggest()}else if(spMode==="pat"){spPatN=0;spPatOk=0;spNextPattern()}else spRenderRead();
 }
 /* role-play */
 function spDialogues(){return [...spLesson().dialogues,{name:"Ask the way (new each time)",random:true},{name:"Challenge: you ask the way",challenge:"ask"},{name:"Challenge: you give directions",challenge:"give"}]}
@@ -3135,6 +3165,77 @@ document.querySelectorAll("#chShowSel button").forEach(b=>b.onclick=()=>{chShow=
 $("chAgain").onclick=()=>chStart(ch.asker);$("chFlip").onclick=()=>{spDlgIdx=spDialogues().findIndex(d=>d.challenge===(ch.asker?"give":"ask"));spPickDialogue()};
 $("chMic").onclick=async()=>{const b=$("chMic");if(b.classList.contains("on")){try{spListen.cur.stop()}catch(e){}return}
   b.classList.add("on");try{const alts=await spListen(p=>{$("chIn").value=p});b.classList.remove("on");if(alts[0]){$("chIn").value=alts[0];chCheck(alts[0])}}
+  catch(e){b.classList.remove("on");toast("Didn't catch that. Try again or type it.")}};
+/* ---------- map: describe a drawn route in Chinese ---------- */
+const MP_NUM=["一","二","三","四"],MP_NUMPY=["yī","èr","sān","sì"],MP_ORD=["first","second","third","fourth"];
+let mp=null,mpN=0,mpOk=0;
+function mpRoute(){
+  // grid: x 0..4, horizontal roads at y 0..3; you start below the bottom road at x=2, facing north
+  for(let tries=0;tries<200;tries++){
+    let x=2,y=-1,d=[0,1];const segs=[],turns=1+(Math.random()<.5?1:0);let ok=true;
+    for(let t=0;t<turns;t++){
+      const n=1+Math.floor(Math.random()*(t?2:3));x+=d[0]*n;y+=d[1]*n;
+      if(x<0||x>4||y<0||y>3){ok=false;break}
+      const lr=Math.random()<.5?"左":"右";segs.push({n,lr,at:[x,y]});
+      d=lr==="左"?[-d[1],d[0]]:[d[1],-d[0]];
+    }
+    if(!ok)continue;
+    const nx=x+d[0],ny=y+d[1];if(nx<0||nx>4||ny<0||ny>3)continue; // one more block must fit
+    const side=Math.random()<.5?"左":"右",sv=side==="左"?[-d[1],d[0]]:[d[1],-d[0]];
+    const dest=[x+d[0]*.65+sv[0]*.38,y+d[1]*.65+sv[1]*.38],end=[x+d[0]*.65,y+d[1]*.65];
+    const place=spPick(Object.keys(TK_PLACES));
+    return {segs,side,dest,end,place,dir:d};
+  }
+}
+function mpText(r){
+  const zh=["出学校大门一直往前走"],py=["Chū xuéxiào dàmén yìzhí wǎng qián zǒu"],en=["Go out the main gate and go straight"];
+  r.segs.forEach((s,i)=>{zh.push(`第${MP_NUM[s.n-1]}个路口往${s.lr}拐`);py.push(`dì-${MP_NUMPY[s.n-1]} ge lùkǒu wǎng ${s.lr==="左"?"zuǒ":"yòu"} guǎi`);en.push(`${i?"then turn":"turn"} ${s.lr==="左"?"left":"right"} at the ${MP_ORD[s.n-1]} intersection`)});
+  zh.push("走一百米");py.push("zǒu yìbǎi mǐ");en.push("walk 100 meters");
+  const sidePy=r.side==="左"?"zuǒbian":"yòubian",sideEn=r.side==="左"?"left":"right";
+  return {zh:zh.join("，")+`，${r.place}就在${r.side}边。`,py:py.join(", ")+`, ${TK_PY[r.place]} jiù zài ${sidePy}.`,en:en.join(", ")+`, and the ${TK_EN[r.place]} is right there on the ${sideEn}.`,
+    // what a good answer must contain, in order
+    need:[...r.segs.flatMap(s=>[{k:`第${MP_NUM[s.n-1]}个路口`,lab:`the ${MP_ORD[s.n-1]} intersection`},{k:`往${s.lr}拐`,lab:`turn ${s.lr==="左"?"left":"right"}`}]),{k:`${r.side}边`,lab:`on the ${sideEn}`}]};
+}
+function mpSvg(r,showRoute=true){
+  const S=62,M=34,X=x=>M+x*S,Y=y=>M+(3-y)*S+10;let g="";
+  // blocks with little buildings
+  for(let i=0;i<4;i++)for(let j=0;j<3;j++)g+=`<rect x="${X(i)+9}" y="${Y(j+1)+9}" width="${S-18}" height="${S-18}" rx="6" class="mblk"/>`;
+  for(let i=0;i<=4;i++)g+=`<line x1="${X(i)}" y1="${Y(3)-20}" x2="${X(i)}" y2="${Y(0)+20}" class="mroad"/>`;
+  for(let j=0;j<=3;j++)g+=`<line x1="${X(0)-20}" y1="${Y(j)}" x2="${X(4)+20}" y2="${Y(j)}" class="mroad"/>`;
+  // school gate at the bottom
+  g+=`<rect x="${X(2)-34}" y="${Y(-1)-6}" width="68" height="30" rx="6" class="mgate"/><text x="${X(2)}" y="${Y(-1)+14}" text-anchor="middle" class="mlab">学校大门</text>`;
+  // route
+  const pts=[[2,-.75],...r.segs.map(s=>s.at),r.end];
+  if(showRoute){g+=`<polyline points="${pts.map(p=>X(p[0])+","+Y(p[1])).join(" ")}" class="mroute"/>`;
+    for(let k=1;k<pts.length;k++){const a=pts[k-1],b=pts[k],mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,ang=Math.atan2(-(b[1]-a[1]),b[0]-a[0])*180/Math.PI;
+      g+=`<path d="M-7 -6 L5 0 L-7 6" class="marrow" transform="translate(${X(mx)} ${Y(my)}) rotate(${ang})"/>`}}
+  g+=`<circle cx="${X(2)}" cy="${Y(-.75)}" r="9" class="mstart"/><text x="${X(2)+14}" y="${Y(-.75)+4}" class="mlab sm">You</text>`;
+  g+=`<g class="mdest"><rect x="${X(r.dest[0])-27}" y="${Y(r.dest[1])-15}" width="54" height="30" rx="7"/><text x="${X(r.dest[0])}" y="${Y(r.dest[1])+6}" text-anchor="middle">${r.place}</text></g>`;
+  return `<svg class="mpsvg" viewBox="0 0 ${M*2+4*S} ${Y(-1)+34}" role="img" aria-label="Map with a route">${g}</svg>`;
+}
+function mpNext(){
+  const r=mpRoute(),T=mpText(r);mp={r,T,done:false};
+  $("mpScore").innerHTML=mpN?`<b>${mpOk}</b> of ${mpN} right`:"";
+  $("mpMap").innerHTML=mpSvg(r);replay($("mpMap"),"swap");
+  $("mpAsk").innerHTML=`Tell a visitor how to get to the <b>${TK_EN[r.place]}</b> (<span class="zh">${r.place}</span>). Start with <span class="zh">出学校大门</span>…`;
+  $("mpIn").value="";$("mpFb").innerHTML="";$("mpFb").className="spheard";$("mpModel").hidden=true;$("mpNextB").hidden=true;$("mpMic").hidden=!SR;
+  $("mpModel").innerHTML=spGloss(T.zh,T.py)+`<div class="en">${T.en}</div>`;
+}
+function mpCheck(said){
+  said=tkToHanzi(said||"").trim();if(!said||!mp)return;
+  const t=spNorm(said).replace(/(\d)/g,m=>zhNum(m));let pos=0;
+  const res=mp.T.need.map(n=>{const k=spNorm(n.k),i=t.indexOf(k,pos);if(i>=0){pos=i+k.length;return {...n,ok:true}}return {...n,ok:false}});
+  const ok=res.every(x=>x.ok),fb=$("mpFb");fb.className="spheard "+(ok?"ok":"no");
+  fb.innerHTML=`<div class="lab">${ok?"Those directions work.":"Some parts are missing or in the wrong order."}</div><div class="mpchk">${res.map(x=>`<span class="${x.ok?"y":"n"}"><span class="zh">${x.k}</span> <small>${x.lab}</small></span>`).join("")}</div><div class="you">You said: <span class="zh">${said}</span></div>`;
+  if(!mp.done){mp.done=true;mpN++;if(ok)mpOk++;$("mpScore").innerHTML=`<b>${mpOk}</b> of ${mpN} right`}
+  if(ok){$("mpModel").hidden=false;$("mpNextB").hidden=false}
+}
+
+$("mpSend").onclick=()=>mpCheck($("mpIn").value);$("mpIn").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();mpCheck($("mpIn").value)}});
+$("mpShow").onclick=()=>{$("mpModel").hidden=false;$("mpNextB").hidden=false;if(!mp.done){mp.done=true;mpN++;$("mpScore").innerHTML=`<b>${mpOk}</b> of ${mpN} right`}};
+$("mpHear").onclick=()=>mp&&sayThen(mp.T.zh);$("mpSkip").onclick=mpNext;$("mpNextB").onclick=mpNext;
+$("mpMic").onclick=async()=>{const b=$("mpMic");if(b.classList.contains("on")){try{spListen.cur.stop()}catch(e){}return}
+  b.classList.add("on");try{const alts=await spListen(p=>{$("mpIn").value=p});b.classList.remove("on");if(alts[0]){$("mpIn").value=alts[0];mpCheck(alts[0])}}
   catch(e){b.classList.remove("on");toast("Didn't catch that. Try again or type it.")}};
 /* ---------- word order ---------- */
 // An English sentence and its Chinese words scrambled; tap them into the right order.
