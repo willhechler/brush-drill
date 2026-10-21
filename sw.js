@@ -1,5 +1,5 @@
-// Brush Drill offline cache, version c3b2769444
-const CACHE="brush-drill-c3b2769444";
+// Brush Drill offline cache, version ec3a3c5ba8
+const CACHE="brush-drill-ec3a3c5ba8";
 const FILES=["./","index.html","manifest.webmanifest","icon-180.png","icon-192.png","icon-512.png"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting()))});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});

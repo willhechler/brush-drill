@@ -1002,6 +1002,27 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
 .wsent{font-size:1.3rem;margin-top:4px}
 .fopy{color:var(--sky-d);font-weight:700;font-size:.9rem}
 .wlisten{background:var(--sky);box-shadow:0 5px 0 var(--sky-d)}
+
+#chWrap{display:flex;flex-direction:column;gap:12px}
+#chWrap[hidden]{display:none}
+.chpill{border-color:var(--tang)!important;color:var(--tang)!important}
+.chpill[aria-pressed="true"]{background:var(--tang-soft)!important}
+.chfacts{background:var(--well);border:2px dashed var(--grid);border-radius:16px;padding:12px 14px;font-size:.9rem}
+.chfacts ul{margin:6px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:3px}
+.chctl{display:flex;flex-wrap:wrap;gap:6px}
+.chb{border:2px solid var(--line);background:var(--card);border-radius:10px;padding:5px 10px;font-weight:700;font-size:.82rem;display:inline-flex;align-items:center;gap:5px}
+.chb .ico{width:16px;height:16px}
+.chb.on{border-color:var(--sky);color:var(--sky-d)}
+.chl .bub{padding-right:14px}
+.chpy{color:var(--sky-d);font-weight:700;margin-top:6px}
+.chzh{margin-top:6px}.chen{color:var(--muted);font-size:.88rem;margin-top:4px}
+.chquiz{gap:10px}
+.chopts{display:flex;flex-direction:column;gap:8px;width:100%}
+.chopts button{border:2px solid var(--line);border-bottom-width:4px;background:var(--card);border-radius:14px;padding:11px 14px;font-weight:700;text-align:left}
+.chopts button.right{border-color:var(--jade);border-bottom-color:var(--jade-d);background:var(--jade-soft)}
+.chopts button.wrong{border-color:var(--red);border-bottom-color:var(--red-d);background:var(--red-soft);animation:shake .3s}
+.chmodel{width:100%;background:var(--card);border-radius:14px;padding:10px;text-align:left}
+#chTurn .tkbar{width:100%}
 </style>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5M18 7a7 7 0 0 1 0 10"/></symbol>
@@ -1346,6 +1367,21 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
       <div class="sheet" id="spDlgWrap">
         <div class="pgpick spdlgs" id="spDlgs" role="group" aria-label="Dialogue"></div>
         <div class="sproles"><span class="lab">You are</span><div class="pgpick" id="spRoles" role="group" aria-label="Your role"></div><button class="btn quiet" id="spRestart">Start over</button></div>
+        <div id="chWrap" hidden>
+          <div class="sproles"><span class="lab">Their lines</span><div class="seg" id="chShowSel" role="group" aria-label="How their lines appear"><button data-v="ear">Listen only</button><button data-v="py">Show pinyin</button></div></div>
+          <div class="chfacts" id="chFacts" hidden></div>
+          <div class="spchat" id="chChat"></div>
+          <div class="foq chquiz" id="chQuiz" hidden></div>
+          <div class="spturn" id="chTurn" hidden>
+            <div class="spwho">Your turn</div>
+            <div class="spen" id="chGoal" hidden></div>
+            <div class="tkbar"><input id="chIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Say or type it (Chinese or pinyin)"><button class="spmic sm" id="chMic" aria-label="Say it"><svg class="ico" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></button><button class="btn primary" id="chSend">Check</button></div>
+            <div class="spheard" id="chFb"></div>
+            <div class="chmodel" id="chModel" hidden></div>
+            <div class="spgrade"><button class="btn quiet" id="chHint">Hint</button><button class="btn quiet" id="chShow">Show answer</button><button class="btn" id="chSkip">Next</button></div>
+          </div>
+          <div class="verdict ok" id="chDone" hidden><div id="chDoneTxt"></div><div class="nav" style="margin-top:12px"><button class="btn" id="chFlip">Switch roles</button><button class="btn primary" id="chAgain">New conversation</button></div></div>
+        </div>
         <div class="spchat" id="spChat"></div>
         <div class="spturn" id="spTurn" hidden>
           <div class="spwho" id="spTurnWho"></div>
@@ -2559,12 +2595,15 @@ function spGo(){
   if(spMode==="dlg")spPickDialogue();else if(spMode==="foc"){foStart();wtRender()}else if(spMode==="talk"){if(!$("tkChat").children.length)tkStart();else tkRenderSuggest()}else if(spMode==="pat"){spPatN=0;spPatOk=0;spNextPattern()}else spRenderRead();
 }
 /* role-play */
-function spDialogues(){return [...spLesson().dialogues,{name:"Ask the way (new each time)",random:true}]}
+function spDialogues(){return [...spLesson().dialogues,{name:"Ask the way (new each time)",random:true},{name:"Challenge: you ask the way",challenge:"ask"},{name:"Challenge: you give directions",challenge:"give"}]}
 function spPickDialogue(){
   const D=spDialogues();if(spDlgIdx>=D.length)spDlgIdx=0;
-  $("spDlgs").innerHTML=D.map((d,i)=>`<button data-i="${i}" aria-pressed="${i===spDlgIdx}">${d.random?d.name:`Dialogue ${i+1}: ${d.name}`}</button>`).join("");
+  $("spDlgs").innerHTML=D.map((d,i)=>`<button data-i="${i}" aria-pressed="${i===spDlgIdx}" class="${d.challenge?"chpill":""}">${d.random||d.challenge?d.name:`Dialogue ${i+1}: ${d.name}`}</button>`).join("");
   $("spDlgs").querySelectorAll("button").forEach(b=>b.onclick=()=>{spDlgIdx=+b.dataset.i;store.set("bd-spdlg",spDlgIdx);spRole=null;spPickDialogue()});
-  const d=D[spDlgIdx];spDlg=d.random?spRandomDialogue():d;
+  const d=D[spDlgIdx];
+  const isCh=!!d.challenge;$("chWrap").hidden=!isCh;$("spChat").hidden=isCh;$("spTurn").hidden=true;$("spDone").hidden=true;document.querySelector(".sproles").hidden=isCh;
+  if(isCh){spRun++;try{speechSynthesis.cancel()}catch(e){}chStart(d.challenge==="ask");return}
+  spDlg=d.random?spRandomDialogue():d;
   if(!spRole||!spDlg.roles.includes(spRole))spRole=spDlg.roles[0];
   $("spRoles").innerHTML=spDlg.roles.map(r=>`<button data-r="${r}" aria-pressed="${r===spRole}">${spDlg.roleLabels?spDlg.roleLabels[r]:`<span class="zh">${r}</span>`}</button>`).join("");
   $("spRoles").querySelectorAll("button").forEach(b=>b.onclick=()=>{spRole=b.dataset.r;spPickDialogue()});
@@ -2965,6 +3004,117 @@ function wtNext(){
     if(!ok){const c=$("wtQ").querySelector(`[data-slot="${it[3]}"]`);c&&c.classList.add("right")}finish(ok)});
 }
 document.querySelectorAll("#foTab button").forEach(b=>b.onclick=()=>{foTab=b.dataset.t;store.set("bd-fotab",foTab);wtRender()});
+/* ---------- challenge role-play: listen without text, answer without prompts ---------- */
+// what kind of thing a line is asking or saying
+function chIntent(zh){
+  const t=zh.replace(/[\s，。？！,.?!]/g,"");
+  const place=(Object.keys(TK_PLACES).map(p=>[p,t.indexOf(p)]).filter(x=>x[1]>=0).sort((a,b)=>a[1]-b[1])[0]||[null])[0];
+  let i="other";
+  if(/谢谢/.test(t))i="thanks";else if(/不客气/.test(t))i="welcome";else if(/然后/.test(t))i="then";
+  else if(/多长时间|几分钟|多少分钟|多久/.test(t))i="time";else if(/怎么走|怎么去/.test(t))i="how";
+  else if(/在哪|哪儿有|哪里有/.test(t))i="where";else if(/远/.test(t)&&/吗|远不远/.test(t))i="far";
+  return {i,place};
+}
+function chScript(){
+  const keys=Object.keys(TK_PLACES).filter(k=>TK_PLACES[k].steps.length===3);
+  const p=spPick(keys);let q;do q=spPick(Object.keys(TK_PLACES));while(q===p);
+  const P=TK_PLACES[p],Q=TK_PLACES[q],py=TK_PY[p],en=TK_EN[p];
+  const other=k=>Object.keys(TK_PLACES).filter(x=>x!==k);
+  const locOpts=(k)=>shuffled([TK_PLACES[k].loc[2],...shuffled(other(k).map(x=>TK_PLACES[x].loc[2]).filter(x=>x!==TK_PLACES[k].loc[2])).slice(0,2)].filter((v,i,a)=>a.indexOf(v)===i));
+  const stepOpts=(s)=>{const all=[...new Set(Object.values(TK_PLACES).flatMap(v=>v.steps.map(x=>x[2])))].filter(x=>x!==s[2]);return shuffled([s[2],...shuffled(all).slice(0,2)])};
+  const L=[
+    {me:1,zh:`请问，${p}在哪儿？`,py:`Qǐngwèn, ${py} zài nǎr?`,en:`Excuse me, where is the ${en}?`,i:"where",place:p,goal:`Ask where the ${en} is`},
+    {me:0,zh:`${p}${P.loc[0]}。`,py:`${capF(py)} ${P.loc[1]}.`,en:`The ${en} is ${P.loc[2]}.`,q:"Where is it?",a:P.loc[2],opts:locOpts(p)},
+    {me:1,zh:"远吗？",py:"Yuǎn ma?",en:"Is it far?",i:"far",goal:"Ask if it's far"},
+    {me:0,zh:`${P.far[0]}。`,py:`${P.far[1]}.`,en:`${P.far[2]}.`,q:"Is it far?",a:P.far[2],opts:["Not far","A little far","Very far"]},
+    {me:1,zh:`去${p}怎么走？`,py:`Qù ${py} zěnme zǒu?`,en:`How do I get to the ${en}?`,i:"how",goal:"Ask how to get there"},
+    ...P.steps.flatMap((s,k)=>[
+      ...(k?[{me:1,zh:"然后呢？",py:"Ránhòu ne?",en:"And then?",i:"then",goal:"Ask what comes next"}]:[]),
+      {me:0,zh:s[0],py:s[1],en:s[2],q:"What did they say to do?",a:s[2],opts:stepOpts(s)}]),
+    {me:1,zh:`从这儿到${p}多长时间？`,py:`Cóng zhèr dào ${py} duō cháng shíjiān?`,en:`How long does it take from here to the ${en}?`,i:"time",goal:"Ask how long it takes to get there"},
+    {me:0,zh:`走路${P.time[0]}分钟。`,py:`Zǒulù ${P.time[1]} fēnzhōng.`,en:`It's a ${P.time[2]}-minute walk.`,q:"How long does it take?",a:`${P.time[2]} minutes on foot`,opts:shuffled(["five","ten","fifteen","twenty"].map(x=>`${x} minutes on foot`))},
+    {me:1,zh:"谢谢你！",py:"Xièxie nǐ!",en:"Thank you!",i:"thanks",goal:"Thank them"},
+    {me:0,zh:"不客气！你还去哪儿？",py:"Bú kèqi! Nǐ hái qù nǎr?",en:"You're welcome! Where else are you going?",q:"What are they asking?",a:"Where else you're going",opts:shuffled(["Where else you're going","If you're tired","What time it is"])},
+    {me:1,zh:`我还去${q}。${q}在哪儿？`,py:`Wǒ hái qù ${TK_PY[q]}. ${capF(TK_PY[q])} zài nǎr?`,en:`I'm also going to the ${TK_EN[q]}. Where is it?`,i:"where",place:q,goal:`Say you're also going to the ${TK_EN[q]} and ask where it is`},
+    {me:0,zh:`${q}${Q.loc[0]}。我带你去吧！`,py:`${capF(TK_PY[q])} ${Q.loc[1]}. Wǒ dài nǐ qù ba!`,en:`The ${TK_EN[q]} is ${Q.loc[2]}. I'll take you there!`,q:"What do they offer?",a:"To take you there",opts:shuffled(["To take you there","To call you later","To lend you a bike"])},
+    {me:1,zh:"好，谢谢！",py:"Hǎo, xièxie!",en:"Great, thanks!",i:"thanks",goal:"Accept and thank them"}
+  ];
+  return {p,q,lines:L};
+}
+let ch=null,chShow=store.get("bd-chshow","ear");
+function chStart(asker){
+  const S=chScript();
+  // when you give directions, the roles flip: the app asks, you answer from the fact card
+  const lines=S.lines.map(l=>({...l,me:asker?l.me:!l.me}));
+  ch={asker,S,lines,i:0,ok:0,tries:0,run:0};
+  document.querySelectorAll("#chShowSel button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===chShow));
+  $("chChat").innerHTML="";$("chFacts").hidden=asker;
+  if(!asker){const P=TK_PLACES[S.p],Q=TK_PLACES[S.q];
+    $("chFacts").innerHTML=`<b>What you know</b> (you're at the main gate)<ul><li>The ${TK_EN[S.p]} is ${P.loc[2]}. ${P.far[2]}.</li><li>Route: ${P.steps.map(s=>s[2]).join(" ")}</li><li>It's a ${P.time[2]}-minute walk.</li><li>The ${TK_EN[S.q]} is ${Q.loc[2]}. Offer to take them.</li></ul>`}
+  chStep();
+}
+function chStep(){
+  const run=++ch.run;$("chTurn").hidden=true;$("chQuiz").hidden=true;
+  if(ch.i>=ch.lines.length){$("chDone").hidden=false;const mine=ch.lines.filter(l=>l.me).length;$("chDoneTxt").textContent=`Conversation finished. You got ${ch.ok} of ${mine} of your lines on the first try.`;return}
+  $("chDone").hidden=true;
+  const l=ch.lines[ch.i];
+  if(!l.me){
+    const el=document.createElement("div");el.className="spl chl";
+    el.innerHTML=`<span class="who">${ch.asker?"Classmate":"Visitor"}</span><div class="bub"><div class="chctl"><button class="chb" data-a="play"><svg class="ico"><use href="#i-sound"/></svg>Play</button><button class="chb" data-a="slow">Slow</button><button class="chb" data-a="py">Pinyin</button><button class="chb" data-a="zh">Characters</button><button class="chb" data-a="en">English</button></div><div class="chpy" ${chShow==="py"?"":"hidden"}>${l.py}</div><div class="chzh" hidden>${spGloss(l.zh,l.py)}</div><div class="chen" hidden>${l.en}</div></div>`;
+    $("chChat").appendChild(el);el.scrollIntoView({block:"nearest",behavior:"smooth"});
+    el.querySelectorAll(".chb").forEach(b=>b.onclick=()=>{const a=b.dataset.a;
+      if(a==="play")sayThen(l.zh);else if(a==="slow"){const s=spSlow;spSlow=true;sayThen(l.zh);spSlow=s}
+      else{el.querySelector(".ch"+a).hidden=false;b.classList.add("on")}});
+    sayThen(l.zh,()=>{if(run!==ch.run)return;
+      // in "you ask" mode, check you understood; in "you give directions" mode, check you know what they asked
+      let q=l.q&&ch.asker?{q:l.q,a:l.a,opts:l.opts}:(!ch.asker?chAskQuiz(l):null);
+      if(q&&chShow==="py")q={...q,q:q.q.replace("What did they say to do?","What does the pinyin mean?").replace(/^(Where is it\?|Is it far\?|How long does it take\?)$/,"From the pinyin: $1")};
+      if(q)chQuiz(q,el,()=>{ch.i++;chStep()});else{ch.i++;setTimeout(()=>{if(run===ch.run)chStep()},400)}});
+  } else chYourTurn(l);
+}
+function chAskQuiz(l){
+  const map={where:"Where something is",far:"Whether it's far",how:"How to get there",then:"What comes next",time:"How long it takes",thanks:"They're saying thanks"};
+  const a=map[l.i]||null;if(!a)return null;
+  return {q:"What are they asking?",a,opts:shuffled([a,...shuffled(Object.values(map).filter(x=>x!==a)).slice(0,2)])};
+}
+function chQuiz(Q,el,done){
+  const box=$("chQuiz");box.hidden=false;
+  box.innerHTML=`<div class="fokind">${Q.q}</div><div class="chopts">${Q.opts.map(o=>`<button>${o}</button>`).join("")}</div>`;
+  box.querySelectorAll("button").forEach(b=>b.onclick=()=>{const ok=b.textContent===Q.a;b.classList.add(ok?"right":"wrong");
+    if(!ok){[...box.querySelectorAll("button")].find(x=>x.textContent===Q.a).classList.add("right");el.querySelectorAll(".chpy,.chzh,.chen").forEach(x=>x.hidden=false)}
+    box.querySelectorAll("button").forEach(x=>x.disabled=true);setTimeout(()=>{box.hidden=true;done()},ok?700:2200)});
+  box.scrollIntoView({block:"nearest",behavior:"smooth"});
+}
+function chYourTurn(l){
+  const t=$("chTurn");t.hidden=false;replay(t,"swap");ch.tries=0;
+  $("chGoal").textContent=l.goal||(ch.asker?"":"Answer them using what you know");$("chGoal").hidden=true;
+  $("chHint").hidden=false;$("chFb").innerHTML="";$("chFb").className="spheard";$("chIn").value="";
+  $("chModel").hidden=true;$("chModel").innerHTML=spGloss(l.zh,l.py)+`<div class="en">${l.en}</div>`+spOrder(l.zh);
+  $("chMic").hidden=!SR;t.scrollIntoView({block:"nearest",behavior:"smooth"});
+}
+function chCheck(said){
+  const l=ch.lines[ch.i];said=tkToHanzi(said||"").trim();if(!said)return;ch.tries++;
+  let ok;
+  if(ch.asker&&l.i){const c=chIntent(said);ok=c.i===l.i&&(!l.place||c.place===l.place)}
+  else{const T=spNorm(l.zh),m=spMatch(T,spNorm(said));ok=m.score>=.6}
+  const fb=$("chFb");fb.className="spheard "+(ok?"ok":"no");
+  if(ok){fb.innerHTML=`<div class="lab">That works.</div><div class="you">You said: <span class="zh">${said}</span></div>`;if(ch.tries===1)ch.ok++;
+    const me=document.createElement("div");me.className="spl me good";me.innerHTML=`<span class="who">You</span><div class="bub">${spGloss(said,said===l.zh?l.py:"")}</div>`;
+    $("chChat").appendChild(me);setTimeout(()=>{ch.i++;chStep()},900)}
+  else fb.innerHTML=`<div class="lab">Not quite what fits here. Try again, or use Hint.</div><div class="you">You said: <span class="zh">${said}</span></div>`;
+}
+
+$("chSend").onclick=()=>chCheck($("chIn").value);$("chIn").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();chCheck($("chIn").value)}});
+$("chHint").onclick=()=>{$("chGoal").hidden=false;$("chHint").hidden=true;ch.tries=Math.max(ch.tries,1)};
+$("chShow").onclick=()=>{$("chModel").hidden=false;ch.tries=Math.max(ch.tries,1);sayThen(ch.lines[ch.i].zh)};
+$("chSkip").onclick=()=>{const l=ch.lines[ch.i];if(!l||!l.me)return;const me=document.createElement("div");me.className="spl me miss";me.innerHTML=`<span class="who">You</span><div class="bub">${spGloss(l.zh,l.py)}<div class="en">${l.en}</div></div>`;$("chChat").appendChild(me);ch.i++;chStep()};
+document.querySelectorAll("#chShowSel button").forEach(b=>b.onclick=()=>{chShow=b.dataset.v;store.set("bd-chshow",chShow);
+  document.querySelectorAll("#chShowSel button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.v===chShow));
+  document.querySelectorAll("#chChat .chpy").forEach(x=>{if(chShow==="py")x.hidden=false})});
+$("chAgain").onclick=()=>chStart(ch.asker);$("chFlip").onclick=()=>{spDlgIdx=spDialogues().findIndex(d=>d.challenge===(ch.asker?"give":"ask"));spPickDialogue()};
+$("chMic").onclick=async()=>{const b=$("chMic");if(b.classList.contains("on")){try{spListen.cur.stop()}catch(e){}return}
+  b.classList.add("on");try{const alts=await spListen(p=>{$("chIn").value=p});b.classList.remove("on");if(alts[0]){$("chIn").value=alts[0];chCheck(alts[0])}}
+  catch(e){b.classList.remove("on");toast("Didn't catch that. Try again or type it.")}};
 /* ---------- word order ---------- */
 // An English sentence and its Chinese words scrambled; tap them into the right order.
 // Word-order sentences. t: tiles in the right order, py: pinyin per tile, p: end punctuation, c: tile index followed by a comma,
