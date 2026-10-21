@@ -972,6 +972,36 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
 .fores{width:100%;text-align:left}
 .fofull{margin-top:8px}.forule{font-size:.86rem;margin-top:6px;line-height:1.45}.forule b{color:var(--tang)}
 .fores .nav{margin-top:10px}
+
+#foTab{align-self:flex-start}
+#wtBox,#foWordsBox{display:flex;flex-direction:column;gap:14px}
+#wtBox[hidden],#foWordsBox[hidden]{display:none}
+.wtnote{margin:0;font-size:.9rem;line-height:1.5;background:var(--well);border-radius:14px;padding:10px 14px}
+.wtgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-top:10px}
+.wtc{border:2px solid var(--line);border-bottom-width:4px;background:var(--card);border-radius:14px;padding:8px;display:flex;flex-direction:column;align-items:center;gap:1px}
+.wtc .zh{font-size:1.4rem}.wtc .py{color:var(--sky-d);font-weight:800;font-size:.85rem}.wtc .en{font-size:.75rem;color:var(--muted);text-align:center}
+.wtpic{width:min(300px,100%);height:auto;background:var(--card);border:2px solid var(--line);border-radius:18px}
+.wtpic .wbld{fill:var(--sky-soft);stroke:var(--sky);stroke-width:2.5}
+.wtpic .wdoor{fill:var(--sky)}
+.wtpic .wlm{font-family:var(--f-hanzi);font-size:20px;fill:var(--ink);font-weight:700}
+.wtpic .wtxt{font-size:11px;fill:var(--faint);font-weight:700}
+.wtpic .wroad{fill:var(--line)}
+.wtpic .wdash{stroke:var(--card);stroke-width:2;stroke-dasharray:10 8}
+.wtpic .wnorth{fill:var(--red)}
+.wtpic .wpin circle{fill:var(--red);stroke:#fff;stroke-width:3}
+.wtpic .wpin text{fill:#fff;font-family:var(--f-hanzi);font-size:12px;font-weight:700}
+.wtpic .wslot{cursor:pointer}
+.wtpic .wslot circle{fill:var(--sun-soft);stroke:var(--sun-d);stroke-width:2.5;stroke-dasharray:4 3}
+.wtpic .wslot text{fill:var(--sun-d);font-weight:800;font-size:16px}
+.wtpic .wslot.right circle{fill:var(--jade);stroke:var(--jade-d);stroke-dasharray:none}
+.wtpic .wslot.right text{fill:#fff}
+.wtpic .wslot.wrong circle{fill:var(--red);stroke:var(--red-d);stroke-dasharray:none}
+.wtpic .wslot.wrong text{fill:#fff}
+.foopts.en button{font-size:1rem;font-weight:700}
+.wbig{font-size:3rem!important}
+.wsent{font-size:1.3rem;margin-top:4px}
+.fopy{color:var(--sky-d);font-weight:700;font-size:.9rem}
+.wlisten{background:var(--sky);box-shadow:0 5px 0 var(--sky-d)}
 </style>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5M18 7a7 7 0 0 1 0 10"/></symbol>
@@ -1345,10 +1375,19 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
       </div>
 
       <div class="sheet" id="spFocWrap" hidden>
+        <div class="seg" id="foTab" role="group" aria-label="Train"><button data-t="w">Single words</button><button data-t="t">Word types</button></div>
+        <div id="wtBox" hidden>
+          <div class="pgpick" id="wtPick" role="group" aria-label="Word type"></div>
+          <div id="wtRef"></div>
+          <div class="tqtop"><span class="meta">Practice</span><span class="tqscore" id="wtScore"></span></div>
+          <div class="foq" id="wtQ"></div>
+        </div>
+        <div id="foWordsBox">
         <details class="opts foopts-d" open><summary><svg class="ico"><use href="#i-set"/></svg><span class="sum">Words I'm working on: <span class="zh" id="foSum"></span></span><span class="chg"></span></summary><div class="optbody"><div class="pgpick fopick" id="foPick"></div></div></details>
         <div id="foExplain"></div>
         <div class="tqtop"><span class="meta">Practice</span><span class="tqscore" id="foScore"></span></div>
         <div class="foq" id="foQ"></div>
+        </div>
       </div>
 
       <div class="sheet" id="spPatWrap" hidden>
@@ -2517,7 +2556,7 @@ function spGo(){
   spRun++;try{speechSynthesis.cancel()}catch(e){}
   document.querySelectorAll("#spMode button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.m===spMode));
   $("spDlgWrap").hidden=spMode!=="dlg";$("spTalkWrap").hidden=spMode!=="talk";$("spFocWrap").hidden=spMode!=="foc";$("spPatWrap").hidden=spMode!=="pat";$("spReadWrap").hidden=spMode!=="read";
-  if(spMode==="dlg")spPickDialogue();else if(spMode==="foc")foStart();else if(spMode==="talk"){if(!$("tkChat").children.length)tkStart();else tkRenderSuggest()}else if(spMode==="pat"){spPatN=0;spPatOk=0;spNextPattern()}else spRenderRead();
+  if(spMode==="dlg")spPickDialogue();else if(spMode==="foc"){foStart();wtRender()}else if(spMode==="talk"){if(!$("tkChat").children.length)tkStart();else tkRenderSuggest()}else if(spMode==="pat"){spPatN=0;spPatOk=0;spNextPattern()}else spRenderRead();
 }
 /* role-play */
 function spDialogues(){return [...spLesson().dialogues,{name:"Ask the way (new each time)",random:true}]}
@@ -2853,6 +2892,79 @@ function foNext(){
     sayThen(item.zh);$("foGood").onclick=()=>finish(true,"Nice.");$("foBad").onclick=()=>finish(false,"Keep at it.")};
 }
 
+/* ---------- word types: train a whole group of look-alike words against each other ---------- */
+// items: [hanzi, pinyin, english, picture slot]
+const WT=[
+  {id:"pos",name:"Positions",pic:"rel",note:"These say where something is compared to a landmark. Pattern: thing + 在 + landmark + (的) + position. The landmark always comes first: 超市在银行的右边 = the supermarket is to the right of the bank. In the pictures, the side with the door is the front.",items:[
+    ["前边","qiánbian","in front","front"],["后边","hòubian","behind","back"],["左边","zuǒbian","left side","left"],["右边","yòubian","right side","right"],["对面","duìmiàn","across from","across"],["里边","lǐbian","inside","in"],["旁边","pángbiān","next to",null],["附近","fùjìn","nearby",null]]},
+  {id:"cmp",name:"Compass",pic:"cmp",note:"On a map, 北 is up. The corners always start with 东 or 西: 东南 = southeast, 西北 = northwest (the reverse of English). Add 边 for 'the … side': 东边 = the east side.",items:[
+    ["北边","běibian","north","n"],["南边","nánbian","south","s"],["东边","dōngbian","east","e"],["西边","xībian","west","w"],["东北","dōngběi","northeast","ne"],["西北","xīběi","northwest","nw"],["东南","dōngnán","southeast","se"],["西南","xīnán","southwest","sw"]]},
+  {id:"move",name:"Getting around",note:"How you move. The direction (往左, 往前) always comes before the verb (拐, 走). 坐 is for things you sit in, 骑 for things you straddle.",items:[
+    ["往左拐","wǎng zuǒ guǎi","turn left"],["往右拐","wǎng yòu guǎi","turn right"],["往前走","wǎng qián zǒu","go forward"],["一直走","yìzhí zǒu","keep going straight"],["出","chū","go out of, exit"],["到","dào","arrive"],["走路","zǒulù","walk, on foot"],["骑车","qí chē","ride a bike"],["坐公交车","zuò gōngjiāochē","take the bus"],["打车","dǎchē","take a taxi"]]},
+  {id:"q",name:"Question words",note:"Question words sit where the answer will go. 哪儿 replaces a place, 怎么 goes before the verb, 几 is for small numbers you expect (几点), 多少 for any amount (多少号, 多少钱).",items:[
+    ["哪儿","nǎr","where"],["怎么","zěnme","how"],["多长时间","duō cháng shíjiān","how long"],["几","jǐ","how many (small number)"],["多少","duōshao","how many, how much"],["什么","shénme","what"],["谁","shéi","who"],["什么时候","shénme shíhou","when"],["为什么","wèishénme","why"]]},
+  {id:"place",name:"Places",note:"Places on and near campus. Any of them can be the thing you ask about or the landmark you give.",items:[
+    ["银行","yínháng","bank"],["食堂","shítáng","canteen"],["书店","shūdiàn","bookstore"],["图书馆","túshūguǎn","library"],["超市","chāoshì","supermarket"],["医院","yīyuàn","hospital"],["邮局","yóujú","post office"],["宿舍","sùshè","dorm"],["教学楼","jiàoxuélóu","teaching building"],["路口","lùkǒu","intersection"]]},
+  {id:"time",name:"Time words",note:"Time words go before the verb, at the start or right after the subject. Bigger units come first: 明天上午 (tomorrow morning).",items:[
+    ["今天","jīntiān","today"],["明天","míngtiān","tomorrow"],["早上","zǎoshang","early morning"],["上午","shàngwǔ","morning (before noon)"],["中午","zhōngwǔ","noon"],["下午","xiàwǔ","afternoon"],["晚上","wǎnshang","evening"],["现在","xiànzài","now"],["周末","zhōumò","weekend"]]}
+];
+let wtId=store.get("bd-wtid","pos"),wtCur=null,wtN=0,wtOk=0,foTab=store.get("bd-fotab","w");
+const wtGroup=()=>WT.find(g=>g.id===wtId)||WT[0];
+const WT_LM=["银行","食堂","书店","邮局","宿舍"],WT_TH=["超市","医院","图书馆","书店","食堂","银行","邮局"];
+// slot positions in a 300x300 picture
+const WT_SLOT={rel:{back:[150,48],left:[52,130],right:[248,130],front:[150,198],across:[150,268],in:[150,140]},
+  cmp:{n:[150,40],s:[150,262],e:[262,150],w:[38,150],ne:[250,52],nw:[50,52],se:[250,250],sw:[50,250]}};
+function wtPic(kind,lm,pin,label,tap){
+  const S=WT_SLOT[kind];let g="";
+  if(kind==="rel"){g+=`<rect x="0" y="222" width="300" height="26" class="wroad"/><line x1="0" y1="235" x2="300" y2="235" class="wdash"/><text x="290" y="216" class="wtxt" text-anchor="end">road</text>
+    <rect x="105" y="88" width="90" height="84" rx="8" class="wbld"/><rect x="138" y="150" width="24" height="22" rx="3" class="wdoor"/><text x="150" y="112" class="wlm" text-anchor="middle">${lm}</text>`}
+  else{g+=`<rect x="110" y="110" width="80" height="80" rx="8" class="wbld"/><text x="150" y="157" class="wlm" text-anchor="middle">${lm}</text>
+    <g transform="translate(150 150)"><path d="M0 -122 l7 14 h-14z" class="wnorth"/></g><text x="162" y="22" class="wtxt">北 N</text>`}
+  if(tap)g+=Object.entries(S).map(([k,[x,y]])=>`<g class="wslot" data-slot="${k}"><circle cx="${x}" cy="${y}" r="17"/><text x="${x}" y="${y+5}" text-anchor="middle">＋</text></g>`).join("");
+  if(pin){const [x,y]=S[pin];g+=`<g class="wpin"><circle cx="${x}" cy="${y}" r="19"/><text x="${x}" y="${y+6}" text-anchor="middle">${label}</text></g>`}
+  return `<svg class="wtpic" viewBox="0 0 300 300" role="img" aria-label="Map">${g}</svg>`;
+}
+function wtRender(){
+  document.querySelectorAll("#foTab button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.t===foTab));
+  $("foWordsBox").hidden=foTab!=="w";$("wtBox").hidden=foTab!=="t";
+  if(foTab!=="t")return;
+  const G=wtGroup();
+  $("wtPick").innerHTML=WT.map(g=>`<button data-g="${g.id}" aria-pressed="${g.id===G.id}">${g.name}</button>`).join("");
+  $("wtPick").querySelectorAll("button").forEach(b=>b.onclick=()=>{wtId=b.dataset.g;store.set("bd-wtid",wtId);wtN=0;wtOk=0;wtRender()});
+  $("wtRef").innerHTML=`<p class="wtnote">${G.note}</p><div class="wtgrid">${G.items.map(i=>`<button class="wtc" data-say="${i[0]}"><span class="zh">${i[0]}</span><span class="py">${i[1]}</span><span class="en">${i[2]}</span></button>`).join("")}</div>`;
+  $("wtRef").querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>sayThen(b.dataset.say));
+  wtNext();
+}
+function wtNext(){
+  const G=wtGroup(),items=G.items,picItems=items.filter(i=>i[3]);
+  const kinds=G.pic?["pic","pic","tap","en","zh","listen"]:["en","zh","listen","en"];
+  let kind=spPick(kinds);const pool=(kind==="pic"||kind==="tap")?picItems:items;
+  const it=spPick(pool),others=shuffled(pool.filter(x=>x!==it)).slice(0,3),opts=shuffled([it,...others]);
+  const lm=spPick(WT_LM);let th;do th=spPick(WT_TH);while(th===lm);
+  wtCur={it,kind,done:false};
+  $("wtScore").innerHTML=wtN?`<b>${wtOk}</b> of ${wtN} right`:"";
+  const zhPos=it[0],de=/^(东|西|南|北)(南|北)?$/.test(zhPos)&&zhPos.length===2?"":"的";
+  const sent=`${th}在${lm}${it[3]==="in"?"":de}${zhPos}`;
+  let h="";
+  if(kind==="pic"){h=`<div class="fokind">Where is the ${th==="超市"?"supermarket":"marked place"}? Pick the word</div><div class="foen zh">${th}在${lm}的哪边？</div>${wtPic(G.pic,lm,it[3],th)}
+    <div class="foopts">${opts.map(o=>`<button data-o="${o[0]}"><span class="zh">${o[0]}</span></button>`).join("")}</div>`}
+  else if(kind==="tap"){h=`<div class="fokind">Tap where it is</div><div class="foen zh">${sent}。</div><div class="fopy">${it[1]} = ${it[2]}</div>${wtPic(G.pic,lm,null,"",true)}`}
+  else if(kind==="en"){h=`<div class="fokind">Which word means</div><div class="foen">${it[2]}</div><div class="foopts">${opts.map(o=>`<button data-o="${o[0]}"><span class="zh">${o[0]}</span></button>`).join("")}</div>`}
+  else if(kind==="zh"){h=`<div class="fokind">What does this mean?</div><div class="foen zh wbig">${it[0]}</div><div class="foopts en">${opts.map(o=>`<button data-o="${o[0]}">${o[2]}</button>`).join("")}</div>`}
+  else{h=`<div class="fokind">Listen and pick the word</div><button class="spmic sm wlisten" id="wtPlay"><svg class="ico"><use href="#i-sound"/></svg><span>Play again</span></button><div class="foopts">${opts.map(o=>`<button data-o="${o[0]}"><span class="zh">${o[0]}</span></button>`).join("")}</div>`;setTimeout(()=>sayThen(it[0]),200)}
+  h+=`<div class="fores"></div>`;
+  $("wtQ").innerHTML=h;replay($("wtQ"),"swap");
+  if($("wtPlay"))$("wtPlay").onclick=()=>sayThen(it[0]);
+  const finish=(ok)=>{if(wtCur.done)return;wtCur.done=true;wtN++;if(ok)wtOk++;
+    const r=$("wtQ").querySelector(".fores");r.className="fores verdict "+(ok?"ok":"no");
+    const full=G.pic&&it[3]?`<div class="zh wsent">${sent}。</div>`:"";
+    r.innerHTML=`${ok?"Right.":"Not quite."} <span class="zh">${it[0]}</span> <b>${it[1]}</b> = ${it[2]}${full}<div class="nav"><button class="btn quiet" id="wtHear"><svg class="ico"><use href="#i-sound"/></svg>Hear it</button><button class="btn primary" id="wtNextB">Next</button></div>`;
+    $("wtHear").onclick=()=>sayThen(G.pic&&it[3]?sent:it[0]);$("wtNextB").onclick=wtNext;$("wtScore").innerHTML=`<b>${wtOk}</b> of ${wtN} right`;sayThen(G.pic&&it[3]?sent:it[0])};
+  $("wtQ").querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{const ok=b.dataset.o===it[0];b.classList.add(ok?"right":"wrong");if(!ok)$("wtQ").querySelector(`[data-o="${it[0]}"]`).classList.add("right");finish(ok)});
+  $("wtQ").querySelectorAll("[data-slot]").forEach(s=>s.onclick=()=>{if(wtCur.done)return;const ok=s.dataset.slot===it[3];s.classList.add(ok?"right":"wrong");
+    if(!ok){const c=$("wtQ").querySelector(`[data-slot="${it[3]}"]`);c&&c.classList.add("right")}finish(ok)});
+}
+document.querySelectorAll("#foTab button").forEach(b=>b.onclick=()=>{foTab=b.dataset.t;store.set("bd-fotab",foTab);wtRender()});
 /* ---------- word order ---------- */
 // An English sentence and its Chinese words scrambled; tap them into the right order.
 // Word-order sentences. t: tiles in the right order, py: pinyin per tile, p: end punctuation, c: tile index followed by a comma,
