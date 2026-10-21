@@ -877,6 +877,26 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
 .spread{font-size:1.5rem;line-height:2;background:var(--well);border:2px solid var(--line);border-radius:18px;padding:18px 20px}
 #spDone{text-align:left}
 @media (prefers-reduced-motion:reduce){.spmic.on{animation:none}}
+
+/* word-by-word: characters, then each word's pinyin, then what it means */
+.spws{display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px 4px;justify-content:inherit}
+.spturn .spws{justify-content:center}
+.spw{display:inline-flex;flex-direction:column;align-items:center;padding:3px 6px;border-radius:10px;background:color-mix(in srgb,var(--card) 70%,transparent);min-width:2.2em}
+.spw .h{font-size:1.4rem;line-height:1.25}
+.spw .p{font-weight:700;color:var(--sky-d);font-size:.86rem;white-space:nowrap}
+.spw .e{font-size:.7rem;color:var(--muted);line-height:1.15;max-width:7.5em;text-align:center}
+.spp{font-size:1.4rem;line-height:1.25;padding-top:3px;color:var(--muted)}
+.nohz .spw .h,.nohz .spp{display:none}
+.nohz .spw{padding-top:6px}
+.spread .spws{gap:8px 4px}
+.spread.nogl .spw .p,.spread.nogl .spw .e{display:none}
+.spread.nogl .spw{background:none;padding:0;min-width:0}
+.spl .bub .spws{margin:2px 0 4px}
+
+.spord{margin-top:6px;padding-top:6px;border-top:1px dashed var(--line);font-size:.8rem;color:var(--muted);display:flex;flex-direction:column;gap:2px;text-align:left}
+.spord b{color:var(--ink);font-weight:800;margin-right:4px}
+.spord .zh{color:var(--tang);font-size:.95rem;font-weight:600}
+.spturn .spord{text-align:center;border-top:0;padding-top:0;margin-top:2px}
 </style>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5M18 7a7 7 0 0 1 0 10"/></symbol>
@@ -2244,17 +2264,17 @@ const SP_PATTERNS=[
 // a fresh "asking the way" conversation for class practice
 function spRandomDialogue(){
   const [p,q]=spTwo(),d1=spPick(SP_LR),d2=spPick(SP_LR),n=spPick(SP_NTH),t=spPick(SP_T),far=Math.random()<.5;
-  const L=[["你",`请问，${p[0]}在哪儿？`,`Qǐngwèn, ${p[1]} zài nǎr?`,`Excuse me, where is the ${p[2]}?`]];
-  L.push(far?["同学",`有点儿远，在${q[0]}的对面。`,`Yǒudiǎnr yuǎn, zài ${q[1]} de duìmiàn.`,`A little far. It's across from the ${q[2]}.`]
-            :["同学",`不远，就在${q[0]}旁边。`,`Bù yuǎn, jiù zài ${q[1]} pángbiān.`,`Not far, it's right next to the ${q[2]}.`]);
-  L.push(["你",`去${p[0]}怎么走？`,`Qù ${p[1]} zěnme zǒu?`,`How do I get to the ${p[2]}?`]);
-  L.push(["同学",`出学校大门往${d1[0]}拐，然后一直往前走。`,`Chū xuéxiào dàmén wǎng ${d1[1]} guǎi, ránhòu yìzhí wǎng qián zǒu.`,`Go out the main gate and turn ${d1[2]}, then go straight.`]);
-  L.push(["你","然后呢？","Ránhòu ne?","And then?"]);
-  L.push(["同学",`第${n[0]}个路口往${d2[0]}拐，就到了。`,`Dì-${n[1]} ge lùkǒu wǎng ${d2[1]} guǎi, jiù dào le.`,`Turn ${d2[2]} at the ${n[2]} intersection and you're there.`]);
-  L.push(["你",`从这儿到${p[0]}多长时间？`,`Cóng zhèr dào ${p[1]} duō cháng shíjiān?`,`How long does it take from here to the ${p[2]}?`]);
-  L.push(["同学",`走路${t[0]}分钟。`,`Zǒulù ${t[1]} fēnzhōng.`,`It's a ${t[2]}-minute walk.`]);
+  const L=[["你",`请问，${p[0]}在哪儿？`,`Qǐngwèn, ${p[1]} zài nǎr?`,`Excuse me, where is the ${p[2]}?`,"请问 + place + 在 + 哪儿？"]];
+  L.push(far?["同学",`有点儿远，在${q[0]}的对面。`,`Yǒudiǎnr yuǎn, zài ${q[1]} de duìmiàn.`,`A little far. It's across from the ${q[2]}.`,"有点儿远，在 + place + 的对面"]
+            :["同学",`不远，就在${q[0]}旁边。`,`Bù yuǎn, jiù zài ${q[1]} pángbiān.`,`Not far, it's right next to the ${q[2]}.`,"不远，就 + 在 + place + 旁边"]);
+  L.push(["你",`去${p[0]}怎么走？`,`Qù ${p[1]} zěnme zǒu?`,`How do I get to the ${p[2]}?`,"去 + place + 怎么走？"]);
+  L.push(["同学",`出学校大门往${d1[0]}拐，然后一直往前走。`,`Chū xuéxiào dàmén wǎng ${d1[1]} guǎi, ránhòu yìzhí wǎng qián zǒu.`,`Go out the main gate and turn ${d1[2]}, then go straight.`,"出 + place + 往 + direction + 拐，然后一直往前走"]);
+  L.push(["你","然后呢？","Ránhòu ne?","And then?","然后 + 呢？"]);
+  L.push(["同学",`第${n[0]}个路口往${d2[0]}拐，就到了。`,`Dì-${n[1]} ge lùkǒu wǎng ${d2[1]} guǎi, jiù dào le.`,`Turn ${d2[2]} at the ${n[2]} intersection and you're there.`,"第 + number + 个路口 + 往 + direction + 拐，就到了"]);
+  L.push(["你",`从这儿到${p[0]}多长时间？`,`Cóng zhèr dào ${p[1]} duō cháng shíjiān?`,`How long does it take from here to the ${p[2]}?`,"从 + 这儿 + 到 + place + 多长时间？"]);
+  L.push(["同学",`走路${t[0]}分钟。`,`Zǒulù ${t[1]} fēnzhōng.`,`It's a ${t[2]}-minute walk.`,"走路 + number + 分钟"]);
   L.push(["你","谢谢你！","Xièxie nǐ!","Thank you!"]);
-  L.push(["同学","不客气。","Bú kèqi.","You're welcome."]);
+  L.push(["同学","不客气。","Bú kèqi.","You're welcome.","set phrase"]);
   return {name:"Ask the way (new each time)",roles:["你","同学"],lines:L,random:true};
 }
 // ---- speech recognition (iPad Safari / Chrome); everything works without it via Show answer
@@ -2280,6 +2300,35 @@ function spListen(onPartial){
     r.onend=()=>{if(!done){done=true;res(best.filter(Boolean))}};
     spListen.cur=r;try{r.start()}catch(e){done=true;rej("start")}
   });
+}
+
+const SP_ORDER={"请问，银行在哪儿？": "请问 + place + 在 + 哪儿？", "在那边。": "在 + where (the subject is dropped)", "远吗？": "adjective + 吗？", "有点儿远，在食堂旁边。": "有点儿 + adjective，在 + place + 旁边", "食堂在哪儿？": "place + 在 + 哪儿？", "我带你去吧。": "I + 带 + you + 去 + 吧", "谢谢你！": "谢谢 + person", "山本，学校附近有书店吗？": "name，place + 附近 + 有 + thing + 吗？", "有。": "answer a 有 question with just 有", "不远。": "不 + adjective", "怎么走？": "怎么 + verb？", "出学校大门一直往前走。": "出 + place，一直 + 往 + direction + 走", "然后呢？": "然后 + 呢？", "走二百米，再往左拐。": "走 + distance，再 + 往 + direction + 拐", "王山，你家离学校远吗？": "name，A + 离 + B + 远吗？", "不远，就在学校附近。": "不远，就 + 在 + place + 附近", "从你家到学校多长时间？": "从 + A + 到 + B + 多长时间？", "走路十五分钟。": "how you go + time", "去你家怎么走？": "去 + place + 怎么走？", "出学校大门往右拐。": "出 + place + 往 + direction + 拐", "然后一直走吗？": "然后 + 一直 + verb + 吗？", "一直往前走，就到了。": "一直往前走，就 + 到 + 了"};
+// word-by-word glosses: split a line into dictionary words and give each its own pinyin and meaning
+const SP_NAMES={"玛莎":"Masha (name)","山本":"Yamamoto (name)","王山":"Wang Shan (name)","欧文":"Owen (name)","心美":"Xinmei (name)","玛丽":"Mary (name)","大卫":"David (name)","中国学生":"Chinese student","同学":"classmate"};
+const SP_GL={"在":"at, in","去":"go","有":"have, there is","不":"not","吗":"(question)","呢":"(and…?)","吧":"(suggestion)","了":"(done)","的":"'s, of","就":"just, right","再":"then","往":"toward","走":"walk, go","拐":"turn","出":"exit","到":"to, arrive","从":"from","离":"from (distance)","多":"how","长":"long","我":"I","你":"you","他":"he","家":"home","这儿":"here","那边":"over there","哪儿":"where","二百":"200","一百":"100","三百":"300","十五":"fifteen","二十":"twenty","了":"(done)","住":"live","自己":"own","不客气":"you're welcome","谢谢":"thank you","请问":"excuse me","然后":"then","一直":"straight on","先":"first","第":"(ordinal)","个":"(measure word)","米":"meters","分钟":"minutes","旁边":"next to","对面":"across from","附近":"nearby","哪儿":"where","怎么":"how"};
+function spWords(zh){
+  const L=lkIndex(),out=[],ch=[...zh];let i=0;
+  while(i<ch.length){
+    if(!/[㐀-鿿]/.test(ch[i])){out.push({p:ch[i]});i++;continue}
+    let n=Math.min(4,ch.length-i),w=null;
+    for(;n>0;n--){const c=ch.slice(i,i+n).join("");if(!/^[㐀-鿿]+$/.test(c))continue;if(SP_NAMES[c]||SP_GL[c]||L.has(c)||n===1){w=c;break}}
+    const hit=L.get(w);out.push({w,en:SP_NAMES[w]||SP_GL[w]||(hit?pgShort(hit.en):""),dpy:hit?hit.py:""});i+=n;
+  }
+  return out;
+}
+function spOrder(zh,label){
+  const W=spWords(zh).filter(x=>x.w),lit=W.map(x=>(x.en||x.w).replace(/ \(name\)$/,"").split(/,\s*/)[0]).join(" / ");
+  const f=label||SP_ORDER[zh]||"";
+  return `<div class="spord">${f?`<div><b>Order</b> <span class="zh">${f}</span></div>`:""}<div><b>Word for word</b> ${lit}</div></div>`;
+}
+function spGloss(zh,py){
+  const W=spWords(zh),syl=pySyllables(py.replace(/[,.?!;:，。？！、]/g," ")).map(x=>{const m=markSyllable(x.base,x.tone);return x.cap?m.charAt(0).toUpperCase()+m.slice(1):m});
+  let k=0,ok=true;
+  for(const x of W){if(!x.w)continue;let parts=[];
+    for(const c of x.w){const prev=parts[parts.length-1]||"";if(c==="儿"&&prev&&/r$/.test(prev)&&!/^[eé ěè]r$/i.test(prev))continue;if(k>=syl.length){ok=false;break}parts.push(syl[k++])}
+    x.py=SP_NAMES[x.w]&&/\(name\)/.test(SP_NAMES[x.w])?parts.join(" "):parts.join("")}
+  if(!ok||k!==syl.length)W.forEach(x=>{if(x.w)x.py=x.dpy}); // fall back to dictionary pinyin if the line's pinyin doesn't line up
+  return `<div class="spws">${W.map(x=>x.w?`<span class="spw"><span class="h zh">${x.w}</span><span class="p">${x.py||""}</span><span class="e">${x.en}</span></span>`:`<span class="spp zh">${x.p}</span>`).join("")}</div>`;
 }
 function sayThen(text,cb){
   let fired=false;const go=()=>{if(!fired){fired=true;cb&&cb()}};
@@ -2329,7 +2378,7 @@ function spPickDialogue(){
 function spStartDialogue(){spRun++;spI=0;spRes=[];$("spChat").innerHTML="";$("spDone").hidden=true;$("spTurn").hidden=true;spStep()}
 function spBubble(line,mine,show){
   const [who,zh,py,en]=line,el=document.createElement("div");el.className="spl"+(mine?" me":"");
-  el.innerHTML=`<span class="who zh">${who}</span><div class="bub"><button class="say" aria-label="Hear this line"><svg class="ico"><use href="#i-sound"/></svg></button><div class="zh t">${zh}</div><div class="py">${py}</div><div class="en">${en}</div></div>`;
+  el.innerHTML=`<span class="who zh">${who}</span><div class="bub"><button class="say" aria-label="Hear this line"><svg class="ico"><use href="#i-sound"/></svg></button>${spGloss(zh,py)}<div class="en">${en}</div>${spOrder(zh,line[4])}</div>`;
   el.querySelector(".say").onclick=()=>sayThen(zh);
   $("spChat").appendChild(el);el.scrollIntoView({block:"nearest",behavior:"smooth"});return el;
 }
@@ -2345,8 +2394,8 @@ function spYourTurn(line){
   const [who,zh,py,en]=line,t=$("spTurn");t.hidden=false;replay(t,"swap");
   $("spTurnWho").textContent=`Your line, as ${who}`;
   $("spTurnEn").textContent=en;
-  $("spTurnPy").textContent=py;$("spTurnPy").hidden=spHint==="en";
-  $("spTurnZh").textContent=zh;$("spTurnZh").hidden=spHint!=="zh";
+  $("spTurnPy").innerHTML=spGloss(zh,py);$("spTurnPy").hidden=spHint==="en";$("spTurnPy").classList.toggle("nohz",spHint!=="zh");
+  $("spTurnZh").innerHTML=spOrder(zh,line[4]);$("spTurnZh").hidden=true;
   $("spHeard").innerHTML="";$("spHeard").className="spheard";
   $("spMic").hidden=!SR;$("spMic").classList.remove("on");$("spMicLab").textContent="Tap and say it";
   $("spReveal").hidden=false;$("spGrade").hidden=true;
@@ -2357,7 +2406,7 @@ function spShowResult(target,heard,score,hit){
   h.innerHTML=`<div class="lab">${ok?"Sounds right":"Not quite. Green is what came through"}</div><div class="zh mark">${[...target].map((c,i)=>`<span class="${hit[i]?"y":"n"}">${c}</span>`).join("")}</div><div class="you">Heard: <span class="zh">${heard||"nothing"}</span></div>`;
   return ok;
 }
-function spReveal(){$("spTurnZh").hidden=false;$("spTurnPy").hidden=false;$("spReveal").hidden=true;$("spGrade").hidden=false;sayThen(spDlg.lines[spI][1])}
+function spReveal(){$("spTurnPy").hidden=false;$("spTurnPy").classList.remove("nohz");$("spTurnZh").hidden=false;$("spReveal").hidden=true;$("spGrade").hidden=false;sayThen(spDlg.lines[spI][1])}
 function spAdvance(ok){
   const line=spDlg.lines[spI];spRes.push({line,ok});$("spTurn").hidden=true;
   spBubble(line,true).classList.add(ok?"good":"miss");spI++;spStep();
@@ -2386,8 +2435,8 @@ function spNextPattern(){
   spRun++;spPat=spPick(SP_PATTERNS)();
   const [zh,py,en,label]=spPat;
   $("spPatMeta").textContent=`Pattern: ${label}`;$("spPatScore").innerHTML=spPatN?`<b>${spPatOk}</b> of ${spPatN} right`:"";
-  $("spPatEn").textContent=en;$("spPatPy").textContent=py;$("spPatZh").textContent=zh;
-  $("spPatPy").hidden=spHint==="en";$("spPatZh").hidden=spHint!=="zh";
+  $("spPatEn").textContent=en;$("spPatPy").innerHTML=spGloss(zh,py);$("spPatZh").innerHTML=spOrder(zh,label);$("spPatZh").hidden=true;
+  $("spPatPy").hidden=spHint==="en";$("spPatPy").classList.toggle("nohz",spHint!=="zh");
   $("spPatHeard").innerHTML="";$("spPatHeard").className="spheard";
   $("spPatMic").hidden=!SR;$("spPatReveal").hidden=false;$("spPatGrade").hidden=true;
   replay($("spPatCard"),"swap");
@@ -2395,31 +2444,31 @@ function spNextPattern(){
 function spPatDone(ok){spPatN++;if(ok)spPatOk++;spNextPattern()}
 /* read aloud */
 function spRenderRead(){
-  const P=spLesson().passage;$("spReadZh").textContent=P.zh;$("spReadPy").textContent=P.py;$("spReadEn").textContent=P.en;
-  $("spReadPy").hidden=spHint==="en";$("spReadHeard").innerHTML="";$("spReadHeard").className="spheard";$("spReadMic").hidden=!SR;
+  const P=spLesson().passage;$("spReadZh").innerHTML=spGloss(P.zh,P.py);$("spReadPy").textContent="";$("spReadPy").hidden=true;$("spReadEn").textContent=P.en;
+  $("spReadZh").classList.toggle("nogl",spHint==="en");$("spReadHeard").innerHTML="";$("spReadHeard").className="spheard";$("spReadMic").hidden=!SR;
 }
 // wiring
 $("startSp").onclick=startSp;$("spExit").onclick=()=>{spOff();$("practice").hidden=false;load()};
 document.querySelectorAll("#spMode button").forEach(b=>b.onclick=()=>{spMode=b.dataset.m;store.set("bd-spmode",spMode);spGo()});
 document.querySelectorAll("#spHint button").forEach(b=>b.onclick=()=>{spHint=b.dataset.h;store.set("bd-sphint",spHint);spRenderOpts();
-  if(spMode==="dlg"&&!$("spTurn").hidden){$("spTurnPy").hidden=spHint==="en";$("spTurnZh").hidden=spHint!=="zh"}
-  if(spMode==="pat"){$("spPatPy").hidden=spHint==="en";$("spPatZh").hidden=spHint!=="zh"}if(spMode==="read")$("spReadPy").hidden=spHint==="en"});
+  if(spMode==="dlg"&&!$("spTurn").hidden&&$("spGrade").hidden){$("spTurnPy").hidden=spHint==="en";$("spTurnPy").classList.toggle("nohz",spHint!=="zh")}
+  if(spMode==="pat"&&$("spPatGrade").hidden){$("spPatPy").hidden=spHint==="en";$("spPatPy").classList.toggle("nohz",spHint!=="zh")}if(spMode==="read")$("spReadZh").classList.toggle("nogl",spHint==="en")});
 $("spSlow").onclick=()=>{spSlow=!spSlow;store.set("bd-spslow",spSlow);spRenderOpts()};
 $("spRestart").onclick=()=>spPickDialogue();$("spAgain").onclick=()=>spPickDialogue();
 $("spSwitch").onclick=()=>{const R=spDlg.roles;spRole=R[(R.indexOf(spRole)+1)%R.length];spPickDialogue()};
 $("spReveal").onclick=spReveal;$("spHear").onclick=()=>sayThen(spDlg.lines[spI][1]);
 $("spGood").onclick=()=>spAdvance(true);$("spBad").onclick=()=>spAdvance(false);
 $("spMic").onclick=()=>spMicGo(spDlg.lines[spI][1],(T,m)=>{const ok=spShowResult(T,m.heard,m.score,m.hit);
-  $("spTurnZh").hidden=false;$("spTurnPy").hidden=false;$("spReveal").hidden=true;$("spGrade").hidden=false;if(ok)setTimeout(()=>{if(!$("spTurn").hidden)spAdvance(true)},1100)});
+  $("spTurnPy").hidden=false;$("spTurnPy").classList.remove("nohz");$("spTurnZh").hidden=false;$("spReveal").hidden=true;$("spGrade").hidden=false;if(ok)setTimeout(()=>{if(!$("spTurn").hidden)spAdvance(true)},1100)});
 $("spPatHear").onclick=()=>sayThen(spPat[0]);
-$("spPatReveal").onclick=()=>{$("spPatZh").hidden=false;$("spPatPy").hidden=false;$("spPatReveal").hidden=true;$("spPatGrade").hidden=false;sayThen(spPat[0])};
+$("spPatReveal").onclick=()=>{$("spPatPy").hidden=false;$("spPatPy").classList.remove("nohz");$("spPatZh").hidden=false;$("spPatReveal").hidden=true;$("spPatGrade").hidden=false;sayThen(spPat[0])};
 $("spPatGood").onclick=()=>spPatDone(true);$("spPatBad").onclick=()=>spPatDone(false);$("spPatSkip").onclick=spNextPattern;
 $("spPatMic").onclick=async()=>{const b=$("spPatMic");if(b.classList.contains("on")){try{spListen.cur.stop()}catch(e){}return}
   b.classList.add("on");try{const alts=await spListen(p=>{$("spPatHeard").className="spheard";$("spPatHeard").innerHTML=`<div class="you">Heard: <span class="zh">${p}</span></div>`});b.classList.remove("on");
     const T=spNorm(spPat[0]);let best={score:-1};for(const a of alts.length?alts:[""]){const m=spMatch(T,spNorm(a));if(m.score>best.score)best={...m,heard:a}}
     const ok=best.score>=.8,h=$("spPatHeard");h.className="spheard "+(ok?"ok":"no");
     h.innerHTML=`<div class="lab">${ok?"Sounds right":"Not quite. Green is what came through"}</div><div class="zh mark">${[...T].map((c,i)=>`<span class="${best.hit[i]?"y":"n"}">${c}</span>`).join("")}</div><div class="you">Heard: <span class="zh">${best.heard||"nothing"}</span></div>`;
-    $("spPatZh").hidden=false;$("spPatPy").hidden=false;$("spPatReveal").hidden=true;$("spPatGrade").hidden=false;
+    $("spPatPy").hidden=false;$("spPatPy").classList.remove("nohz");$("spPatZh").hidden=false;$("spPatReveal").hidden=true;$("spPatGrade").hidden=false;
   }catch(e){b.classList.remove("on");toast("Speech recognition isn't working here. Use Show answer.")}};
 $("spReadHear").onclick=()=>sayThen(spLesson().passage.zh);
 $("spReadMic").onclick=async()=>{const b=$("spReadMic");if(b.classList.contains("on")){try{spListen.cur.stop()}catch(e){}return}
