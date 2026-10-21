@@ -918,6 +918,23 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
 .srlit{font-size:.78rem;color:var(--muted)}
 .srlit b{color:var(--ink);font-weight:800;margin-right:4px}
 .sppkind{align-self:center}
+
+.tksug{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tksug .lab{font-size:.82rem;color:var(--muted);font-weight:700;margin-right:2px}
+.tksug button{border:2px dashed var(--grid);background:var(--card);border-radius:14px;padding:7px 12px;font-weight:700;font-size:.88rem;display:inline-flex;flex-direction:column;align-items:flex-start;line-height:1.25;text-align:left}
+.tksug button small{font-weight:600;color:var(--sky-d)}
+.tksug button .zh{font-size:1.05rem}
+.tkbar{display:flex;gap:8px;align-items:center}
+.tkbar input{flex:1;min-width:0;font-size:1.1rem;padding:12px 14px;border:2px solid var(--line);border-radius:14px;background:var(--card);font-weight:600}
+.tkbar input:focus{outline:none;border-color:var(--sky);box-shadow:0 0 0 4px var(--sky-soft)}
+.tkbar .spmic.sm{padding:11px 14px}
+.tkbar .btn{min-height:50px}
+.tkfix{font-size:.82rem;color:var(--ink);margin-top:4px}
+.tkfix:empty{display:none}
+.tkfix b{color:var(--tang)}
+.tkfix .zh{font-size:1rem;font-weight:700}
+.tkfix .py{color:var(--sky-d);font-weight:700}
+.spl.me.tk .bub{padding-right:14px}
 </style>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5M18 7a7 7 0 0 1 0 10"/></symbol>
@@ -1248,7 +1265,7 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
       <div class="qhead">
         <h2>Speak</h2>
         <div class="tools">
-          <div class="seg" role="group" aria-label="Speaking practice" id="spMode"><button data-m="dlg">Role-play</button><button data-m="pat">Patterns</button><button data-m="read">Read aloud</button></div>
+          <div class="seg" role="group" aria-label="Speaking practice" id="spMode"><button data-m="dlg">Role-play</button><button data-m="talk">Talk</button><button data-m="pat">Patterns</button><button data-m="read">Read aloud</button></div>
           <button class="chip" id="spExit">Back to practice</button>
         </div>
       </div>
@@ -1276,6 +1293,18 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
           </div>
         </div>
         <div class="verdict ok" id="spDone" hidden><div id="spDoneTxt"></div><div class="nav" style="margin-top:12px"><button class="btn" id="spSwitch">Switch role</button><button class="btn primary" id="spAgain">Play again</button></div></div>
+      </div>
+
+      <div class="sheet" id="spTalkWrap" hidden>
+        <p class="tqask">You're at the main gate. Ask a classmate about anything on campus: 书店, 银行, 食堂, 宿舍, 图书馆, 超市, 邮局 or 医院.</p>
+        <div class="spchat" id="tkChat"></div>
+        <div class="tksug" id="tkSug"></div>
+        <div class="tkbar">
+          <input id="tkIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type Chinese or pinyin">
+          <button class="spmic sm" id="tkMic" aria-label="Say it"><svg class="ico" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></button>
+          <button class="btn primary" id="tkSend">Send</button>
+        </div>
+        <div class="nav"><button class="btn quiet" id="tkNew">Start a new conversation</button></div>
       </div>
 
       <div class="sheet" id="spPatWrap" hidden>
@@ -2443,8 +2472,8 @@ function spRenderOpts(){
 function spGo(){
   spRun++;try{speechSynthesis.cancel()}catch(e){}
   document.querySelectorAll("#spMode button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.m===spMode));
-  $("spDlgWrap").hidden=spMode!=="dlg";$("spPatWrap").hidden=spMode!=="pat";$("spReadWrap").hidden=spMode!=="read";
-  if(spMode==="dlg")spPickDialogue();else if(spMode==="pat"){spPatN=0;spPatOk=0;spNextPattern()}else spRenderRead();
+  $("spDlgWrap").hidden=spMode!=="dlg";$("spTalkWrap").hidden=spMode!=="talk";$("spPatWrap").hidden=spMode!=="pat";$("spReadWrap").hidden=spMode!=="read";
+  if(spMode==="dlg")spPickDialogue();else if(spMode==="talk"){if(!$("tkChat").children.length)tkStart();else tkRenderSuggest()}else if(spMode==="pat"){spPatN=0;spPatOk=0;spNextPattern()}else spRenderRead();
 }
 /* role-play */
 function spDialogues(){return [...spLesson().dialogues,{name:"Ask the way (new each time)",random:true}]}
@@ -2459,11 +2488,11 @@ function spPickDialogue(){
   spStartDialogue();
 }
 function spStartDialogue(){spRun++;spI=0;spRes=[];$("spChat").innerHTML="";$("spDone").hidden=true;$("spTurn").hidden=true;spStep()}
-function spBubble(line,mine,show){
+function spBubble(line,mine,box){
   const [who,zh,py,en]=line,el=document.createElement("div");el.className="spl"+(mine?" me":"");
   el.innerHTML=`<span class="who zh">${who}</span><div class="bub"><button class="say" aria-label="Hear this line"><svg class="ico"><use href="#i-sound"/></svg></button>${spGloss(zh,py)}<div class="en">${en}</div>${spOrder(zh)}</div>`;
   el.querySelector(".say").onclick=()=>sayThen(zh);
-  $("spChat").appendChild(el);el.scrollIntoView({block:"nearest",behavior:"smooth"});return el;
+  (box||$("spChat")).appendChild(el);el.scrollIntoView({block:"nearest",behavior:"smooth"});return el;
 }
 function spStep(){
   const run=++spRun;
@@ -2533,11 +2562,16 @@ function spRenderRead(){
   $("spReadZh").classList.toggle("nogl",spHint==="en");$("spReadHeard").innerHTML="";$("spReadHeard").className="spheard";$("spReadMic").hidden=!SR;
 }
 // wiring
-$("startSp").onclick=startSp;$("spExit").onclick=()=>{spOff();$("practice").hidden=false;load()};
+$("startSp").onclick=startSp;
+$("tkSend").onclick=()=>tkSend($("tkIn").value);$("tkIn").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();tkSend($("tkIn").value)}});
+$("tkNew").onclick=tkStart;
+$("tkMic").onclick=async()=>{const b=$("tkMic");if(b.classList.contains("on")){try{spListen.cur.stop()}catch(e){}return}
+  b.classList.add("on");try{const alts=await spListen(p=>{$("tkIn").value=p});b.classList.remove("on");if(alts[0])tkSend(alts[0])}
+  catch(e){b.classList.remove("on");toast(e==="not-allowed"||e==="service-not-allowed"?"The microphone isn't allowed here. Type instead.":"Didn't catch that. Try again or type it.")}};$("spExit").onclick=()=>{spOff();$("practice").hidden=false;load()};
 document.querySelectorAll("#spMode button").forEach(b=>b.onclick=()=>{spMode=b.dataset.m;store.set("bd-spmode",spMode);spGo()});
 document.querySelectorAll("#spHint button").forEach(b=>b.onclick=()=>{spHint=b.dataset.h;store.set("bd-sphint",spHint);spRenderOpts();
   if(spMode==="dlg"&&!$("spTurn").hidden&&$("spGrade").hidden){$("spTurnPy").hidden=spHint==="en";$("spTurnPy").classList.toggle("nohz",spHint!=="zh")}
-  if(spMode==="pat"&&$("spPatGrade").hidden){$("spPatPy").hidden=spHint==="en";$("spPatPy").classList.toggle("nohz",spHint!=="zh")}if(spMode==="read")$("spReadZh").classList.toggle("nogl",spHint==="en")});
+  if(spMode==="pat"&&$("spPatGrade").hidden){$("spPatPy").hidden=spHint==="en";$("spPatPy").classList.toggle("nohz",spHint!=="zh")}if(spMode==="read")$("spReadZh").classList.toggle("nogl",spHint==="en");if(spMode==="talk")tkRenderSuggest()});
 $("spSlow").onclick=()=>{spSlow=!spSlow;store.set("bd-spslow",spSlow);spRenderOpts()};
 $("spRestart").onclick=()=>spPickDialogue();$("spAgain").onclick=()=>spPickDialogue();
 $("spSwitch").onclick=()=>{const R=spDlg.roles;spRole=R[(R.indexOf(spRole)+1)%R.length];spPickDialogue()};
@@ -2568,6 +2602,132 @@ $("spReadMic").onclick=async()=>{const b=$("spReadMic");if(b.classList.contains(
     const h=$("spReadHeard");h.className="spheard "+(pct>=80?"ok":"no");
     h.innerHTML=`<div class="lab">${pct}% of the passage came through</div><div class="zh mark">${[...T].map((c,i)=>`<span class="${m.hit[i]?"y":"n"}">${c}</span>`).join("")}</div>`;
   }catch(e){b.classList.remove("on");toast("Speech recognition isn't working here.")}};
+
+/* ---------- free conversation: a classmate on campus answers whatever you ask ---------- */
+// Campus facts the classmate knows. You're standing at the main gate (学校大门).
+// loc/far/steps/time are [hanzi, pinyin, english]; steps are given one at a time.
+const TK_PLACES={
+  "书店":{loc:["在银行旁边","zài yínháng pángbiān","next to the bank"],far:["不远","Bù yuǎn","Not far"],time:["五","wǔ","five"],steps:[
+    ["出学校大门一直往前走。","Chū xuéxiào dàmén yìzhí wǎng qián zǒu.","Go out the main gate and go straight ahead."],
+    ["走一百米，再往左拐。","Zǒu yìbǎi mǐ, zài wǎng zuǒ guǎi.","Walk 100 meters, then turn left."],
+    ["书店就在左边。","Shūdiàn jiù zài zuǒbian.","The bookstore is right there on the left."]]},
+  "银行":{loc:["在书店旁边","zài shūdiàn pángbiān","next to the bookstore"],far:["有点儿远","Yǒudiǎnr yuǎn","A little far"],time:["十","shí","ten"],steps:[
+    ["出学校大门一直往前走。","Chū xuéxiào dàmén yìzhí wǎng qián zǒu.","Go out the main gate and go straight ahead."],
+    ["第一个路口往左拐。","Dì-yī ge lùkǒu wǎng zuǒ guǎi.","Turn left at the first intersection."],
+    ["走二百米就到了。","Zǒu èrbǎi mǐ jiù dào le.","Walk 200 meters and you're there."]]},
+  "食堂":{loc:["在银行旁边","zài yínháng pángbiān","next to the bank"],far:["有点儿远","Yǒudiǎnr yuǎn","A little far"],time:["十五","shíwǔ","fifteen"],steps:[
+    ["出学校大门一直往前走。","Chū xuéxiào dàmén yìzhí wǎng qián zǒu.","Go out the main gate and go straight ahead."],
+    ["第一个路口往左拐。","Dì-yī ge lùkǒu wǎng zuǒ guǎi.","Turn left at the first intersection."],
+    ["走三百米，食堂在右边。","Zǒu sānbǎi mǐ, shítáng zài yòubian.","Walk 300 meters; the canteen is on the right."]]},
+  "宿舍":{loc:["就在学校旁边","jiù zài xuéxiào pángbiān","right next to the school"],far:["不远","Bù yuǎn","Not far"],time:["三","sān","three"],steps:[
+    ["出学校大门往右拐。","Chū xuéxiào dàmén wǎng yòu guǎi.","Go out the main gate and turn right."],
+    ["走五十米就到了。","Zǒu wǔshí mǐ jiù dào le.","Walk 50 meters and you're there."]]},
+  "图书馆":{loc:["在宿舍的后边","zài sùshè de hòubian","behind the dorm"],far:["有点儿远","Yǒudiǎnr yuǎn","A little far"],time:["十","shí","ten"],steps:[
+    ["出学校大门往右拐。","Chū xuéxiào dàmén wǎng yòu guǎi.","Go out the main gate and turn right."],
+    ["第二个路口往左拐。","Dì-èr ge lùkǒu wǎng zuǒ guǎi.","Turn left at the second intersection."],
+    ["再走一百米就到了。","Zài zǒu yìbǎi mǐ jiù dào le.","Walk another 100 meters and you're there."]]},
+  "超市":{loc:["在邮局的对面","zài yóujú de duìmiàn","across from the post office"],far:["不远","Bù yuǎn","Not far"],time:["五","wǔ","five"],steps:[
+    ["出学校大门往右拐。","Chū xuéxiào dàmén wǎng yòu guǎi.","Go out the main gate and turn right."],
+    ["第一个路口往右拐。","Dì-yī ge lùkǒu wǎng yòu guǎi.","Turn right at the first intersection."],
+    ["走一百米，超市在左边。","Zǒu yìbǎi mǐ, chāoshì zài zuǒbian.","Walk 100 meters; the supermarket is on the left."]]},
+  "邮局":{loc:["在超市的对面","zài chāoshì de duìmiàn","across from the supermarket"],far:["不远","Bù yuǎn","Not far"],time:["五","wǔ","five"],steps:[
+    ["出学校大门往右拐。","Chū xuéxiào dàmén wǎng yòu guǎi.","Go out the main gate and turn right."],
+    ["第一个路口往右拐。","Dì-yī ge lùkǒu wǎng yòu guǎi.","Turn right at the first intersection."],
+    ["走一百米，邮局在右边。","Zǒu yìbǎi mǐ, yóujú zài yòubian.","Walk 100 meters; the post office is on the right."]]},
+  "医院":{loc:["在超市旁边","zài chāoshì pángbiān","next to the supermarket"],far:["很远","Hěn yuǎn","Very far"],time:["二十","èrshí","twenty"],steps:[
+    ["出学校大门往右拐，一直往前走。","Chū xuéxiào dàmén wǎng yòu guǎi, yìzhí wǎng qián zǒu.","Go out the main gate, turn right and go straight."],
+    ["第三个路口往左拐。","Dì-sān ge lùkǒu wǎng zuǒ guǎi.","Turn left at the third intersection."],
+    ["再走二百米就到了。","Zài zǒu èrbǎi mǐ jiù dào le.","Walk another 200 meters and you're there."]]}
+};
+const TK_PY={书店:"shūdiàn",银行:"yínháng",食堂:"shítáng",宿舍:"sùshè",图书馆:"túshūguǎn",超市:"chāoshì",邮局:"yóujú",医院:"yīyuàn"};
+const TK_EN={书店:"bookstore",银行:"bank",食堂:"canteen",宿舍:"dorm",图书馆:"library",超市:"supermarket",邮局:"post office",医院:"hospital"};
+const capF=s=>s.charAt(0).toUpperCase()+s.slice(1);
+let tk={place:null,step:0,lines:[],asked:new Set()};
+// pinyin typed without characters becomes characters, using the Pinyin notes dictionary
+function tkToHanzi(t){if(!/[a-zA-Z]/.test(t))return t;try{return pnWords(pnSyllables(t)).map(w=>w.punct||(w.opts&&w.opts[0]&&w.opts[0].c?w.opts[0].c.h:w.raw||"")).join("")}catch(e){return t}}
+function tkReply(zhIn){
+  const t=zhIn.replace(/[\s，。？！,.?!]/g,"");
+  // the place being asked about: after 有 in "……附近有X吗", otherwise the first one mentioned
+  const hits=Object.keys(TK_PLACES).map(p=>[p,t.indexOf(p)]).filter(x=>x[1]>=0).sort((a,b)=>a[1]-b[1]);
+  const yi=t.search(/有(?!点)/),afterYou=yi>=0?hits.find(x=>x[1]>yi):null;
+  const found=(afterYou&&afterYou[0])||(hits[0]&&hits[0][0])||(t.includes("学校")&&!t.includes("学校大门")&&/在哪/.test(t)?"__school":null);
+  if(found&&found!=="__school"){if(found!==tk.place){tk.place=found;tk.step=0}}
+  const P=tk.place&&TK_PLACES[tk.place],p=tk.place,py=TK_PY[p],en=TK_EN[p];
+  const R=(zh,pyy,enn,tag)=>({zh,py:pyy,en:enn,tag});
+  if(found==="__school")return R("这儿就是学校！","Zhèr jiù shì xuéxiào!","This is the school!","known");
+  if(/谢谢/.test(t))return R("不客气！还有问题吗？","Bú kèqi! Hái yǒu wèntí ma?","You're welcome! Any other questions?","thanks");
+  if(/再见/.test(t))return R("再见！","Zàijiàn!","Bye!","bye");
+  if(/^(你好|您好)/.test(t)&&t.length<=4)return R("你好！有什么事儿吗？","Nǐ hǎo! Yǒu shénme shìr ma?","Hi! What's up?","hi");
+  if(/没有了|没有问题|没问题/.test(t))return R("好，再见！","Hǎo, zàijiàn!","OK, bye!","bye");
+  if(/带我|带你/.test(t)){if(!P)return R("你去哪儿？","Nǐ qù nǎr?","Where are you going?","ask");return R(`好，我带你去${p}吧。`,`Hǎo, wǒ dài nǐ qù ${py} ba.`,`OK, I'll take you to the ${en}.`,"take")}
+  const askWhere=/在哪|哪儿有|哪里有/.test(t),askHow=/怎么走|怎么去/.test(t),askFar=/远/.test(t),askTime=/多长时间|几分钟|多少分钟|多久/.test(t),askThen=/^然后|然后呢|然后怎么|再怎么/.test(t),askHas=/附近有.*吗|有没有/.test(t);
+  if((askWhere||askHow||askFar||askTime||askHas)&&!P){
+    const unk=t.match(/(?:去|到)?([一-鿿]{1,4}?)(?:在哪|怎么|远|吗)/);
+    return R(`对不起，我不知道${unk&&unk[1]?unk[1]:"那儿"}在哪儿。你去哪儿？`,`Duìbuqǐ, wǒ bù zhīdào ${unk&&unk[1]?"…":"nàr"} zài nǎr. Nǐ qù nǎr?`,`Sorry, I don't know where that is. Where are you going?`,"unknown")}
+  if(askHas){return R(`有，${p}${P.loc[0]}。`,`Yǒu, ${py} ${P.loc[1]}.`,`Yes, the ${en} is ${P.loc[2]}.`,"has")}
+  if(askWhere&&!askHow){tk.asked.add("where");return R(`${p}${P.loc[0]}。`,`${capF(py)} ${P.loc[1]}.`,`The ${en} is ${P.loc[2]}.`,"where")}
+  if(askTime){tk.asked.add("time");return R(`走路${P.time[0]}分钟。`,`Zǒulù ${P.time[1]} fēnzhōng.`,`It's a ${P.time[2]}-minute walk.`,"time")}
+  if(askFar&&!askHow){tk.asked.add("far");const f=P.far;return R(`${f[0]}，${P.loc[0]}。`,`${f[1]}, ${P.loc[1]}.`,`${f[2]}. It's ${P.loc[2]}.`,"far")}
+  if(askHow){tk.step=0;tk.asked.add("how");const s=P.steps[0];tk.step=1;return R(s[0],s[1],s[2],"step")}
+  if(askThen){if(!P.steps||tk.step===0){const s=P.steps[0];tk.step=1;return R(s[0],s[1],s[2],"step")}
+    if(tk.step>=P.steps.length)return R("就到了！","Jiù dào le!","And you're there!","done");
+    const s=P.steps[tk.step++];return R(s[0],s[1],s[2],tk.step>=P.steps.length?"done":"step")}
+  if(/^(好|好的|知道了|我知道了|明白了|对)$/.test(t))return R(tk.step&&P&&tk.step<P.steps.length?"然后……你知道怎么走吗？":"好！还有问题吗？",tk.step&&P&&tk.step<P.steps.length?"Ránhòu… nǐ zhīdào zěnme zǒu ma?":"Hǎo! Hái yǒu wèntí ma?",tk.step&&P&&tk.step<P.steps.length?"Then… do you know how to go on?":"OK! Any other questions?","ok");
+  return null;
+}
+// what you could say next, depending on where the conversation is
+function tkSuggest(){
+  const p=tk.place,P=p&&TK_PLACES[p],out=[],py=TK_PY[p],en=TK_EN[p];
+  const pick=()=>{const k=Object.keys(TK_PLACES).filter(x=>x!==p);return k[Math.floor(Math.random()*k.length)]};
+  if(!p){const q=pick();out.push([`请问，${q}在哪儿？`,`Qǐngwèn, ${TK_PY[q]} zài nǎr?`,`Ask where the ${TK_EN[q]} is`],[`请问，去${q}怎么走？`,`Qǐngwèn, qù ${TK_PY[q]} zěnme zǒu?`,`Ask how to get to the ${TK_EN[q]}`]);return out}
+  if(tk.step>0&&tk.step<P.steps.length)out.push(["然后呢？","Ránhòu ne?","Ask what comes next"]);
+  if(!tk.asked.has("far"))out.push(["远吗？","Yuǎn ma?","Ask if it's far"]);
+  if(!tk.asked.has("how"))out.push([`去${p}怎么走？`,`Qù ${py} zěnme zǒu?`,`Ask how to get there`]);
+  if(!tk.asked.has("time"))out.push([`从这儿到${p}多长时间？`,`Cóng zhèr dào ${py} duō cháng shíjiān?`,`Ask how long it takes`]);
+  if(tk.asked.has("how")&&tk.step>=P.steps.length){const q=pick();out.push(["谢谢你！","Xièxie nǐ!","Say thanks"],[`请问，${q}在哪儿？`,`Qǐngwèn, ${TK_PY[q]} zài nǎr?`,`Ask about the ${TK_EN[q]} too`])}
+  if(!out.length)out.push(["谢谢你！","Xièxie nǐ!","Say thanks"]);
+  return out.slice(0,3);
+}
+let tkSample;(async()=>{try{if(window.claude&&claude.use)tkSample=await claude.use("sample")}catch(e){}})();
+async function tkAsk(said,history){
+  if(!tkSample)return null;
+  const facts=Object.entries(TK_PLACES).map(([p,v])=>`${p}: ${v.loc[0]}; ${v.far[0]}; 走路${v.time[0]}分钟; route from the main gate: ${v.steps.map(s=>s[0]).join(" ")}`).join("\n");
+  const prompt=`You are a friendly Chinese university student standing at the main gate of campus, talking with a beginner learner (Boya Chinese Elementary I level). Reply in very simple Chinese using only beginner words (在, 哪儿, 远, 怎么走, 往左/右拐, 一直往前走, 路口, 旁边, 对面, 附近, 分钟, 米, 然后, 就到了, 有点儿, 不客气). Keep replies to one or two short sentences. Campus facts you must stay consistent with:\n${facts}\n\nConversation so far:\n${history.map(h=>(h.me?"Learner: ":"You: ")+h.zh).join("\n")}\nLearner just said: ${said}\n\nReturn JSON only: {"zh": your reply in characters, "py": its pinyin with tone marks, "en": English translation, "fix": null if the learner's sentence was natural and correct, otherwise {"zh": corrected sentence, "py": pinyin, "note": one short English sentence on what to change}}`;
+  try{return await tkSample.json(prompt,{modelTier:"quick"})}catch(e){return null}
+}
+function tkStart(){
+  tk={place:null,step:0,lines:[],asked:new Set()};$("tkChat").innerHTML="";$("tkIn").value="";
+  tkSay({zh:"你好！有什么事儿吗？",py:"Nǐ hǎo! Yǒu shénme shìr ma?",en:"Hi! What's up?"});
+  tkRenderSuggest();
+}
+function tkSay(r){
+  tk.lines.push({me:false,zh:r.zh});
+  const el=spBubble(["同学",r.zh,r.py,r.en],false,$("tkChat"));el.classList.add("tk");
+  sayThen(r.zh);
+}
+function tkRenderSuggest(){
+  const S=tkSuggest();
+  $("tkSug").innerHTML=`<span class="lab">You could</span>${S.map((s,i)=>`<button data-i="${i}">${spHint==="zh"?`<span class="zh">${s[0]}</span>`:spHint==="py"?`${s[2]}<small>${s[1]}</small>`:s[2]}</button>`).join("")}`;
+  $("tkSug").querySelectorAll("button").forEach(b=>b.onclick=()=>{const s=S[+b.dataset.i];if(spHint==="zh"){$("tkIn").value=s[0];$("tkIn").focus()}else{b.innerHTML=`<span class="zh">${s[0]}</span><small>${s[1]}</small>`}});
+}
+async function tkSend(text){
+  text=(text||"").trim();if(!text)return;$("tkIn").value="";
+  const zh=tkToHanzi(text);
+  tk.lines.push({me:true,zh});
+  const me=document.createElement("div");me.className="spl me tk";
+  me.innerHTML=`<span class="who">You</span><div class="bub">${spGloss(zh,"")}<div class="tkfix"></div></div>`;
+  $("tkChat").appendChild(me);me.scrollIntoView({block:"nearest",behavior:"smooth"});
+  let r=tkReply(zh);
+  if(!r){
+    const box=me.querySelector(".tkfix");box.textContent="Thinking…";
+    const ai=await tkAsk(zh,tk.lines);box.textContent="";
+    if(ai&&ai.zh){r={zh:ai.zh,py:ai.py||"",en:ai.en||""};
+      if(ai.fix&&ai.fix.zh)box.innerHTML=`<b>Better:</b> <span class="zh">${ai.fix.zh}</span> <span class="py">${ai.fix.py||""}</span><div>${ai.fix.note||""}</div>`;
+      const place=Object.keys(TK_PLACES).find(p=>ai.zh.includes(p));if(place&&place!==tk.place){tk.place=place;tk.step=0}}
+    else r={zh:"对不起，我没听懂。你可以说：“请问，……在哪儿？”",py:"Duìbuqǐ, wǒ méi tīngdǒng. Nǐ kěyǐ shuō: “Qǐngwèn, …… zài nǎr?”",en:"Sorry, I didn't understand. You could say: \"Excuse me, where is …?\""};
+  }
+  setTimeout(()=>{tkSay(r);tkRenderSuggest()},350);
+}
 
 /* ---------- word order ---------- */
 // An English sentence and its Chinese words scrambled; tap them into the right order.
