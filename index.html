@@ -897,6 +897,26 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
 .spord b{color:var(--ink);font-weight:800;margin-right:4px}
 .spord .zh{color:var(--tang);font-size:.95rem;font-weight:600}
 .spturn .spord{text-align:center;border-top:0;padding-top:0;margin-top:2px}
+
+.srbar{display:flex;flex-wrap:wrap;gap:4px;justify-content:inherit;margin:2px 0 4px}
+.spturn .srbar{justify-content:center}
+.sr{display:inline-flex;flex-direction:column;align-items:center;border-radius:8px;padding:3px 7px 2px;border-bottom:3px solid var(--c,var(--line));background:var(--c-soft,var(--well))}
+.sr .zh{font-size:1.05rem;color:var(--ink);font-weight:600;line-height:1.25}
+.sr small{font-size:.66rem;font-weight:800;color:var(--c,var(--muted));white-space:nowrap}
+.r-thing{--c:var(--sky);--c-soft:var(--sky-soft)}
+.r-dest,.r-start{--c:var(--jade);--c-soft:var(--jade-soft)}
+.r-ref{--c:var(--tang);--c-soft:var(--tang-soft)}
+.r-pos{--c:var(--red);--c-soft:var(--red-soft)}
+.r-dir{--c:var(--grape);--c-soft:var(--grape-soft)}
+.r-move{--c:var(--ink);--c-soft:var(--well)}
+.r-far,.r-long{--c:var(--sun-d);--c-soft:var(--sun-soft)}
+.r-who,.r-name{--c:var(--grape);--c-soft:var(--card)}
+.r-q,.r-part,.r-link,.r-polite,.r-at,.r-from,.r-to,.r-have,.r-adj,.r-other{--c:var(--faint);--c-soft:var(--card)}
+.srn{font-size:.8rem;color:var(--ink);line-height:1.4}
+.srn::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--tang);margin-right:6px;vertical-align:1px}
+.srn .zh{color:var(--tang-d,var(--tang));font-weight:700}
+.srlit{font-size:.78rem;color:var(--muted)}
+.srlit b{color:var(--ink);font-weight:800;margin-right:4px}
 </style>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5M18 7a7 7 0 0 1 0 10"/></symbol>
@@ -2305,7 +2325,7 @@ function spListen(onPartial){
 const SP_ORDER={"请问，银行在哪儿？": "请问 + place + 在 + 哪儿？", "在那边。": "在 + where (the subject is dropped)", "远吗？": "adjective + 吗？", "有点儿远，在食堂旁边。": "有点儿 + adjective，在 + place + 旁边", "食堂在哪儿？": "place + 在 + 哪儿？", "我带你去吧。": "I + 带 + you + 去 + 吧", "谢谢你！": "谢谢 + person", "山本，学校附近有书店吗？": "name，place + 附近 + 有 + thing + 吗？", "有。": "answer a 有 question with just 有", "不远。": "不 + adjective", "怎么走？": "怎么 + verb？", "出学校大门一直往前走。": "出 + place，一直 + 往 + direction + 走", "然后呢？": "然后 + 呢？", "走二百米，再往左拐。": "走 + distance，再 + 往 + direction + 拐", "王山，你家离学校远吗？": "name，A + 离 + B + 远吗？", "不远，就在学校附近。": "不远，就 + 在 + place + 附近", "从你家到学校多长时间？": "从 + A + 到 + B + 多长时间？", "走路十五分钟。": "how you go + time", "去你家怎么走？": "去 + place + 怎么走？", "出学校大门往右拐。": "出 + place + 往 + direction + 拐", "然后一直走吗？": "然后 + 一直 + verb + 吗？", "一直往前走，就到了。": "一直往前走，就 + 到 + 了"};
 // word-by-word glosses: split a line into dictionary words and give each its own pinyin and meaning
 const SP_NAMES={"玛莎":"Masha (name)","山本":"Yamamoto (name)","王山":"Wang Shan (name)","欧文":"Owen (name)","心美":"Xinmei (name)","玛丽":"Mary (name)","大卫":"David (name)","中国学生":"Chinese student","同学":"classmate"};
-const SP_GL={"在":"at, in","去":"go","有":"have, there is","不":"not","吗":"(question)","呢":"(and…?)","吧":"(suggestion)","了":"(done)","的":"'s, of","就":"just, right","再":"then","往":"toward","走":"walk, go","拐":"turn","出":"exit","到":"to, arrive","从":"from","离":"from (distance)","多":"how","长":"long","我":"I","你":"you","他":"he","家":"home","这儿":"here","那边":"over there","哪儿":"where","二百":"200","一百":"100","三百":"300","十五":"fifteen","二十":"twenty","了":"(done)","住":"live","自己":"own","不客气":"you're welcome","谢谢":"thank you","请问":"excuse me","然后":"then","一直":"straight on","先":"first","第":"(ordinal)","个":"(measure word)","米":"meters","分钟":"minutes","旁边":"next to","对面":"across from","附近":"nearby","哪儿":"where","怎么":"how"};
+const SP_GL={"在":"at, in","去":"go","有":"have, there is","不":"not","吗":"(question)","呢":"(and…?)","吧":"(suggestion)","了":"(done)","的":"'s, of","就":"just, right","再":"then","往":"toward","走":"walk, go","拐":"turn","出":"exit","到":"to, arrive","从":"from","离":"from (distance)","多":"how","长":"long","我":"I","你":"you","他":"he","家":"home","这儿":"here","那边":"over there","哪儿":"where","二百":"200","一百":"100","三百":"300","十五":"fifteen","二十":"twenty","了":"(done)","住":"live","自己":"own","不客气":"you're welcome","谢谢":"thank you","请问":"excuse me","然后":"then","一直":"straight on","先":"first","第":"(ordinal)","个":"(measure word)","米":"meters","分钟":"minutes","教学楼":"teaching building","旁边":"next to","对面":"across from","附近":"nearby","哪儿":"where","怎么":"how"};
 function spWords(zh){
   const L=lkIndex(),out=[],ch=[...zh];let i=0;
   while(i<ch.length){
@@ -2316,10 +2336,62 @@ function spWords(zh){
   }
   return out;
 }
-function spOrder(zh,label){
-  const W=spWords(zh).filter(x=>x.w),lit=W.map(x=>(x.en||x.w).replace(/ \(name\)$/,"").split(/,\s*/)[0]).join(" / ");
-  const f=label||SP_ORDER[zh]||"";
-  return `<div class="spord">${f?`<div><b>Order</b> <span class="zh">${f}</span></div>`:""}<div><b>Word for word</b> ${lit}</div></div>`;
+// sentence roles: tag each chunk by its job (thing, landmark, position, direction, destination…) and explain the order
+const SR_PLACES=new Set(["学校","大门","家","食堂","书店","银行","宿舍","教室","图书馆","超市","医院","邮局","教学楼","路口","电影院","商场","车棚","卫生间","办公楼"]);
+const SR_POS=new Set(["旁边","附近","对面","前边","后边","左边","右边","那边","这边","这儿","那儿","东边","西边","南边","北边","里","上","下"]);
+const SR_Q=new Set(["哪儿","哪里","怎么","吗","呢","几","多少","什么","谁"]);
+const SR_MOVE=new Set(["走","拐","出","去","带","来","回家","走路","住","坐","骑","到了"]);
+const SR_LINK=new Set(["一直","然后","再","先","就"]);
+const SR_NUM=/^[一二两三四五六七八九十百零]+$/;
+const SR_LAB={thing:"Thing",who:"Person",name:"Name",ref:"Landmark",pos:"Position",dir:"Direction",dest:"Destination",start:"Starting point",move:"Action",far:"How far",long:"How long",q:"Question",link:"Link word",polite:"Polite",part:"Particle",at:"at",from:"from",to:"to",adj:"Describe",have:"there is"};
+function spRoles(zh){
+  const W=spWords(zh).filter(x=>x.w),T=[];
+  for(let i=0;i<W.length;i++){
+    const w=W[i].w,n=W[i+1]&&W[i+1].w,n2=W[i+2]&&W[i+2].w;let r="";
+    if(w==="多"&&n==="长"&&n2==="时间"){T.push({w:"多长时间",r:"q",en:"how long"});i+=2;continue}
+    if(w==="往"&&/^(左|右|前|后)$/.test(n||"")){T.push({w:w+n,r:"dir",en:"toward "+({左:"left",右:"right",前:"forward",后:"back"})[n]});i++;continue}
+    if(w==="第"&&n&&SR_NUM.test(n)&&n2==="个"&&W[i+3]&&W[i+3].w==="路口"){T.push({w:"第"+n+"个路口",r:"ref",en:"the "+({一:"first",二:"second",三:"third"}[n]||n+"th")+" intersection"});i+=3;continue}
+    if(/^第[一二三四五]$/.test(w)&&n==="个"&&n2==="路口"){const k=w[1];T.push({w:w+"个路口",r:"ref",en:"the "+({一:"first",二:"second",三:"third",四:"fourth",五:"fifth"}[k])+" intersection"});i+=2;continue}
+    if(SR_NUM.test(w)&&/^(米|分钟)$/.test(n||"")){T.push({w:w+n,r:n==="米"?"far":"long",en:W[i].en+" "+W[i+1].en});i++;continue}
+    if((w==="有点儿"||w==="不"||w==="很")&&/^(远|近|好找)$/.test(n||"")){T.push({w:w+n,r:"adj",en:(w==="不"?"not ":w==="很"?"very ":"a little ")+W[i+1].en});i++;continue}
+    if(w==="的"&&n&&SR_POS.has(n)){T.push({w:"的"+n,r:"pos",en:W[i+1].en});i++;continue}
+    if(w==="到"&&n==="了"){T.push({w:"到了",r:"move",en:"arrived"});i++;continue}
+    if((w==="你"||w==="我"||w==="他"||(SP_NAMES[w]&&/\(name\)/.test(SP_NAMES[w])))&&n==="家"){T.push({w:w+"家",r:"place",en:(w==="你"?"your":w==="我"?"my":w==="他"?"his":w.replace(/ \(name\)/,"")+"'s")+" home"});i++;continue}
+    if(SR_PLACES.has(w)){let ww=w,en=W[i].en;while(W[i+1]&&SR_PLACES.has(W[i+1].w)&&W[i+1].w!=="路口"){ww+=W[i+1].w;en+=" "+W[i+1].en;i++}T.push({w:ww,r:"place",en});continue}
+    if((w==="这儿"||w==="那儿")&&T.length&&/^(从|到|去)$/.test(T[T.length-1].w)){T.push({w,r:"place",en:W[i].en});continue}
+    if(/^(吧|了|啊)$/.test(w))r="part";else if(SR_Q.has(w))r="q";else if(w==="请问"||w==="谢谢"||w==="不客气")r="polite";else if(w==="在")r="at";else if(w==="离"||w==="从")r="from";
+    else if(w==="到")r=T.some(t=>t.w==="从")?"to":"move";else if(SR_LINK.has(w))r="link";else if(SR_POS.has(w))r="pos";
+    else if(SR_MOVE.has(w))r="move";else if(w==="有")r="have";else if(/^(远|近|好找)$/.test(w))r="adj";
+    else if(SP_NAMES[w])r=/\(name\)/.test(SP_NAMES[w])?"name":"who";else if(/^(我|你|他|她|我们|你们)$/.test(w))r="who";else r="other";
+    T.push({w,r,en:W[i].en});
+  }
+  // places get their job from their neighbours
+  T.forEach((t,i)=>{if(t.r!=="place")return;const p=T[i-1]&&T[i-1].r,pw=T[i-1]&&T[i-1].w,nx=T[i+1]&&T[i+1].r,nw=T[i+1]&&T[i+1].w;
+    if(nx==="pos")t.r="ref";else if(pw==="从")t.r="start";else if(pw==="去"||pw==="到"||p==="to")t.r="dest";else if(pw==="出")t.r="ref";else if(pw==="离")t.r="ref";
+    else if(p==="have")t.r="thing";else t.r="thing"});
+  return T;
+}
+function spNotes(T){
+  const N=[],has=r=>T.some(t=>t.r===r),idx=r=>T.findIndex(t=>t.r===r);
+  const ri=T.findIndex((t,i)=>t.r==="ref"&&T[i+1]&&T[i+1].r==="pos");
+  if(ri>=0){const a=T[ri],b=T[ri+1];N.push(`Landmark before position: <span class="zh">${a.w}${b.w}</span> means ${b.en.replace(/^side$/,"next to")} the ${a.en}. English puts the landmark last.`)}
+  const di=idx("dir");if(di>=0&&T[di+1]&&T[di+1].r==="move")N.push(`Direction goes before the action: <span class="zh">${T[di].w}${T[di+1].w}</span>, never <span class="zh">${T[di+1].w}${T[di].w}</span>.`);
+  if(T.some(t=>t.w==="离"))N.push(`A <span class="zh">离</span> B: the thing you're talking about comes first, the landmark comes after <span class="zh">离</span>, and <span class="zh">远/近</span> comes last.`);
+  if(T.some(t=>t.w==="从")&&has("to"))N.push(`<span class="zh">从</span> start <span class="zh">到</span> end comes first, then the question or the action.`);
+  const qi=T.findIndex(t=>t.w==="怎么");if(qi>0&&T.slice(0,qi).some(t=>t.r==="dest"))N.push(`Destination first, then <span class="zh">怎么走</span>: you say where before asking how.`);
+  else if(qi>=0)N.push(`<span class="zh">怎么</span> goes right before the verb it asks about.`);
+  if(T.some(t=>t.w==="哪儿"||t.w==="哪里")&&has("at"))N.push(`<span class="zh">哪儿</span> sits exactly where the answer will go: <span class="zh">……在哪儿</span> is answered with <span class="zh">……在食堂旁边</span>.`);
+  const hi=idx("have");if(hi>0&&T.slice(0,hi).some(t=>t.r==="ref"||t.r==="pos")&&T[hi+1]&&T[hi+1].r==="thing")N.push(`Place + <span class="zh">有</span> + thing means there is a thing at that place.`);
+  if(has("far")&&T.some(t=>t.w==="走"))N.push(`The distance comes right after <span class="zh">走</span>.`);
+  if(T.some(t=>t.w==="就"&&t.r==="link"))N.push(`<span class="zh">就</span> goes right before the verb: it means just or right (就在 = right at, 就到了 = and you're there).`);
+  if(T.some(t=>t.w==="带"))N.push(`<span class="zh">带</span> + person + <span class="zh">去</span>: take someone somewhere.`);
+  if(T.length&&T[T.length-1].w==="吗"&&N.length<2)N.push(`Yes/no question: normal word order with <span class="zh">吗</span> at the end.`);
+  return N.slice(0,3);
+}
+function spOrder(zh){
+  const T=spRoles(zh),N=spNotes(T);
+  const lit=T.map(t=>(t.en||t.w).replace(/ \(name\)$/,"").split(/,\s*/)[0]).join(" / ");
+  return `<div class="spord"><div class="srbar">${T.map(t=>`<span class="sr r-${t.r}"><span class="zh">${t.w}</span><small>${SR_LAB[t.r]||""}</small></span>`).join("")}</div>${N.map(n=>`<div class="srn">${n}</div>`).join("")}<div class="srlit"><b>Word for word</b> ${lit}</div></div>`;
 }
 function spGloss(zh,py){
   const W=spWords(zh),syl=pySyllables(py.replace(/[,.?!;:，。？！、]/g," ")).map(x=>{const m=markSyllable(x.base,x.tone);return x.cap?m.charAt(0).toUpperCase()+m.slice(1):m});
@@ -2378,7 +2450,7 @@ function spPickDialogue(){
 function spStartDialogue(){spRun++;spI=0;spRes=[];$("spChat").innerHTML="";$("spDone").hidden=true;$("spTurn").hidden=true;spStep()}
 function spBubble(line,mine,show){
   const [who,zh,py,en]=line,el=document.createElement("div");el.className="spl"+(mine?" me":"");
-  el.innerHTML=`<span class="who zh">${who}</span><div class="bub"><button class="say" aria-label="Hear this line"><svg class="ico"><use href="#i-sound"/></svg></button>${spGloss(zh,py)}<div class="en">${en}</div>${spOrder(zh,line[4])}</div>`;
+  el.innerHTML=`<span class="who zh">${who}</span><div class="bub"><button class="say" aria-label="Hear this line"><svg class="ico"><use href="#i-sound"/></svg></button>${spGloss(zh,py)}<div class="en">${en}</div>${spOrder(zh)}</div>`;
   el.querySelector(".say").onclick=()=>sayThen(zh);
   $("spChat").appendChild(el);el.scrollIntoView({block:"nearest",behavior:"smooth"});return el;
 }
@@ -2395,7 +2467,7 @@ function spYourTurn(line){
   $("spTurnWho").textContent=`Your line, as ${who}`;
   $("spTurnEn").textContent=en;
   $("spTurnPy").innerHTML=spGloss(zh,py);$("spTurnPy").hidden=spHint==="en";$("spTurnPy").classList.toggle("nohz",spHint!=="zh");
-  $("spTurnZh").innerHTML=spOrder(zh,line[4]);$("spTurnZh").hidden=true;
+  $("spTurnZh").innerHTML=spOrder(zh);$("spTurnZh").hidden=true;
   $("spHeard").innerHTML="";$("spHeard").className="spheard";
   $("spMic").hidden=!SR;$("spMic").classList.remove("on");$("spMicLab").textContent="Tap and say it";
   $("spReveal").hidden=false;$("spGrade").hidden=true;
@@ -2435,7 +2507,7 @@ function spNextPattern(){
   spRun++;spPat=spPick(SP_PATTERNS)();
   const [zh,py,en,label]=spPat;
   $("spPatMeta").textContent=`Pattern: ${label}`;$("spPatScore").innerHTML=spPatN?`<b>${spPatOk}</b> of ${spPatN} right`:"";
-  $("spPatEn").textContent=en;$("spPatPy").innerHTML=spGloss(zh,py);$("spPatZh").innerHTML=spOrder(zh,label);$("spPatZh").hidden=true;
+  $("spPatEn").textContent=en;$("spPatPy").innerHTML=spGloss(zh,py);$("spPatZh").innerHTML=spOrder(zh);$("spPatZh").hidden=true;
   $("spPatPy").hidden=spHint==="en";$("spPatPy").classList.toggle("nohz",spHint!=="zh");
   $("spPatHeard").innerHTML="";$("spPatHeard").className="spheard";
   $("spPatMic").hidden=!SR;$("spPatReveal").hidden=false;$("spPatGrade").hidden=true;
