@@ -917,6 +917,7 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
 .srn .zh{color:var(--tang-d,var(--tang));font-weight:700}
 .srlit{font-size:.78rem;color:var(--muted)}
 .srlit b{color:var(--ink);font-weight:800;margin-right:4px}
+.sppkind{align-self:center}
 </style>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5M18 7a7 7 0 0 1 0 10"/></symbol>
@@ -1278,6 +1279,7 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
       </div>
 
       <div class="sheet" id="spPatWrap" hidden>
+        <div class="seg sppkind" id="spPatKind" role="group" aria-label="Which sentences"><button data-k="a">Asking the way</button><button data-k="g">Giving directions</button><button data-k="b">Both</button></div>
         <div class="tqtop"><span class="meta" id="spPatMeta"></span><span class="tqscore" id="spPatScore"></span></div>
         <div class="spturn" id="spPatCard">
           <div class="spwho">Say this in Chinese</div>
@@ -2269,7 +2271,7 @@ const SP_PATTERNS=[
   ()=>{const [p,q]=spTwo();return [`${p[0]}在${q[0]}旁边。`,`${cap(p[1])} zài ${q[1]} pángbiān.`,`The ${p[2]} is next to the ${q[2]}.`,"……在……旁边"]},
   ()=>{const [p,q]=spTwo();return [`${p[0]}在${q[0]}的对面。`,`${cap(p[1])} zài ${q[1]} de duìmiàn.`,`The ${p[2]} is across from the ${q[2]}.`,"……在……的对面"]},
   ()=>{const [p,q]=spTwo(),d=spPick(SP_DIR);return [`${p[0]}在${q[0]}的${d[0]}边。`,`${cap(p[1])} zài ${q[1]} de ${d[1]}bian.`,`The ${p[2]} is ${d[2]} the ${q[2]}.`,"……在……的……边"]},
-  ()=>["出学校大门一直往前走。","Chū xuéxiào dàmén yìzhí wǎng qián zǒu.","Go out the main gate and go straight ahead.","从……一直往前走"],
+  ()=>["出学校大门一直往前走。","Chū xuéxiào dàmén yìzhí wǎng qián zǒu.","Go out the main gate and go straight ahead.","出……一直往前走"],
   ()=>{const n=spPick(SP_NTH),d=spPick(SP_LR);return [`第${n[0]}个路口往${d[0]}拐。`,`Dì-${n[1]} ge lùkǒu wǎng ${d[1]} guǎi.`,`Turn ${d[2]} at the ${n[2]} intersection.`,"第……个路口往……拐"]},
   ()=>{const d=spPick(SP_LR);return [`先一直往前走，然后往${d[0]}拐。`,`Xiān yìzhí wǎng qián zǒu, ránhòu wǎng ${d[1]} guǎi.`,`First go straight, then turn ${d[2]}.`,"先……，然后……"]},
   ()=>{const m=spPick(SP_M),d=spPick(SP_LR);return [`走${m[0]}米，再往${d[0]}拐。`,`Zǒu ${m[1]} mǐ, zài wǎng ${d[1]} guǎi.`,`Walk ${m[2]} meters, then turn ${d[2]}.`,"走……米，再往……拐"]},
@@ -2281,6 +2283,8 @@ const SP_PATTERNS=[
   ()=>{const p=spPick(SP_PLACE);return [`学校附近有${p[0]}吗？`,`Xuéxiào fùjìn yǒu ${p[1]} ma?`,`Is there a ${p[2]} near the school?`,"……附近有……吗？"]},
   ()=>["我带你去吧。","Wǒ dài nǐ qù ba.","I'll take you there.","带……去"]
 ];
+// which patterns ask the way and which give directions (same order as SP_PATTERNS)
+const SP_PAT_KIND=["a","a","g","g","g","g","g","g","g","a","g","a","g","g","a","g"];
 // a fresh "asking the way" conversation for class practice
 function spRandomDialogue(){
   const [p,q]=spTwo(),d1=spPick(SP_LR),d2=spPick(SP_LR),n=spPick(SP_NTH),t=spPick(SP_T),far=Math.random()<.5;
@@ -2295,7 +2299,7 @@ function spRandomDialogue(){
   L.push(["同学",`走路${t[0]}分钟。`,`Zǒulù ${t[1]} fēnzhōng.`,`It's a ${t[2]}-minute walk.`,"走路 + number + 分钟"]);
   L.push(["你","谢谢你！","Xièxie nǐ!","Thank you!"]);
   L.push(["同学","不客气。","Bú kèqi.","You're welcome.","set phrase"]);
-  return {name:"Ask the way (new each time)",roles:["你","同学"],lines:L,random:true};
+  return {name:"Ask the way (new each time)",roles:["你","同学"],roleLabels:{"你":"Ask the way","同学":"Give directions"},lines:L,random:true};
 }
 // ---- speech recognition (iPad Safari / Chrome); everything works without it via Show answer
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -2408,7 +2412,7 @@ function sayThen(text,cb){
     const v=s.getVoices().find(v=>/^zh[-_]?(cn|hans)?/i.test(v.lang));if(v)u.voice=v;u.onend=go;u.onerror=go;s.speak(u)}catch(e){}
   setTimeout(go,1200+[...text].length*380); // in case speech never reports the end
 }
-let spOn=false,spSet=store.get("bd-spset","s5"),spMode=store.get("bd-spmode","dlg"),spHint=store.get("bd-sphint","en"),spSlow=store.get("bd-spslow",false);
+let spPatKind=store.get("bd-sppkind","b"),spOn=false,spSet=store.get("bd-spset","s5"),spMode=store.get("bd-spmode","dlg"),spHint=store.get("bd-sphint","en"),spSlow=store.get("bd-spslow",false);
 let spDlg=null,spDlgIdx=store.get("bd-spdlg",0),spRole=null,spI=0,spRes=[],spRun=0,spPat=null,spPatN=0,spPatOk=0;
 const spRate=()=>spSlow?.6:.85;
 const spLesson=()=>SPEAK.find(s=>s.id===spSet)||SPEAK[0];
@@ -2443,7 +2447,7 @@ function spPickDialogue(){
   $("spDlgs").querySelectorAll("button").forEach(b=>b.onclick=()=>{spDlgIdx=+b.dataset.i;store.set("bd-spdlg",spDlgIdx);spRole=null;spPickDialogue()});
   const d=D[spDlgIdx];spDlg=d.random?spRandomDialogue():d;
   if(!spRole||!spDlg.roles.includes(spRole))spRole=spDlg.roles[0];
-  $("spRoles").innerHTML=spDlg.roles.map(r=>`<button data-r="${r}" aria-pressed="${r===spRole}"><span class="zh">${r}</span></button>`).join("");
+  $("spRoles").innerHTML=spDlg.roles.map(r=>`<button data-r="${r}" aria-pressed="${r===spRole}">${spDlg.roleLabels?spDlg.roleLabels[r]:`<span class="zh">${r}</span>`}</button>`).join("");
   $("spRoles").querySelectorAll("button").forEach(b=>b.onclick=()=>{spRole=b.dataset.r;spPickDialogue()});
   spStartDialogue();
 }
@@ -2504,7 +2508,9 @@ function spFinish(){
 }
 /* patterns */
 function spNextPattern(){
-  spRun++;spPat=spPick(SP_PATTERNS)();
+  spRun++;document.querySelectorAll("#spPatKind button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.k===spPatKind));
+  const pool=SP_PATTERNS.filter((f,i)=>spPatKind==="b"||SP_PAT_KIND[i]===spPatKind);
+  let next;do next=spPick(pool)();while(pool.length>1&&spPat&&next[3]===spPat[3]&&Math.random()<.85);spPat=next;
   const [zh,py,en,label]=spPat;
   $("spPatMeta").textContent=`Pattern: ${label}`;$("spPatScore").innerHTML=spPatN?`<b>${spPatOk}</b> of ${spPatN} right`:"";
   $("spPatEn").textContent=en;$("spPatPy").innerHTML=spGloss(zh,py);$("spPatZh").innerHTML=spOrder(zh);$("spPatZh").hidden=true;
@@ -2537,6 +2543,7 @@ $("spPatHide").onclick=()=>{try{speechSynthesis.cancel()}catch(e){}$("spPatPy").
 $("spGood").onclick=()=>spAdvance(true);$("spBad").onclick=()=>spAdvance(false);
 $("spMic").onclick=()=>spMicGo(spDlg.lines[spI][1],(T,m)=>{const ok=spShowResult(T,m.heard,m.score,m.hit);
   $("spTurnPy").hidden=false;$("spTurnPy").classList.remove("nohz");$("spTurnZh").hidden=false;$("spReveal").hidden=true;$("spGrade").hidden=false;if(ok)setTimeout(()=>{if(!$("spTurn").hidden&&!$("spGrade").hidden)spAdvance(true)},1600)});
+document.querySelectorAll("#spPatKind button").forEach(b=>b.onclick=()=>{spPatKind=b.dataset.k;store.set("bd-sppkind",spPatKind);spPatN=0;spPatOk=0;spNextPattern()});
 $("spPatHear").onclick=()=>sayThen(spPat[0]);
 $("spPatReveal").onclick=()=>{$("spPatPy").hidden=false;$("spPatPy").classList.remove("nohz");$("spPatZh").hidden=false;$("spPatReveal").hidden=true;$("spPatGrade").hidden=false;sayThen(spPat[0])};
 $("spPatGood").onclick=()=>spPatDone(true);$("spPatBad").onclick=()=>spPatDone(false);$("spPatSkip").onclick=spNextPattern;
