@@ -1317,13 +1317,14 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
       <div class="rvopts">
         <span class="lab">Answer with</span>
         <div class="pgpick" id="rvAns" role="group" aria-label="What to answer">
-          <button data-a="zh">Character</button><button data-a="py">Pinyin</button><button data-a="en">English</button>
+          <button data-a="zh">Character</button><button data-a="lk">Look-alikes</button><button data-a="py">Pinyin</button><button data-a="en">English</button>
         </div>
         <button class="peek" id="rvTones" aria-pressed="true">Grade tones</button>
       </div>
       </div></details>
       <div class="sheet" id="rvRun">
         <div class="tqtop"><span class="meta" id="rvMeta"></span><span class="tqscore" id="rvLeft"></span></div>
+        <div class="lsrow" id="rvHowRow"><div class="seg" role="group" aria-label="How to answer the characters" id="rvHow"><button data-h="zh">Write it</button><button data-h="lk">Pick from look-alikes</button></div></div>
         <div class="rvprompt">
           <span class="rvtag" id="rvTag"></span>
           <div class="rvzh zh" id="rvZh"></div>
@@ -1342,6 +1343,7 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
             <button class="btn" id="clearR">Clear</button>
           </div>
         </div>
+        <div class="tqopts mcopts" id="rvLk" role="group" aria-label="Which characters?" hidden></div>
         <div class="picker" id="rvPick"></div>
         <div class="picker" id="rvEnBox"><label for="rvEnIn">English meaning</label><input id="rvEnIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type what it means"></div>
         <div class="rvanswer" id="rvAnswer" hidden>
@@ -2180,9 +2182,9 @@ $("prev").onclick=()=>{if(wdActive())return wdNext(-1);const n=SETS[setIdx].item
 let wd=!!store.get("bd-wd",false);
 const wdModes=["listen","free"];
 const wdKey=()=>"bd-known-"+SETS[setIdx].name;
-const wdKnown=()=>new Set(store.get(wdKey(),[]));
+const wdKnown=(k=wdKey())=>new Set(store.get(k,[]));
 const wdActive=()=>wd&&wdModes.includes(mode);
-function wdLeft(){const K=wdKnown();return SETS[setIdx].items.filter(x=>!K.has(x[0])).length}
+function wdLeft(k){const K=wdKnown(k);return SETS[setIdx].items.filter(x=>!K.has(x[0])).length}
 function wdNext(step){
   const items=SETS[setIdx].items,K=wdKnown(),n=items.length;
   for(let k=1;k<=n;k++){const j=((idx+step*k)%n+n)%n;if(!K.has(items[j][0])){idx=j;load();return}}
@@ -4021,7 +4023,7 @@ $("pnCopy").onclick=()=>{const t=[...document.querySelectorAll("#pnOut .pnline")
   try{navigator.clipboard.writeText(t).then(()=>toast("Copied the characters"),()=>toast("Couldn't copy here"))}catch(e){toast("Couldn't copy here")}};
 
 /* ---------- review session ---------- */
-let rvOn=false,rvQ=[],rvCur=null,rvPads=null,rvFlipped=false,rvStats=null,rvScope=store.get("bd-rvscope","all");
+let rvLkPick=null,rvOn=false,rvQ=[],rvCur=null,rvPads=null,rvFlipped=false,rvStats=null,rvScope=store.get("bd-rvscope","all");
 // What the card asks for. Whatever isn't asked is shown as the prompt; if everything is asked, the word is played aloud.
 let rvAns=new Set(store.get("bd-rvans",["zh"]));if(!rvAns.size)rvAns.add("zh");
 let rvTones=store.get("bd-rvtones",true);
@@ -4032,7 +4034,7 @@ const rvPicker=makePicker($("rvPick"),"rv");
 function renderRvOpts(){
   document.querySelectorAll("#rvAns button").forEach(b=>b.setAttribute("aria-pressed",rvAns.has(b.dataset.a)));
   document.querySelectorAll("#rvShowSel button").forEach(b=>b.setAttribute("aria-pressed",rvShowS.has(b.dataset.a)));
-  const NM={zh:"character",py:"pinyin",en:"English",au:"audio"},L=a=>[...a].map(x=>NM[x]).join(" and ");
+  const NM={zh:"character",lk:"look-alike choices",py:"pinyin",en:"English",au:"audio"},L=a=>[...a].map(x=>NM[x]).join(" and ");
   $("rvSum").textContent=`Shows ${L(rvShowS)||"nothing"}, answer with ${L(rvAns)||"nothing"}`;
   $("rvTones").hidden=!rvAns.has("py");$("rvTones").setAttribute("aria-pressed",rvTones);$("rvTones").textContent=rvTones?"Tones graded":"Tones not graded";
 }
@@ -4072,8 +4074,10 @@ function startRv(extraNew){
 }
 // Work down this list: every word not yet marked known, shuffled. "Got it"/"Easy" takes a word out for good
 // (shared with the Listen/Freehand list), "Again" brings it back a few cards later, until none are left.
+// picking from look-alikes keeps its own progress, separate from writing
+const rvKey=()=>rvAns.has("lk")?"bd-known-lk-"+SETS[setIdx].name:wdKey();
 function rvWdStart(){
-  const K=wdKnown(),words=SETS[setIdx].items.map(x=>x[0]).filter(w=>!K.has(w));
+  const K=wdKnown(rvKey()),words=SETS[setIdx].items.map(x=>x[0]).filter(w=>!K.has(w));
   rvQ=shuffled([...new Set(words)]).map(w=>({w,kind:"wd"}));
   rvStats={total:rvQ.length,done:0,again:0,seen:new Set()};
   $("rvTitle").textContent=`Work down: ${SETS[setIdx].name}`;
@@ -4084,10 +4088,10 @@ function rvWdStart(){
 function rvWdDone(){
   $("rvRun").hidden=true;$("rvDone").hidden=false;$("rvBar").style.width="100%";
   const n=SETS[setIdx].items.length;
-  $("rvFinal").textContent=`All ${n} known`;$("rvFinalTxt").textContent=`in ${SETS[setIdx].name}. 好!`;
+  $("rvFinal").textContent=`All ${n} known`;$("rvFinalTxt").textContent=`in ${SETS[setIdx].name}${rvAns.has("lk")?" (picking from look-alikes)":""}. 好!`;
   $("rvUpcoming").innerHTML="";$("rvMore").hidden=true;$("rvWdReset").hidden=false;
 }
-$("rvWdReset").onclick=()=>{store.set(wdKey(),[]);rvWdStart()};
+$("rvWdReset").onclick=()=>{store.set(rvKey(),[]);rvWdStart()};
 function rvEmpty(){
   $("rvRun").hidden=true;$("rvDone").hidden=false;$("rvBar").style.width="100%";
   $("rvFinal").textContent="All caught up";$("rvFinalTxt").textContent="";
@@ -4098,7 +4102,7 @@ function rvShow(){
   $("rvBar").style.width=`${rvStats.done/Math.max(1,rvStats.total)*100}%`;
   $("rvMeta").textContent=`Card ${rvStats.done+1}`;
   const wdOn=rvScope==="wd";
-  if(wdOn){const n=SETS[setIdx].items.length,left=wdLeft();$("rvLeft").innerHTML=`<b>${left}</b> of ${n} left to learn`;$("rvBar").style.width=`${(n-left)/n*100}%`;$("rvMeta").textContent="Mark the ones you know and they drop out"}
+  if(wdOn){const n=SETS[setIdx].items.length,left=wdLeft(rvKey());$("rvLeft").innerHTML=`<b>${left}</b> of ${n} left to learn`;$("rvBar").style.width=`${(n-left)/n*100}%`;$("rvMeta").textContent="Mark the ones you know and they drop out"}
   else $("rvLeft").innerHTML=`<b>${rvQ.length}</b> left`;
   const t=$("rvTag");t.className="rvtag"+(rvCur.kind==="new"?" new":rvCur.kind==="lapse"?" lapse":"");
   t.textContent=wdOn?(rvCur.kind==="lapse"?"Still learning":"To learn"):rvCur.kind==="new"?"New word":rvCur.kind==="lapse"?"Missed before":"Due";
@@ -4112,7 +4116,12 @@ function rvShow(){
   $("rvHintPy").hidden=A.has("py")||S.has("py");$("rvPy").textContent="";
   $("rvHintSay").hidden=A.has("py")&&!S.has("au");$("rvHintSay").innerHTML='<svg class="ico"><use href="#i-sound"/></svg>'+(S.has("au")?"Play again":"Hear");
   // answer areas
-  $("rvWrite").hidden=!A.has("zh");$("rvPick").hidden=!A.has("py");$("rvEnBox").hidden=!A.has("en");
+  $("rvWrite").hidden=!A.has("zh");
+  $("rvHowRow").hidden=!(A.has("zh")||A.has("lk"));document.querySelectorAll("#rvHow button").forEach(b=>b.setAttribute("aria-pressed",A.has(b.dataset.h)));
+  $("rvLk").hidden=!A.has("lk");rvLkPick=null;
+  if(A.has("lk")){const opts=shuffled([it[0],...lookAlikes(it[0],it[1]).slice(0,3)]);
+    $("rvLk").innerHTML=opts.map((o,i)=>`<button class="zhopt" data-o="${o}"><span class="k">${i+1}</span>${o}</button>`).join("");
+    $("rvLk").querySelectorAll("button").forEach(b=>b.onclick=()=>{if(rvFlipped)return;rvLkPick=b.dataset.o;rvFlip()})}$("rvPick").hidden=!A.has("py");$("rvEnBox").hidden=!A.has("en");
   rvPads=A.has("zh")?makePads($("padsR"),it[0]):null;
   rvPicker.reset();$("rvEnIn").value="";$("rvEnIn").disabled=false;
   $("rvAnswer").hidden=true;$("rvGrade").hidden=true;$("rvFlipRow").hidden=false;
@@ -4128,6 +4137,11 @@ function rvFlip(){
     if(rvPads&&!rvPads.empty()){const rs=rvPads.grade();const avg=Math.round(rs.reduce((a,r)=>a+r.score,0)/rs.length);const ok=avg>=PASS;allRight=allRight&&ok;
       rows.push(`<li><span class="k">Character</span><b class="${ok?"good":avg>=45?"meh":"poor"}">${ok?"✓":"✗"} shape ${avg}</b><span class="you">green outline shows the model</span></li>`)}
     else{allRight=false;rows.push(`<li><span class="k">Character</span><span class="you">not written</span></li>`)}
+  }
+  if(A.has("lk")){
+    const ok=rvLkPick===it[0];allRight=allRight&&ok;
+    $("rvLk").querySelectorAll("button").forEach(x=>{x.disabled=true;if(x.dataset.o===it[0])x.classList.add("right");else if(x.dataset.o===rvLkPick)x.classList.add("wrong");else x.classList.add("dim")});
+    rows.push(`<li><span class="k">Characters</span><b class="${ok?"good":"poor"}">${ok?"✓":"✗"} <span class="zh">${rvLkPick||"(not picked)"}</span></b><span class="you">${ok?"":"look again at the green one"}</span></li>`);
   }
   if(A.has("py")){
     const v=rvPicker.value().trim();rvPicker.lock();
@@ -4149,7 +4163,7 @@ function rvRate(g){
   if(!rvFlipped)return;
   const w=rvCur.w;srsGrade(w,g);record(w,g>0,{noSrs:true});
   rvQ.shift();
-  if(rvScope==="wd"&&g>0){const K=wdKnown();K.add(w);store.set(wdKey(),[...K]);const l=wdLeft();toast(l?`${w} known. ${l} left`:"That was the last one!")}
+  if(rvScope==="wd"&&g>0){const K=wdKnown(rvKey());K.add(w);store.set(rvKey(),[...K]);const l=wdLeft(rvKey());toast(l?`${w} known. ${l} left`:"That was the last one!")}
   if(g===0){rvStats.again++;rvQ.splice(Math.min(rvQ.length,3),0,{w,kind:"lapse"})} // see it again a few cards later
   else rvStats.done++;
   rvStats.seen.add(w);
@@ -4179,15 +4193,19 @@ $("rvHintPy").onclick=()=>{$("rvPy").textContent=showPy((allWords().get(rvCur.w)
 $("rvHintSay").onclick=()=>rvCur&&speak(rvCur.w);
 $("undoR").onclick=()=>rvPads&&rvPads.undo();$("clearR").onclick=()=>rvPads&&rvPads.clear();
 document.querySelectorAll("#rvScope button").forEach(b=>b.onclick=()=>{rvScope=b.dataset.s;store.set("bd-rvscope",rvScope);startRv()});
-function rvSaveOpts(){store.set("bd-rvans",[...rvAns]);store.set("bd-rvshow",[...rvShowS]);renderRvOpts();if(rvOn&&!$("rvRun").hidden)rvShow()}
+function rvSaveOpts(){store.set("bd-rvans",[...rvAns]);store.set("bd-rvshow",[...rvShowS]);renderRvOpts();if(rvOn&&rvScope==="wd")rvWdStart();else if(rvOn&&!$("rvRun").hidden)rvShow()}
 document.querySelectorAll("#rvAns button").forEach(b=>b.onclick=()=>{const a=b.dataset.a;
   if(rvAns.has(a)){if(rvAns.size===1){toast("Pick at least one thing to answer");return}rvAns.delete(a)}
-  else{rvAns.add(a);if(rvShowS.delete(a)&&!rvShowS.size){rvShowS.add("au");toast("Nothing else to show, so the word will play aloud")}}
+  else{rvAns.add(a);if(a==="lk"){rvAns.delete("zh");rvShowS.delete("zh")}if(a==="zh")rvAns.delete("lk");
+    if((rvShowS.delete(a)||!rvShowS.size)&&!rvShowS.size){rvShowS.add("au");toast("Nothing else to show, so the word will play aloud")}}
   rvSaveOpts()});
 document.querySelectorAll("#rvShowSel button").forEach(b=>b.onclick=()=>{const a=b.dataset.a;
   if(rvShowS.has(a)){if(rvShowS.size===1){toast("Show at least one thing (or Audio)");return}rvShowS.delete(a)}
-  else{if(rvAns.has(a)){if(rvAns.size===1){toast(`You're answering ${b.textContent.toLowerCase()}. Pick something else to answer first`);return}rvAns.delete(a)}rvShowS.add(a)}
+  else{if(a==="zh"&&rvAns.has("lk")){if(rvAns.size===1){toast("You're picking the characters. Pick something else to answer first");return}rvAns.delete("lk")}
+    if(rvAns.has(a)){if(rvAns.size===1){toast(`You're answering ${b.textContent.toLowerCase()}. Pick something else to answer first`);return}rvAns.delete(a)}rvShowS.add(a)}
   rvSaveOpts()});
+// quick switch on the card between writing the characters and picking them from look-alikes
+document.querySelectorAll("#rvHow button").forEach(b=>b.onclick=()=>{const h=b.dataset.h;if(rvAns.has(h))return;rvAns.delete(h==="zh"?"lk":"zh");rvAns.add(h);rvShowS.delete("zh");if(!rvShowS.size)rvShowS.add("py");rvSaveOpts()});
 $("rvTones").onclick=()=>{rvTones=!rvTones;store.set("bd-rvtones",rvTones);renderRvOpts()};
 $("rvEnIn").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();rvFlip()}});
 renderRvOpts();
