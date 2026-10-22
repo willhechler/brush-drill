@@ -2079,7 +2079,7 @@ function setStatus(){$("sNow").textContent=strokeNow;$("miss").textContent=misse
 function renderWordbox(){
   const cs=[...item()[0]];$("wordbox").innerHTML="";
   if(writerModes.includes(mode)){$("wordbox").hidden=true;$("pos").textContent=cs.length>1?`Character ${cp+1} of ${cs.length}`:"";return}
-  if(cs.length<2){$("wordbox").hidden=true;$("pos").textContent="";return}
+  if(cs.length<2||mode==="listen"||mode==="free"){$("wordbox").hidden=true;$("pos").textContent="";return} // from-memory modes: don't show the answer
   $("wordbox").hidden=false;
   cs.forEach((c,i)=>{const s=document.createElement("span");s.textContent=c;s.className=i<cp?"done":i===cp?"cur":"";$("wordbox").appendChild(s)});
   $("pos").textContent=`Character ${cp+1} of ${cs.length}`;
