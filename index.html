@@ -1320,7 +1320,7 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
       <div class="rvopts">
         <span class="lab">Answer with</span>
         <div class="pgpick" id="rvAns" role="group" aria-label="What to answer">
-          <button data-a="zh">Character</button><button data-a="lk">Look-alikes</button><button data-a="lk2">Super look-alikes</button><button data-a="py">Pinyin</button><button data-a="pyc">Pinyin choices</button><button data-a="en">English</button>
+          <button data-a="zh">Character</button><button data-a="zhc">Character choices</button><button data-a="lk">Look-alikes</button><button data-a="lk2">Super look-alikes</button><button data-a="py">Pinyin</button><button data-a="pyc">Pinyin choices</button><button data-a="en">English</button>
         </div>
         <button class="peek" id="rvTones" aria-pressed="true">Grade tones</button>
       </div>
@@ -1329,7 +1329,7 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
         <div class="tqtop"><span class="meta" id="rvMeta"></span><span class="tqscore" id="rvLeft"></span></div>
         <div class="lsrow" id="rvWdRow" hidden style="gap:8px;flex-wrap:wrap"><button class="peek" id="rvOrd"></button><button class="chip" id="rvUndo" hidden></button></div>
         <div class="lsrow" id="rvPycRow" hidden><div class="seg" role="group" aria-label="Pinyin choices" id="rvPycKind"><button data-k="tone">Same word, different tones</button><button data-k="word">Different words</button></div></div>
-        <div class="lsrow" id="rvHowRow"><div class="seg" role="group" aria-label="How to answer the characters" id="rvHow"><button data-h="zh">Write it</button><button data-h="lk">Look-alikes</button><button data-h="lk2">Super look-alikes</button></div></div>
+        <div class="lsrow" id="rvHowRow"><div class="seg" role="group" aria-label="How to answer the characters" id="rvHow"><button data-h="zh">Write it</button><button data-h="zhc">Different words</button><button data-h="lk">Look-alikes</button><button data-h="lk2">Super look-alikes</button></div></div>
         <div class="rvprompt">
           <span class="rvtag" id="rvTag"></span>
           <div class="rvzh zh" id="rvZh"></div>
@@ -4071,7 +4071,7 @@ const rvPicker=makePicker($("rvPick"),"rv");
 function renderRvOpts(){
   document.querySelectorAll("#rvAns button").forEach(b=>b.setAttribute("aria-pressed",rvAns.has(b.dataset.a)));
   document.querySelectorAll("#rvShowSel button").forEach(b=>b.setAttribute("aria-pressed",rvShowS.has(b.dataset.a)));
-  const NM={zh:"character",lk:"look-alike choices",lk2:"super look-alike choices",pyc:"pinyin choices",py:"pinyin",en:"English",au:"audio"},L=a=>[...a].map(x=>NM[x]).join(" and ");
+  const NM={zh:"character",lk:"look-alike choices",lk2:"super look-alike choices",zhc:"character choices",pyc:"pinyin choices",py:"pinyin",en:"English",au:"audio"},L=a=>[...a].map(x=>NM[x]).join(" and ");
   $("rvSum").textContent=`Shows ${L(rvShowS)||"nothing"}, answer with ${L(rvAns)||"nothing"}`;
   $("rvTones").hidden=!rvAns.has("py");$("rvTones").setAttribute("aria-pressed",rvTones);$("rvTones").textContent=rvTones?"Tones graded":"Tones not graded";
 }
@@ -4112,9 +4112,9 @@ function startRv(extraNew){
 // Work down this list: every word not yet marked known, shuffled. "Got it"/"Easy" takes a word out for good
 // (shared with the Listen/Freehand list), "Again" brings it back a few cards later, until none are left.
 // picking from look-alikes keeps its own progress, separate from writing
-const rvKey=()=>rvAns.has("lk2")?"bd-known-lk2-"+SETS[setIdx].name:rvAns.has("lk")?"bd-known-lk-"+SETS[setIdx].name:rvAns.has("zh")?wdKey():"bd-known-"+[...rvAns].sort().join("+")+"-"+SETS[setIdx].name;
+const rvKey=()=>rvAns.has("zhc")?"bd-known-zhc-"+SETS[setIdx].name:rvAns.has("lk2")?"bd-known-lk2-"+SETS[setIdx].name:rvAns.has("lk")?"bd-known-lk-"+SETS[setIdx].name:rvAns.has("zh")?wdKey():"bd-known-"+[...rvAns].sort().join("+")+"-"+SETS[setIdx].name;
 const RV_PYG=["py","pyc"];
-const RV_PICK=["zh","lk","lk2"];
+const RV_PICK=["zh","zhc","lk","lk2"];const rvTapZh=A=>A.has("zhc")||A.has("lk")||A.has("lk2");
 // Super look-alikes: the real word drawn from its strokes, next to copies with one tiny change to one character
 // (a stroke missing, one stroke a bit longer or shorter, nudged sideways, tilted, or an extra dot), drawn the same way so only the detail differs.
 function strokeInfo(c,i){const m=DATA[c].medians[i],a=m[0],z=m[m.length-1];let cx=0,cy=0;m.forEach(q=>{cx+=q[0];cy+=q[1]});cx/=m.length;cy/=m.length;
@@ -4142,6 +4142,12 @@ function charSvg(c,m){
 // Pinyin choices: the right pinyin, two with a tone changed, and one from another word of the same length
 let rvPycKind=store.get("bd-pyckind","tone");
 // Different words: the pinyin of three other words, from this list first (like the word cards)
+// Different words: three other words' characters, same length when possible, from this list first
+function zhWordChoices(w){
+  const n=[...w].length,pool=[...shuffled(SETS[setIdx].items),...shuffled(SETS.flatMap(t=>t.items))].map(x=>x[0]).filter(x=>x!==w),pick=[];
+  for(const same of [true,false])for(const x of pool){if(pick.length>=3)break;if(pick.includes(x)||(same&&[...x].length!==n))continue;pick.push(x)}
+  return pick.slice(0,3);
+}
 function pyWordChoices(w,py){
   const right=showPy(py),seen=new Set([right.toLowerCase()]),pick=[];
   for(const x of [...shuffled(SETS[setIdx].items),...shuffled(SETS.flatMap(t=>t.items))]){if(pick.length>=3)break;const f=showPy(x[1]);if(x[0]===w||seen.has(f.toLowerCase()))continue;seen.add(f.toLowerCase());pick.push(f)}
@@ -4157,7 +4163,7 @@ function pyChoices(w,py){
   return {right,options:shuffled([right,...opts])};
 }
 // with only tap-to-answer choices on the card, the answer shows as soon as every choice is made
-function rvMaybeFlip(){const tap=["lk","lk2","pyc"];if([...rvAns].every(a=>tap.includes(a))&&(!(rvAns.has("lk")||rvAns.has("lk2"))||rvLkPick)&&(!rvAns.has("pyc")||rvPycPick))rvFlip()}
+function rvMaybeFlip(){const tap=["zhc","lk","lk2","pyc"];if([...rvAns].every(a=>tap.includes(a))&&(!rvTapZh(rvAns)||rvLkPick)&&(!rvAns.has("pyc")||rvPycPick))rvFlip()}
 function superOptions(w){
   const cs=[...w].filter(c=>DATA[c]);if(!cs.length)return null;
   const right=[...w].map(c=>DATA[c]?charSvg(c):c).join("");
@@ -4181,7 +4187,7 @@ function rvWdStart(){
 function rvWdDone(){
   $("rvRun").hidden=true;$("rvDone").hidden=false;$("rvBar").style.width="100%";
   const n=SETS[setIdx].items.length;
-  $("rvFinal").textContent=`All ${n} known`;$("rvFinalTxt").textContent=`in ${SETS[setIdx].name}${rvAns.has("lk2")?" (super look-alikes)":rvAns.has("lk")?" (picking from look-alikes)":""}. 好!`;
+  $("rvFinal").textContent=`All ${n} known`;$("rvFinalTxt").textContent=`in ${SETS[setIdx].name}${rvAns.has("zhc")?" (character choices)":rvAns.has("lk2")?" (super look-alikes)":rvAns.has("lk")?" (picking from look-alikes)":""}. 好!`;
   $("rvUpcoming").innerHTML="";$("rvMore").hidden=true;$("rvWdReset").hidden=false;
   $("rvUndo2").hidden=!rvLast;if(rvLast)$("rvUndo2").innerHTML=`Undo: <span class="zh">${rvLast.w}</span>`;
 }
@@ -4222,11 +4228,11 @@ function rvShow(){
   // answer areas
   $("rvWrite").hidden=!A.has("zh");
   $("rvHowRow").hidden=!RV_PICK.some(x=>A.has(x));document.querySelectorAll("#rvHow button").forEach(b=>b.setAttribute("aria-pressed",A.has(b.dataset.h)));
-  $("rvLk").hidden=!(A.has("lk")||A.has("lk2"));rvLkPick=null;rvLkRight=it[0];
+  $("rvLk").hidden=!rvTapZh(A);rvLkPick=null;rvLkRight=it[0];
   const sup=A.has("lk2")&&superOptions(it[0]);
   if(sup){rvLkRight="ok";$("rvLk").innerHTML=sup.map((o,i)=>`<button class="zhopt" data-o="${o.ok?"ok":"x"+i}"><span class="k">${i+1}</span>${o.html}</button>`).join("");
     $("rvLk").querySelectorAll("button").forEach(b=>b.onclick=()=>{if(rvFlipped)return;rvLkPick=b.dataset.o;$("rvLk").querySelectorAll("button").forEach(x=>x.classList.toggle("sel",x===b));rvMaybeFlip()})}
-  else if(A.has("lk")||A.has("lk2")){const opts=shuffled([it[0],...lookAlikes(it[0],it[1]).slice(0,3)]);
+  else if(rvTapZh(A)){const opts=shuffled([it[0],...(A.has("zhc")?zhWordChoices(it[0]):lookAlikes(it[0],it[1]).slice(0,3))]);
     $("rvLk").innerHTML=opts.map((o,i)=>`<button class="zhopt" data-o="${o}"><span class="k">${i+1}</span>${o}</button>`).join("");
     $("rvLk").querySelectorAll("button").forEach(b=>b.onclick=()=>{if(rvFlipped)return;rvLkPick=b.dataset.o;$("rvLk").querySelectorAll("button").forEach(x=>x.classList.toggle("sel",x===b));rvMaybeFlip()})}$("rvPick").hidden=!A.has("py");
   $("rvPyc").hidden=!A.has("pyc");rvPycPick=null;
@@ -4250,7 +4256,7 @@ function rvFlip(){
       rows.push(`<li><span class="k">Character</span><b class="${ok?"good":avg>=45?"meh":"poor"}">${ok?"✓":"✗"} shape ${avg}</b><span class="you">green outline shows the model</span></li>`)}
     else{allRight=false;rows.push(`<li><span class="k">Character</span><span class="you">not written</span></li>`)}
   }
-  if(A.has("lk")||A.has("lk2")){
+  if(rvTapZh(A)){
     const ok=rvLkPick===rvLkRight,sup=rvLkRight==="ok";allRight=allRight&&ok;
     $("rvLk").querySelectorAll("button").forEach(x=>{x.disabled=true;if(x.dataset.o===rvLkRight)x.classList.add("right");else if(x.dataset.o===rvLkPick)x.classList.add("wrong");else x.classList.add("dim")});
     rows.push(`<li><span class="k">Characters</span><b class="${ok?"good":"poor"}">${ok?"✓":"✗"} ${sup?(ok?"the real one":rvLkPick?"a changed copy":"(not picked)"):`<span class="zh">${rvLkPick||"(not picked)"}</span>`}</b><span class="you">${ok?"":sup?"compare it with the green one, stroke by stroke":"look again at the green one"}</span></li>`);
@@ -4319,7 +4325,7 @@ document.querySelectorAll("#rvAns button").forEach(b=>b.onclick=()=>{const a=b.d
 document.querySelectorAll("#rvShowSel button").forEach(b=>b.onclick=()=>{const a=b.dataset.a;
   if(rvShowS.has(a)){if(rvShowS.size===1){toast("Show at least one thing (or Audio)");return}rvShowS.delete(a)}
   else{if(a==="py"&&rvAns.has("pyc")){if(rvAns.size===1){toast("You're picking the pinyin. Pick something else to answer first");return}rvAns.delete("pyc")}
-    if(a==="zh"&&(rvAns.has("lk")||rvAns.has("lk2"))){if(rvAns.size===1){toast("You're picking the characters. Pick something else to answer first");return}rvAns.delete("lk");rvAns.delete("lk2")}
+    if(a==="zh"&&rvTapZh(rvAns)){if(rvAns.size===1){toast("You're picking the characters. Pick something else to answer first");return}rvAns.delete("zhc");rvAns.delete("lk");rvAns.delete("lk2")}
     if(rvAns.has(a)){if(rvAns.size===1){toast(`You're answering ${b.textContent.toLowerCase()}. Pick something else to answer first`);return}rvAns.delete(a)}rvShowS.add(a)}
   rvSaveOpts()});
 // quick switch on the card between writing the characters and picking them from look-alikes
