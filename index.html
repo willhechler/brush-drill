@@ -142,8 +142,12 @@ input[type="range"]{width:130px;accent-color:var(--jade)}
 /* 田字格 squares */
 .board{position:relative;width:var(--board);max-width:100%;aspect-ratio:1;background:var(--card);border:1.5px solid var(--jade);touch-action:none}
 .board svg.grid{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-#writer{position:absolute;inset:0}
-#writer svg{width:100%;height:100%;display:block}
+.wr{position:absolute;inset:0}
+.wr svg{width:100%;height:100%;display:block}
+.boards{display:flex;justify-content:center;max-width:100%}
+#writerArea .boards .board{flex:0 0 auto;margin:0;transition:background .2s,box-shadow .2s}
+.boards .board+.board{border-left-width:0}
+.boards.multi .board.cur{background:var(--sun-soft);box-shadow:inset 0 -4px 0 var(--sun)}
 .status{display:flex;gap:18px;font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums;flex-wrap:wrap}
 .status b{color:var(--ink);font-weight:600}
 .status .badn{color:var(--red)}
@@ -1150,15 +1154,7 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
         </div>
 
         <div id="writerArea">
-          <div class="board">
-            <svg class="grid" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-              <line x1="50" y1="0" x2="50" y2="100" stroke="var(--grid)" stroke-width=".5" stroke-dasharray="2 2" fill="none"/>
-              <line x1="0" y1="50" x2="100" y2="50" stroke="var(--grid)" stroke-width=".5" stroke-dasharray="2 2" fill="none"/>
-              <line x1="0" y1="0" x2="100" y2="100" stroke="var(--grid)" stroke-width=".35" stroke-dasharray="1.5 2" fill="none"/>
-              <line x1="100" y1="0" x2="0" y2="100" stroke="var(--grid)" stroke-width=".35" stroke-dasharray="1.5 2" fill="none"/>
-            </svg>
-            <div id="writer"></div>
-          </div>
+          <div class="boards" id="boards"></div>
           <div class="status" style="margin-top:12px">
             <span>Stroke <b id="sNow">0</b> of <b id="sAll">0</b></span>
             <span id="pos"></span>
@@ -1853,7 +1849,7 @@ document.addEventListener("click",e=>{const b=e.target.closest(".penbtn");if(!b)
 // The stroke-checking board reads touch events and takes the first touch on screen, which may be a palm.
 // Filter those: drop touches without a pencil, and hand the library only the pencil's touch.
 (function(){
-  const w=document.getElementById("writer");
+  const w=document.getElementById("boards");
   const filt=e=>{
     if(e._bd||!penOnly())return;
     const pen=t=>t.touchType==="stylus";
@@ -2048,17 +2044,26 @@ let writer=null,misses=0,strokeNow=0,cp=0,runId=0,started=false,padsP=null,check
 const pickerP=makePicker($("pickerP"),"p");
 const writerModes=["watch","trace","recall"];
 
-function makeWriter(c){
-  $("writer").innerHTML="";const s=$("writer").clientWidth||300;
-  writer=HanziWriter.create("writer",c,{width:s,height:s,padding:s*.06,showCharacter:false,showOutline:true,
-    strokeColor:css("--ink"),outlineColor:css("--outline"),drawingColor:css("--ink"),highlightColor:css("--hl"),
-    drawingWidth:Math.max(2.5,s/22),strokeAnimationSpeed:1.1,delayBetweenStrokes:250,showHintAfterMisses:3,highlightOnComplete:true,
-    charDataLoader:(ch,on)=>on(DATA[ch])});
+// One square per character, side by side, so the whole word is written across like on paper.
+const GRID_SVG=`<svg class="grid" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><line x1="50" y1="0" x2="50" y2="100" stroke="var(--grid)" stroke-width=".5" stroke-dasharray="2 2" fill="none"/><line x1="0" y1="50" x2="100" y2="50" stroke="var(--grid)" stroke-width=".5" stroke-dasharray="2 2" fill="none"/><line x1="0" y1="0" x2="100" y2="100" stroke="var(--grid)" stroke-width=".35" stroke-dasharray="1.5 2" fill="none"/><line x1="100" y1="0" x2="0" y2="100" stroke="var(--grid)" stroke-width=".35" stroke-dasharray="1.5 2" fill="none"/></svg>`;
+let writers=[];
+function makeBoards(cs){
+  const B=$("boards");B.innerHTML="";B.classList.toggle("multi",cs.length>1);
+  const want=Math.max(boxPx,90),avail=(B.parentElement.clientWidth||600)-32,s=Math.floor(Math.max(48,Math.min(want,avail/cs.length)));
+  writers=cs.map((c,i)=>{
+    const b=document.createElement("div");b.className="board";b.style.width=s+"px";b.innerHTML=GRID_SVG+`<div class="wr" id="wr${i}"></div>`;B.appendChild(b);
+    const w=HanziWriter.create("wr"+i,c,{width:s,height:s,padding:s*.06,showCharacter:false,showOutline:mode!=="recall",
+      strokeColor:css("--ink"),outlineColor:css("--outline"),drawingColor:css("--ink"),highlightColor:css("--hl"),
+      drawingWidth:Math.max(2.5,s/22),strokeAnimationSpeed:1.1,delayBetweenStrokes:250,showHintAfterMisses:3,highlightOnComplete:true,
+      charDataLoader:(ch,on)=>on(DATA[ch])});
+    return w});
 }
+function markBoards(){[...$("boards").children].forEach((b,i)=>b.classList.toggle("cur",i===cp))}
 function setStatus(){$("sNow").textContent=strokeNow;$("miss").textContent=misses;$("miss").className=misses?"badn":""}
 function renderWordbox(){
   const cs=[...item()[0]];$("wordbox").innerHTML="";
-  if(!writerModes.includes(mode)||cs.length<2){$("wordbox").hidden=true;$("pos").textContent="";return}
+  if(writerModes.includes(mode)){$("wordbox").hidden=true;$("pos").textContent=cs.length>1?`Character ${cp+1} of ${cs.length}`:"";return}
+  if(cs.length<2){$("wordbox").hidden=true;$("pos").textContent="";return}
   $("wordbox").hidden=false;
   cs.forEach((c,i)=>{const s=document.createElement("span");s.textContent=c;s.className=i<cp?"done":i===cp?"cur":"";$("wordbox").appendChild(s)});
   $("pos").textContent=`Character ${cp+1} of ${cs.length}`;
@@ -2067,7 +2072,7 @@ function revealInfo(){const [,py,mean]=item();$("pinyin").className="pinyin";$("
 
 function runChar(){
   const my=runId,cs=[...item()[0]],c=cs[cp];
-  makeWriter(c);strokeNow=0;setStatus();renderWordbox();$("sAll").textContent=DATA[c].strokes.length;
+  if(cp===0||writers.length!==cs.length)makeBoards(cs);writer=writers[cp];markBoards();strokeNow=0;setStatus();renderWordbox();$("sAll").textContent=DATA[c].strokes.length;
   const next=()=>{if(my!==runId)return;if(cp<cs.length-1){cp++;setTimeout(()=>{if(my===runId)runChar()},450);return true}return false};
   if(mode==="watch"){writer.showOutline();writer.animateCharacter({onComplete:()=>{if(my===runId&&!next())toast("Now try Trace")}});return}
   mode==="trace"?writer.showOutline():writer.hideOutline();
