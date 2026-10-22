@@ -1326,6 +1326,7 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
       </div></details>
       <div class="sheet" id="rvRun">
         <div class="tqtop"><span class="meta" id="rvMeta"></span><span class="tqscore" id="rvLeft"></span></div>
+        <div class="lsrow" id="rvWdRow" hidden style="gap:8px;flex-wrap:wrap"><button class="peek" id="rvOrd"></button><button class="chip" id="rvUndo" hidden></button></div>
         <div class="lsrow" id="rvHowRow"><div class="seg" role="group" aria-label="How to answer the characters" id="rvHow"><button data-h="zh">Write it</button><button data-h="lk">Look-alikes</button><button data-h="lk2">Super look-alikes</button></div></div>
         <div class="rvprompt">
           <span class="rvtag" id="rvTag"></span>
@@ -1366,6 +1367,7 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
           <button class="btn" id="rvBack">Back to practice</button>
           <button class="btn primary" id="rvMore">Learn new words</button>
           <button class="btn" id="rvWdReset" hidden>Start the list over</button>
+          <button class="btn quiet" id="rvUndo2" hidden>Undo last</button>
         </div>
       </div>
     </section>
@@ -2187,31 +2189,43 @@ const wdKey=()=>"bd-known-"+SETS[setIdx].name;
 const wdKnown=(k=wdKey())=>new Set(store.get(k,[]));
 const wdActive=()=>wd&&wdModes.includes(mode);
 function wdLeft(k){const K=wdKnown(k);return SETS[setIdx].items.filter(x=>!K.has(x[0])).length}
+let wdLast=null; // last word marked known, for Undo
 function wdNext(step){
   const items=SETS[setIdx].items,K=wdKnown(),n=items.length;
+  if(wOrder!=="list"){ // walk the unknown words in the chosen order (easiest first, or shuffled)
+    if(!wdNext.seq||wdNext.set!==setIdx||wdNext.ord!==wOrder){wdNext.seq=orderWords(items.map(x=>x[0]));wdNext.set=setIdx;wdNext.ord=wOrder}
+    const seq=wdNext.seq.filter(w=>!K.has(w)||w===item()[0]),at=seq.indexOf(item()[0]),m=seq.length;
+    for(let k=1;k<=m;k++){const w=seq[((at+step*k)%m+m)%m];if(w&&!K.has(w)){idx=items.findIndex(x=>x[0]===w);load();return}}
+    load();return;
+  }
   for(let k=1;k<=n;k++){const j=((idx+step*k)%n+n)%n;if(!K.has(items[j][0])){idx=j;load();return}}
   load();
 }
+function wdFirst(){ // jump to the first word to learn in the chosen order
+  const K=wdKnown(),items=SETS[setIdx].items,w=orderWords(items.map(x=>x[0])).find(w=>!K.has(w));wdNext.seq=null;
+  if(w){idx=items.findIndex(x=>x[0]===w);load()}else wdRender()}
 function wdRender(){
   const bar=$("wdBar");bar.hidden=!wdModes.includes(mode);if(bar.hidden)return;
   const n=SETS[setIdx].items.length,left=wdLeft(),w=item()[0],K=wdKnown();
   if(!wd){
     bar.innerHTML=`<div class="fcstart"><p><b>Work down the list.</b> Mark the words you know and they drop out, until all ${n} are known.</p><button class="btn primary" id="wdOn">Start</button></div>`;
-    $("wdOn").onclick=()=>{wd=true;store.set("bd-wd",true);if(K.has(w)&&wdLeft())wdNext(1);else wdRender()};return}
+    $("wdOn").onclick=()=>{wd=true;store.set("bd-wd",true);wdFirst()};return}
   if(!left){
-    bar.innerHTML=`<div class="fcrow"><span class="fccount"><b>All ${n}</b> known. 好!</span><span style="display:flex;gap:8px"><button class="btn" id="wdReset">Start over</button><button class="chip" id="wdOff">Exit</button></span></div>`;
+    bar.innerHTML=`<div class="fcrow"><span class="fccount"><b>All ${n}</b> known. 好!</span><span style="display:flex;gap:8px">${wdLast&&wdLast.set===setIdx?`<button class="chip" id="wdUndo">Undo: <span class="zh">${wdLast.w}</span></button>`:""}<button class="btn" id="wdReset">Start over</button><button class="chip" id="wdOff">Exit</button></span></div>`;
   }else{
     bar.innerHTML=`<div class="fcrow"><span class="fccount"><b>${left}</b> of ${n} left to learn</span><span class="fcprog"><i style="width:${(n-left)/n*100}%"></i></span>
-      <span style="display:flex;gap:6px"><button class="chip" id="wdReset">Reset</button><button class="chip" id="wdOff">Exit</button></span>
+      <span style="display:flex;gap:6px;flex-wrap:wrap"><button class="peek" id="wdOrd">${ORDER_LAB[wOrder]}</button>${wdLast&&wdLast.set===setIdx?`<button class="chip" id="wdUndo">Undo: <span class="zh">${wdLast.w}</span></button>`:""}<button class="chip" id="wdReset">Reset</button><button class="chip" id="wdOff">Exit</button></span>
       <div class="wdk">${K.has(w)?`<span class="known" style="flex:1;align-self:center">You marked this one known.</span><button class="btn" id="wdUn">Still learning it</button>`:`<button class="btn" id="wdSkip">Still learning</button><button class="btn primary" id="wdKnow">I know this one</button>`}</div></div>`;
     if(K.has(w))$("wdUn").onclick=()=>{K.delete(w);store.set(wdKey(),[...K]);wdRender()};
-    else{$("wdKnow").onclick=()=>{K.add(w);store.set(wdKey(),[...K]);const l=wdLeft();toast(l?`${w} done. ${l} left`:"That was the last one!");wdNext(1)};$("wdSkip").onclick=()=>wdNext(1)}
+    else{$("wdKnow").onclick=()=>{K.add(w);store.set(wdKey(),[...K]);wdLast={w,set:setIdx};const l=wdLeft();toast(l?`${w} done. ${l} left`:"That was the last one!");wdNext(1)};$("wdSkip").onclick=()=>wdNext(1)}
+    $("wdOrd").onclick=()=>{nextOrder();toast(ORDER_LAB[wOrder]);wdFirst()};
   }
+  if($("wdUndo"))$("wdUndo").onclick=()=>{const L=wdLast,K2=wdKnown();K2.delete(L.w);store.set(wdKey(),[...K2]);wdLast=null;idx=SETS[setIdx].items.findIndex(x=>x[0]===L.w);toast(`${L.w} is back in the list`);load()};
   $("wdReset").onclick=()=>{if(!confirmReset())return;store.set(wdKey(),[]);wdRender()};
   $("wdOff").onclick=()=>{wd=false;store.set("bd-wd",false);wdRender()};
 }
 // two taps to reset, so one stray tap doesn't wipe the progress
-let wdResetAt=0;function confirmReset(){const t=Date.now();if(t-wdResetAt<2500)return true;wdResetAt=t;toast("Tap Reset again to bring back every word");return false}
+let wdResetAt=0;function confirmReset(){const t=Date.now();if(t-wdResetAt<2500)return true;wdResetAt=t;toast("Tap again to bring back every word");return false}
 document.addEventListener("pointerdown",()=>{started=true},{capture:true});
 
 /* ---------- quiz ---------- */
@@ -2288,21 +2302,34 @@ document.querySelectorAll("#modes button").forEach(b=>b.setAttribute("aria-press
 /* ---------- flashcards (Free trace) ---------- */
 // Go through every word of the set; mark each "Know it" or "Don't know". The "don't know" words become a review list
 // that can be run again on its own, as many rounds as needed.
-const fc={on:false,done:false,list:[],i:0,know:[],review:[],round:1,shuffle:!!store.get("bd-fcshuf",false)};
+// Word order for flashcards and the work-down lists: the list's order, shuffled, or easiest first (fewest strokes first)
+let wOrder=store.get("bd-order",store.get("bd-fcshuf",false)?"shuffle":"list");
+const ORDER_LAB={list:"In order",shuffle:"Shuffled",easy:"Easiest first"};
+const wordDiff=w=>[...w].reduce((n,c)=>n+(DATA[c]?DATA[c].strokes.length:6),0);
+function orderWords(ws){return wOrder==="easy"?ws.slice().sort((a,b)=>wordDiff(a)-wordDiff(b)||[...a].length-[...b].length):wOrder==="shuffle"?shuffled(ws):ws.slice()}
+function nextOrder(){wOrder={list:"shuffle",shuffle:"easy",easy:"list"}[wOrder];store.set("bd-order",wOrder);return wOrder}
+const fc={on:false,done:false,list:[],i:0,know:[],review:[],round:1,hist:[]};
 let fcNav=false;
 $("fcNo").onclick=()=>fcRate(false);$("fcYes").onclick=()=>fcRate(true);
 const fcWords=()=>SETS[setIdx].items.map(x=>x[0]);
+// Free trace remembers the words you said you know (per list), so the next deck skips them
+const fcKey=()=>"bd-known-ft-"+SETS[setIdx].name;
+const fcKnown=()=>new Set(store.get(fcKey(),[]));
+function fcSetKnown(w,on){const K=fcKnown();on?K.add(w):K.delete(w);store.set(fcKey(),[...K])}
+const fcToLearn=()=>{const K=fcKnown();return fcWords().filter(w=>!K.has(w))};
 function fcStart(list,round){
-  let l=list.slice();
-  if(fc.shuffle)for(let i=l.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[l[i],l[j]]=[l[j],l[i]]}
-  Object.assign(fc,{on:true,done:false,list:l,i:0,know:[],review:[],round:round||1});
+  const l=orderWords(list);
+  Object.assign(fc,{on:true,done:false,list:l,i:0,know:[],review:[],round:round||1,hist:[]});
   $("sheetP").classList.add("fcmode");$("sheetP").classList.remove("fcfinished");fcGo();
 }
 function fcGo(){const w=fc.list[fc.i];idx=Math.max(0,SETS[setIdx].items.findIndex(x=>x[0]===w));fcNav=true;load()}
 function fcRate(known){
-  if(!fc.on)return;const w=fc.list[fc.i];(known?fc.know:fc.review).push(w);record(w,known);
+  if(!fc.on)return;const w=fc.list[fc.i];(known?fc.know:fc.review).push(w);record(w,known);fc.hist.push(known);fcSetKnown(w,known);
   if(fc.i<fc.list.length-1){fc.i++;fcGo()}else{fc.on=false;fc.done=true;$("sheetP").classList.add("fcfinished");fcRender()}
 }
+// undo the last Know it / Don't know: step back one card and take the rating off
+function fcBack(){if(!fc.hist.length)return;const k=fc.hist.pop(),w=(k?fc.know:fc.review).pop();if(k)fcSetKnown(w,false);
+  if(fc.done){fc.done=false;fc.on=true;$("sheetP").classList.remove("fcfinished")}else fc.i--;fcGo()}
 function fcEnd(){fc.on=false;fc.done=false;$("sheetP").classList.remove("fcmode","fcfinished");fcRender()}
 function fcRender(){
   const bar=$("fcBar"),items=SETS[setIdx].items;$("fcRate").hidden=true;
@@ -2310,15 +2337,17 @@ function fcRender(){
     const n=fc.list.length,k=fc.know.length,r=fc.review;
     const mean=w=>(items.find(x=>x[0]===w)||[])[2]||"";
     bar.innerHTML=`<div class="fcsum">
-      <div class="score">${k} / ${n}<small>${fc.round>1?`known in review round ${fc.round}`:"known"}</small></div>
+      <div class="score">${k} / ${n}<small>${fc.round>1?`known in review round ${fc.round}`:"known"}. ${items.length-fcToLearn().length} of ${items.length} known in this list overall</small></div>
       ${r.length?`<h3>${r.length} to review</h3><div class="fcchips">${r.map((w,i)=>`<span style="animation-delay:${i*40}ms">${w}<small>${mean(w)}</small></span>`).join("")}</div>`:`<p class="meaning" style="margin:0">You knew every card. 好!</p>`}
       <div class="acts">
         ${r.length?`<button class="btn primary" id="fcReview">Go over the ${r.length} you need to review</button>`:""}
         <button class="btn" id="fcAll">Start over with all ${items.length}</button>
         <button class="btn" id="fcDone">Done</button>
+        ${fc.hist.length?`<button class="btn quiet" id="fcBack2">Undo last card</button>`:""}
       </div></div>`;
+    if(fc.hist.length)$("fcBack2").onclick=fcBack;
     if(r.length)$("fcReview").onclick=()=>fcStart(r,fc.round+1);
-    $("fcAll").onclick=()=>fcStart(fcWords(),1);
+    $("fcAll").onclick=()=>{if(!confirmReset())return;store.set(fcKey(),[]);fcStart(fcWords(),1)};
     $("fcDone").onclick=()=>fcEnd();
     return;
   }
@@ -2328,17 +2357,20 @@ function fcRender(){
       <span class="fccount">Card ${fc.i+1} / ${n}</span>
       <span class="fcprog"><i style="width:${fc.i/n*100}%"></i></span>
       <span class="fctally"><span class="good">${fc.know.length} known</span>, <span class="poor">${fc.review.length} to review</span></span>
-      <button class="chip" id="fcExit">Exit</button>
+      <span style="display:flex;gap:6px">${fc.hist.length?`<button class="chip" id="fcBack">Undo last</button>`:""}<button class="chip" id="fcExit">Exit</button></span>
     </div>`;
-    $("fcRate").hidden=false;$("fcExit").onclick=()=>fcEnd();
+    $("fcRate").hidden=false;$("fcExit").onclick=()=>fcEnd();if(fc.hist.length)$("fcBack").onclick=fcBack;
     return;
   }
-  bar.innerHTML=`<div class="fcstart"><p><b>Flashcards.</b> Go through all ${items.length} words and sort them into known and to review.</p>
-    <div style="display:flex;gap:8px;align-items:center">
-      <button class="peek" id="fcShuf" aria-pressed="${fc.shuffle}">${fc.shuffle?"Shuffled":"In order"}</button>
-      <button class="btn primary" id="fcGo">Start</button></div></div>`;
-  $("fcShuf").onclick=()=>{fc.shuffle=!fc.shuffle;store.set("bd-fcshuf",fc.shuffle);fcRender()};
-  $("fcGo").onclick=()=>fcStart(fcWords(),1);
+  const left=fcToLearn(),kn=items.length-left.length;
+  bar.innerHTML=`<div class="fcstart"><p><b>Flashcards.</b> ${!kn?`Go through all ${items.length} words and sort them into known and to review.`:left.length?`<b>${left.length}</b> of ${items.length} left. The ${kn} you already know are skipped.`:`You know all ${items.length} words in this list. 好!`}</p>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <button class="peek" id="fcShuf" aria-pressed="${wOrder!=="list"}">${ORDER_LAB[wOrder]}</button>
+      ${kn?`<button class="btn" id="fcAllNew">Start over with all ${items.length}</button>`:""}
+      ${left.length?`<button class="btn primary" id="fcGo">Start</button>`:""}</div></div>`;
+  $("fcShuf").onclick=()=>{nextOrder();fcRender()};
+  if(left.length)$("fcGo").onclick=()=>fcStart(left,1);
+  if(kn)$("fcAllNew").onclick=()=>{if(!confirmReset())return;store.set(fcKey(),[]);fcStart(fcWords(),1)};
 }
 
 /* ---------- free trace outline visibility ---------- */
@@ -3000,12 +3032,12 @@ function stAsk(){
   if(SR){
     const listen=async()=>{const btn=$("stMic");if(btn.classList.contains("on")){try{spListen.cur.stop()}catch(e){}return}
       btn.classList.add("on");$("stMicLab").textContent="Listening… tap to stop";
-      try{const alts=await spListen(p=>{$("stHeard").className="spheard";$("stHeard").innerHTML=`<div class="you">Heard: <span class="zh">${stEsc(p)}</span></div>`});
-        btn.classList.remove("on");const T=spNorm(it.zh);let best={score:-1};
+      try{const alts=await spListen(p=>{if(!$("stHeard"))return;$("stHeard").className="spheard";$("stHeard").innerHTML=`<div class="you">Heard: <span class="zh">${stEsc(p)}</span></div>`});
+        btn.classList.remove("on");if(!$("stHeard"))return;const T=spNorm(it.zh);let best={score:-1};
         for(const a of alts.length?alts:[""]){const m=spMatch(T,spNorm(a));if(m.score>best.score)best={...m,heard:a}}
         last=best;$("stHeard").className="spheard";$("stHeard").innerHTML=`<div class="you">Heard: <span class="zh">${stEsc(best.heard||"nothing")}</span></div>`;
         btn.hidden=true;$("stNextRow").hidden=false;$("stSkip").hidden=true;
-      }catch(e){btn.classList.remove("on");$("stMicLab").textContent="Tap and say it";
+      }catch(e){btn.classList.remove("on");if($("stMicLab"))$("stMicLab").textContent="Tap and say it";if(!$("stMic"))return; // left the test while it was listening
         toast(e==="no-speech"?"Didn't hear anything. Try again.":e==="not-allowed"||e==="service-not-allowed"?"The microphone isn't allowed here.":"Speech recognition isn't working. Try again.")}};
     $("stMic").onclick=listen;
     $("stRetry").onclick=()=>{$("stNextRow").hidden=true;$("stMic").hidden=false;$("stSkip").hidden=false;$("stHeard").innerHTML="";listen()};
@@ -4025,7 +4057,7 @@ $("pnCopy").onclick=()=>{const t=[...document.querySelectorAll("#pnOut .pnline")
   try{navigator.clipboard.writeText(t).then(()=>toast("Copied the characters"),()=>toast("Couldn't copy here"))}catch(e){toast("Couldn't copy here")}};
 
 /* ---------- review session ---------- */
-let rvLkPick=null,rvLkRight=null,rvOn=false,rvQ=[],rvCur=null,rvPads=null,rvFlipped=false,rvStats=null,rvScope=store.get("bd-rvscope","all");
+let rvLast=null,rvLkPick=null,rvLkRight=null,rvOn=false,rvQ=[],rvCur=null,rvPads=null,rvFlipped=false,rvStats=null,rvScope=store.get("bd-rvscope","all");
 // What the card asks for. Whatever isn't asked is shown as the prompt; if everything is asked, the word is played aloud.
 let rvAns=new Set(store.get("bd-rvans",["zh"]));if(!rvAns.size)rvAns.add("zh");
 let rvTones=store.get("bd-rvtones",true);
@@ -4116,10 +4148,10 @@ function superOptions(w){
 }
 function rvWdStart(){
   const K=wdKnown(rvKey()),words=SETS[setIdx].items.map(x=>x[0]).filter(w=>!K.has(w));
-  rvQ=shuffled([...new Set(words)]).map(w=>({w,kind:"wd"}));
+  rvQ=orderWords([...new Set(words)]).map(w=>({w,kind:"wd"}));
   rvStats={total:rvQ.length,done:0,again:0,seen:new Set()};
   $("rvTitle").textContent=`Work down: ${SETS[setIdx].name}`;
-  $("rvDone").hidden=true;$("rvRun").hidden=false;$("rvWdReset").hidden=true;
+  $("rvDone").hidden=true;$("rvRun").hidden=false;$("rvWdReset").hidden=true;$("rvUndo2").hidden=true;
   if(!rvQ.length){rvWdDone();return}
   rvShow();window.scrollTo({top:0});
 }
@@ -4128,7 +4160,14 @@ function rvWdDone(){
   const n=SETS[setIdx].items.length;
   $("rvFinal").textContent=`All ${n} known`;$("rvFinalTxt").textContent=`in ${SETS[setIdx].name}${rvAns.has("lk2")?" (super look-alikes)":rvAns.has("lk")?" (picking from look-alikes)":""}. 好!`;
   $("rvUpcoming").innerHTML="";$("rvMore").hidden=true;$("rvWdReset").hidden=false;
+  $("rvUndo2").hidden=!rvLast;if(rvLast)$("rvUndo2").innerHTML=`Undo: <span class="zh">${rvLast.w}</span>`;
 }
+$("rvOrd").onclick=()=>{nextOrder();toast(ORDER_LAB[wOrder]);rvWdStart()};
+// put the last word marked known back, as the next card
+$("rvUndo").onclick=()=>{if(!rvLast)return;const K=wdKnown(rvLast.key);K.delete(rvLast.w);store.set(rvLast.key,[...K]);
+  rvQ=rvQ.filter(x=>x.w!==rvLast.w);rvQ.unshift({w:rvLast.w,kind:"wd"});toast(`${rvLast.w} is back in the list`);rvLast=null;
+  $("rvDone").hidden=true;$("rvRun").hidden=false;rvShow()};
+$("rvUndo2").onclick=()=>$("rvUndo").onclick();
 $("rvWdReset").onclick=()=>{store.set(rvKey(),[]);rvWdStart()};
 function rvEmpty(){
   $("rvRun").hidden=true;$("rvDone").hidden=false;$("rvBar").style.width="100%";
@@ -4140,6 +4179,8 @@ function rvShow(){
   $("rvBar").style.width=`${rvStats.done/Math.max(1,rvStats.total)*100}%`;
   $("rvMeta").textContent=`Card ${rvStats.done+1}`;
   const wdOn=rvScope==="wd";
+  $("rvWdRow").hidden=!wdOn;$("rvOrd").textContent=ORDER_LAB[wOrder];
+  $("rvUndo").hidden=!(wdOn&&rvLast);if(wdOn&&rvLast)$("rvUndo").innerHTML=`Undo: <span class="zh">${rvLast.w}</span>`;
   if(wdOn){const n=SETS[setIdx].items.length,left=wdLeft(rvKey());$("rvLeft").innerHTML=`<b>${left}</b> of ${n} left to learn`;$("rvBar").style.width=`${(n-left)/n*100}%`;$("rvMeta").textContent="Mark the ones you know and they drop out"}
   else $("rvLeft").innerHTML=`<b>${rvQ.length}</b> left`;
   const t=$("rvTag");t.className="rvtag"+(rvCur.kind==="new"?" new":rvCur.kind==="lapse"?" lapse":"");
@@ -4204,7 +4245,7 @@ function rvRate(g){
   if(!rvFlipped)return;
   const w=rvCur.w;srsGrade(w,g);record(w,g>0,{noSrs:true});
   rvQ.shift();
-  if(rvScope==="wd"&&g>0){const K=wdKnown(rvKey());K.add(w);store.set(rvKey(),[...K]);const l=wdLeft(rvKey());toast(l?`${w} known. ${l} left`:"That was the last one!")}
+  if(rvScope==="wd"&&g>0){const K=wdKnown(rvKey());K.add(w);store.set(rvKey(),[...K]);rvLast={w,key:rvKey()};const l=wdLeft(rvKey());toast(l?`${w} known. ${l} left`:"That was the last one!")}
   if(g===0){rvStats.again++;rvQ.splice(Math.min(rvQ.length,3),0,{w,kind:"lapse"})} // see it again a few cards later
   else rvStats.done++;
   rvStats.seen.add(w);
