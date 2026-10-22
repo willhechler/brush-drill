@@ -1076,6 +1076,11 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
 .mpchk .y{background:var(--jade-soft);color:var(--jade-d)}.mpchk .n{background:var(--red-soft);color:var(--red-d);text-decoration:line-through}
 .mpchk small{font-weight:600;opacity:.8}
 #spMapWrap .nav{flex-wrap:wrap}
+/* long option rows (Speak modes, word list) scroll inside themselves on narrow screens instead of pushing the page sideways */
+.qhead .tools{min-width:0;max-width:100%}
+.qhead .tools .seg{max-width:100%;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.qhead .tools .seg::-webkit-scrollbar{display:none}
+.qhead .tools .seg button{flex:0 0 auto;white-space:nowrap}
 </style>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M15.5 9.5a3.5 3.5 0 0 1 0 5M18 7a7 7 0 0 1 0 10"/></symbol>
