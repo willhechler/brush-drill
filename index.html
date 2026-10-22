@@ -2001,8 +2001,9 @@ function makePads(root,word,opts={}){
   requestAnimationFrame(()=>pads.forEach(draw));
   return{
     empty(){return pads.every(p=>!p.strokes.length)},
-    undo(){const p=pads[lastPad];if(p&&!p.locked){p.strokes.pop();draw(p)}},
-    clear(){pads.forEach(p=>{if(!p.locked){p.strokes=[];p.sc.innerHTML="";draw(p)}})},
+    // after checking, Undo and Clear unlock the squares so you can rewrite over the green model (the grade stays as it was)
+    undo(){const p=pads[lastPad];if(p){p.locked=false;p.strokes.pop();draw(p)}},
+    clear(){pads.forEach(p=>{p.locked=false;p.strokes=[];p.sc.innerHTML="";draw(p)})},
     grade(){return pads.map(p=>{const r=gradeChar(p.c,p.strokes,1);p.result=r;p.reveal=true;p.locked=true; // shape only: position and size inside the square never matter
       const cls=r.score>=PASS?"good":r.score>=45?"meh":"poor";
       r.c=p.c;r.cls=cls;p.sc.innerHTML=`<b class="${cls}">${r.score}</b>`;draw(p);return r})},
