@@ -1328,6 +1328,7 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
       <div class="sheet" id="rvRun">
         <div class="tqtop"><span class="meta" id="rvMeta"></span><span class="tqscore" id="rvLeft"></span></div>
         <div class="lsrow" id="rvWdRow" hidden style="gap:8px;flex-wrap:wrap"><button class="peek" id="rvOrd"></button><button class="chip" id="rvUndo" hidden></button></div>
+        <div class="lsrow" id="rvPycRow" hidden><div class="seg" role="group" aria-label="Pinyin choices" id="rvPycKind"><button data-k="tone">Same word, different tones</button><button data-k="word">Different words</button></div></div>
         <div class="lsrow" id="rvHowRow"><div class="seg" role="group" aria-label="How to answer the characters" id="rvHow"><button data-h="zh">Write it</button><button data-h="lk">Look-alikes</button><button data-h="lk2">Super look-alikes</button></div></div>
         <div class="rvprompt">
           <span class="rvtag" id="rvTag"></span>
@@ -4139,7 +4140,15 @@ function charSvg(c,m){
   return `<svg class="ssvg" viewBox="0 0 1024 1024" aria-hidden="true"><g transform="translate(0 900) scale(1 -1)">${g}</g></svg>`;
 }
 // Pinyin choices: the right pinyin, two with a tone changed, and one from another word of the same length
+let rvPycKind=store.get("bd-pyckind","tone");
+// Different words: the pinyin of three other words, from this list first (like the word cards)
+function pyWordChoices(w,py){
+  const right=showPy(py),seen=new Set([right.toLowerCase()]),pick=[];
+  for(const x of [...shuffled(SETS[setIdx].items),...shuffled(SETS.flatMap(t=>t.items))]){if(pick.length>=3)break;const f=showPy(x[1]);if(x[0]===w||seen.has(f.toLowerCase()))continue;seen.add(f.toLowerCase());pick.push(f)}
+  return {right,options:shuffled([right,...pick])};
+}
 function pyChoices(w,py){
+  if(rvPycKind==="word")return pyWordChoices(w,py);
   const tc=toneChoices(py),right=tc.right,opts=tc.options.filter(o=>o!==right).slice(0,2),n=pySyllables(py).length;
   const base=x=>showPy(x).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase(),b0=base(py);
   const cand=shuffled(SETS[setIdx].items.concat(SETS.flatMap(t=>t.items))).filter(x=>x[0]!==w&&pySyllables(x[1]).length===n&&!opts.includes(showPy(x[1]))&&base(x[1])!==b0);
@@ -4176,6 +4185,8 @@ function rvWdDone(){
   $("rvUpcoming").innerHTML="";$("rvMore").hidden=true;$("rvWdReset").hidden=false;
   $("rvUndo2").hidden=!rvLast;if(rvLast)$("rvUndo2").innerHTML=`Undo: <span class="zh">${rvLast.w}</span>`;
 }
+document.querySelectorAll("#rvPycKind button").forEach(b=>b.onclick=()=>{if(rvFlipped||rvPycKind===b.dataset.k){rvPycKind=b.dataset.k;store.set("bd-pyckind",rvPycKind);document.querySelectorAll("#rvPycKind button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.k===rvPycKind));return}
+  rvPycKind=b.dataset.k;store.set("bd-pyckind",rvPycKind);rvShow()});
 $("rvOrd").onclick=()=>{nextOrder();toast(ORDER_LAB[wOrder]);rvWdStart()};
 // put the last word marked known back, as the next card
 $("rvUndo").onclick=()=>{if(!rvLast)return;const K=wdKnown(rvLast.key);K.delete(rvLast.w);store.set(rvLast.key,[...K]);
@@ -4219,6 +4230,7 @@ function rvShow(){
     $("rvLk").innerHTML=opts.map((o,i)=>`<button class="zhopt" data-o="${o}"><span class="k">${i+1}</span>${o}</button>`).join("");
     $("rvLk").querySelectorAll("button").forEach(b=>b.onclick=()=>{if(rvFlipped)return;rvLkPick=b.dataset.o;$("rvLk").querySelectorAll("button").forEach(x=>x.classList.toggle("sel",x===b));rvMaybeFlip()})}$("rvPick").hidden=!A.has("py");
   $("rvPyc").hidden=!A.has("pyc");rvPycPick=null;
+  $("rvPycRow").hidden=!A.has("pyc");document.querySelectorAll("#rvPycKind button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.k===rvPycKind));
   if(A.has("pyc")){const pc=pyChoices(it[0],it[1]);rvPycRight=pc.right;
     $("rvPyc").innerHTML=pc.options.map((o,i)=>`<button class="pyopt" data-o="${o}"><span class="k">${i+1}</span>${o}</button>`).join("");
     $("rvPyc").querySelectorAll("button").forEach(b=>b.onclick=()=>{if(rvFlipped)return;rvPycPick=b.dataset.o;$("rvPyc").querySelectorAll("button").forEach(x=>x.classList.toggle("sel",x===b));rvMaybeFlip()})}$("rvEnBox").hidden=!A.has("en");
