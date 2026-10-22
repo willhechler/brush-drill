@@ -239,6 +239,8 @@ input[type="range"]{width:130px;accent-color:var(--jade)}
 .tqopts button:hover:not(:disabled){border-color:var(--grid)}
 .tqopts.mcopts button{font-size:1.05rem;line-height:1.3;padding:16px 12px}
 .tqopts.mcopts button.pyopt{font-size:1.35rem}
+.tqopts.mcopts button.zhopt{font-family:var(--f-hanzi);font-size:2.3rem;font-weight:400;line-height:1.15;padding:12px 10px;letter-spacing:.04em}
+.tqchar.pyq{font-family:var(--f-ui);font-size:clamp(2rem,7vw,3rem);font-weight:800;color:var(--sky);letter-spacing:0}
 .tqopts button .k{position:absolute;left:9px;top:6px;font-size:.68rem;color:var(--faint)}
 .tqopts button:disabled{cursor:default}
 .tqopts button.right{border-color:var(--jade);background:var(--jade-soft);color:var(--jade)}
@@ -1531,7 +1533,7 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
         <h2 id="mcTitle">Word cards</h2>
         <div class="tools">
           <div class="seg" role="group" aria-label="Answer with" id="mcKind">
-            <button data-k="py">Pinyin</button><button data-k="en">English</button><button data-k="mix">Mixed</button>
+            <button data-k="py">Pinyin</button><button data-k="en">English</button><button data-k="mix">Mixed</button><button data-k="zh">Look-alikes</button>
           </div>
           <button class="chip" id="mcExit">Exit cards</button>
         </div>
@@ -4325,6 +4327,18 @@ document.querySelectorAll("#wlHide button").forEach(b=>b.onclick=()=>{wlHide=b.d
 
 /* ---------- word cards ---------- */
 // A character on each card; pick its pinyin or English meaning from four choices taken from the set's other words.
+// Characters that look like each vocab character (computed from stroke shapes), most similar first.
+const LOOK={"一": "七开士斗咖研如兴叶午", "七": "士女长云着赴全无夸血", "三": "工玉王五正丘土云么泣", "上": "土止王主玉立正太卫点", "下": "丁了甲歹不节罗子市宁", "不": "苹羊旱罕冬享丰半韦率", "专": "号亏辛命寺寿舌伞赤青", "业": "亚长昼北直壶益垄叠良", "东": "车末来束系象采米累泉宗", "个": "小平令十今千手卡全乎", "中": "申巾平甲卡审牛市命干", "为": "力污办沟治勾由勿勇渗", "丽": "商弱厨简厕园菌前宿崩", "么": "公云土立止上丘至久正太", "乐": "瓜系压示杀床采牵永米", "九": "丸尤允元龙礼瓦兑凡充", "习": "目月刀日万召导母可石", "书": "韦杀弟率来半击串杰态", "了": "丁下子予于享不旱手芽", "事": "串萎攀拳赛奉辜窜宰察", "二": "工江车本名卓品率三类", "五": "丘且丑点互玉天王豆正", "交": "文史灵坐变反爽臭灾奖", "京": "就寒窜宗掌末家求米宰票", "人": "入八未大术式农表末天米", "什": "纤仔评作种件竹伸计杆", "今": "冷令介夸合伞夺命亭专分", "介": "今分合开夺夸令舟舍仓", "从": "址认跃灶跌坟状队庆底", "他": "她也地池伯依恒低蚀仇诬维", "代": "钱伐武试找残状伙栽线", "们": "门问间闪剑到幻仍则约例伺", "会": "金企合套舍奈壶叠全食", "住": "往丝仗位佳注拄仅性柱", "作": "诈你许件伴炸称什伸访", "你": "弥称休作棕体炸综伶惊", "使": "便侵俊债侠徙值愤速侦", "候": "娱续铁嫉被倾锁模镶核", "做": "微傲敢敞敦假散缴被贩", "儿": "几凡兄元礼瓦九兑充北", "先": "洗光克充秃走壳免兜见无", "八": "人入以叭木江三养尽水", "公": "共么合云分会兴舍补企金介", "六": "亡穴力众为云由雨台奴", "共": "公兵县具典甚其关兽并品", "关": "买灵夹头共丢失笑央贝", "典": "舆再桑离共巢颜画类属", "再": "兽典毒将游昌男具勇甚", "写": "号男窍驾宵苟窗荡窝畜宾", "军": "宰草笨窜零荤罩享累辈", "几": "机儿凡兄瓦礼尺元北兑足", "出": "齿由虫击班柬虑祖宿世", "分": "介合开舍夸夺音今命耸", "到": "则列利剑判刊刮钥刑刺", "刻": "副创剔别削剂制刺则刮", "前": "首丽苗筒商萄菌宿煎简俯", "力": "刀办为方古右自专当吉", "办": "力弄吞赤毒合香为亦舟", "加": "彻细如知和抽咖妇舶袖", "动": "幼助劝功劫话雨场袖尚", "北": "比此死兆亚乱瓦壳礼耸池", "匙": "题起趁超趋翅越趟邀遮", "医": "臣区愿值筐图虚盖菌惩", "十": "千干卡士于予平个辛中", "午": "牛千干于平手子早半亭乎争", "半": "早牛亭羊旱年平串辛丰", "华": "毕举李串季率辱草挚乖", "南": "商尚面雨向丙两高而幽染", "博": "傅缚搏遵馋惯牌愤脾惨", "卫": "玉丑王旦沮上宗正涩里", "去": "丢击夹头企会失告丧岳", "友": "发灰皮炭及左复爽羞走", "口": "旧双订以巾命识计刀白", "古": "吉右台雪舌青责方舍尝", "叫": "州纠列啊呵明则刊叨辫", "可": "丐百育哼肖厉贸冒帘目", "右": "后石古吉君雪吞肴启希看", "号": "写专亏辛旁牙亭梦等景带", "司": "用同对句州周萄讨羽肉", "吃": "吨咙哇吹疙嗦喧咬宅唉", "同": "间用周网阔闲阂园伺闪", "名": "各启自志术桌末真韦畜乌", "后": "右厉启店治岩唇层历虏", "吗": "妈码马骂鸣喝玛鸡唱哄嗅蚂", "吧": "肥咀纪嗯吼喘祝配呢咽", "听": "呀啡升竹哼吩针呻财畴", "周": "用同网厕腐间须筒玛园", "和": "扣私如知妇初扫加秒卸", "哪": "那绑啤畔碑僻郁鄙挪脾", "啊": "则到钥刊列利刑新预俐", "喜": "毒嘉善真奏春鼻唇萎妻", "四": "西田回凹叨归绍印阳徊细", "回": "凹田四绍阳斑阅叨缀甜", "因": "园困国固团图围圆闹圈", "园": "因国团困图固围闹网圆", "国": "固围团图园因困圆圈闹", "图": "困团围固国圆园因圈循", "在": "左存症庄东岳森友夜盘丧良", "地": "他她也池绝殃纯短媳城域", "场": "玛竭厕汤扬肠畅幼蚂培", "坐": "座生全宝尘皇垄虫桌重亲", "堂": "爱贵童重量觉索党素责", "士": "土干十千卡云女止舌子", "多": "齐争罗辛步事旱岁务串", "大": "太犬天夫火久允文丸式", "天": "大太犬夫灭无火丧乏五", "太": "大犬天夫火文虫久束灭", "她": "他也地池姥妹钝姑娃姓姐铺", "好": "舒斜妨辞秤辨料科姓鲜", "始": "姑估娇妨姐胎话伯给铅", "子": "手予乎平午千干亭于卡", "字": "学宇牢宰罕市毕宗孕审", "学": "字毕孕举率单季牢幸罕李", "室": "宜宣宏宝蛮茎重赏索堂", "家": "象寒荤辈雾京架霉乘梁", "宿": "窗岗富丽密雷虚猪殖诸", "对": "村衬时劝财封司耐州材辨", "小": "个手士乎子予十午平牛", "少": "夕卡士中十于虫申坐巾", "就": "京枕兢耽救既故梳税抗牧", "局": "萄渴竭萌箱尚稍周厕劫", "屋": "崖晨屈展雇座屑层眉厘", "山": "凶击工止雨南幽玉尚正", "左": "在友主发系龙东桌尤生志", "差": "羞着圣甚紊羡美盖筹是", "己": "已巳乙巴凸正礼怎迄色亿", "市": "审串帘申宰布牢窜窄丰", "师": "帅颈部筛饰沛弹邻祥频", "带": "帝蒂帮崇劳哥景希费贵", "年": "苹羊卑亭旱丰冬半率岸", "床": "库底沫尾珠深米寒庞原", "店": "庙虚虏唐居层症虐座床", "座": "坐废虚屋崖症雇庙疫质唐", "开": "升并井舟补介弄异夺分", "张": "长胀账强旅银帐弦根粗租", "当": "自召省啬岩咨贝串务吉", "影": "彰制彩剥形剔困膨舆弱", "往": "住拄枉征柱位栏狂杠拉", "很": "得律待恨根狠眼跟银倔摧推", "得": "很律待挤将拼排挥捍徘搏持", "志": "态忠怎忘惠恋总忌悉恶", "快": "换侠狭块秩使铁殃侥恢悟", "怎": "志总忠恋忽忌患息惠忘", "思": "恩忍忠悲患愿恐悉怨憋", "想": "愁慈怨慰您憋悠怒惩慧", "意": "愈惹惫悬急慈怠童惠慧", "我": "找伐栽裁救或载戒成疾咸", "房": "虏居唐秀屏势屑鲁座肩", "手": "乎子平亭午予牛斗千半", "打": "钉材衬村拧扫行针衫扛", "找": "我伐执救扶技钱梳栽挨捉拢", "拐": "捎捐损捞指扔据搭揭梢", "拿": "章幸掌常晕紫索隶素孝", "换": "快摄携摘拽桶挨拖揍横狭", "接": "按援楼挨植搂拔投损撞", "教": "敦散数敷载敬敢最歉毅", "文": "交丈久火夫失太支欠父", "旁": "帝舍膏音青寺素带劳骨", "日": "曰目白旧自月启召肖当百壮", "早": "旱半羊亭牛苹平年午乎", "时": "财衬材耐对封付村肪衍", "明": "朋胡阴萌购顺绸割钥阐", "星": "是呈屋歪蕉显置茎菜累筐", "是": "星走差晃楚着毫羞麦蒸爱", "晚": "免晓魄脆映貌挽暖跪耽既", "月": "用目肖日另片且自贝员并", "有": "育宵盲肴贡赏省首穷宫", "朋": "期明厕制剔洞脂刷胡绸别", "期": "朋湖朝潮割剩勘翔刷胡涮", "末": "未米采束术来东寒求京", "本": "木术率车水韦丰卓参奉", "机": "几抗枕扰祝梳饥执权坑玩", "杂": "奈条亲余来崇牵染朵垄", "李": "季率奉拳丰乖革牵参草", "村": "对材衬封付料析树拆折粹", "条": "来杂奈亲茶圣紊虽垄务", "校": "枚狡枝杖授梳饺投权核", "桌": "桑巢柔衷爽类卖直离垄", "棚": "糊搁姻铜拥钢捆稠描掘", "楼": "搂接锤撞精措格糙揍播", "次": "欢吹攻汰淡庆决砍炊灾", "欢": "砍攻炊双次软吹农戏庆", "歌": "歇歉敬敏敢散献款数教", "水": "木本永术卓承求幸率韦", "汉": "泌仪沃注纹淡沮没液叹", "汽": "浅民流或氏线淡伐筑践", "没": "漫浸役泼设液及漠淡毁", "清": "请情晴睛淆溃湾涛消滑渣速", "火": "太大犬灭欠文久夫天丈", "点": "立丘五豆束众直虫丑互", "然": "熬热烈熊焦煎丝熟蒸照", "物": "扬拘肠狗构抽畅拍牺钩", "玛": "场码蚂鸡妈竭周踢吗培", "玩": "坑风机死枕仇跳坟此垃", "现": "境视既堤规锐疏观绕税", "生": "坐主至庄宝尘失桌虫左", "用": "月周同困闲图须肉泻历附", "电": "也兔龙免光甩包秃重皂", "留": "耀剪酱箭劈菌诸猎雷富", "直": "真衷良桌哀显垄歪置表呈", "看": "着肴羞晋奢者箭春啬甭", "睡": "暗睦晤踏锤顾睛睁脸赔", "知": "如彻妇扣和细加酝松扫", "码": "吗妈马骂蚂玛碍确屿磁踢竭", "研": "峭硕砖碍碎辨所陌掰磅", "票": "要柔桨乘渠黎禁察巢累集", "离": "角类岛真肩寓岗属蒸商", "科": "斜料秤移辞抖针衬辨好", "租": "相粗程祖稚秘招稍甜姐", "究": "完宪宽凭兜觉党免宠突", "空": "宝它宜宗宣室坐灾交宏", "站": "占钻结贴帖粘话沾估姑活", "第": "渠弟慕篇攀集巢昌蔼蒸", "等": "辱蒂筹寄哥尊暑芽着膏", "米": "未末束呆采来术求果牵", "系": "东杀采术末至束亲累享", "红": "虹杠纽位奴细妇扛蚁枉", "约": "均的钩购钓狗伪构两沟", "线": "钱践残战绒级饭城伐跌", "绍": "组纽结招铅缩综档裙甜", "网": "阔阴间阐周园同闹伺洞", "美": "羡差灵夹烫羞览类爽圣", "老": "者隶逝邀奢惠乘麦袭柬", "考": "者孝责煮青帝素膏贵肯", "能": "熊镜舰规股跪躲侥貌兢尴", "自": "目日启当负贝肖召台名", "舍": "含金合音食旁会余青奢", "行": "竹衍付析衬待打杆折什", "西": "四面两曲伪画雨给厢颈颜", "要": "票委耍婴鲁妻婪暑萎兽妄", "见": "贝觅免晃荒克竞览兔充笼", "觉": "党宽竞竟堂凭览宪免重", "认": "议从让谈仗试伙误读住", "讲": "语诱诗谱诽饼辨讶误诸", "识": "只讯祖但织讼证帜积讽饥", "词": "饲训问剖调润刮询列阔", "试": "诚诫讯谈绒纸讥谎代风", "话": "活语估读请诸谱译诬谤", "语": "谱话悟诱讲译请诸倍诽", "说": "兑悦谎锐税祝设逗视诞仇", "请": "清情晴睛谱诸诱谐语债精造", "读": "谈话请设侦诸诬谱谣误", "课": "果谍谋保棵倔谦豫像银锋", "谁": "谣维椎袱语渔该诬倔恒", "谢": "删侧涮邀佣潮圆剧衡蝴", "走": "是先史克光爽麦羡壳无", "起": "匙超赴趋赶越趟趁翅恕", "超": "趋趟题越翅趁起匙邀趣", "路": "跑赂络胳瞎格踏蹲踢瘩略", "车": "东率卓丰享本单岸奉李草", "边": "过适迫迷迹逗迈违追近造", "过": "边逗这进辽迹迈近适追迸", "迎": "迹巡途避迫逛逐适造进", "近": "远进迸返适遮迹追迷送逗", "这": "还逗过运送迷返达追述迟", "远": "近逃迅迟选迷运送遮边逗", "道": "造退遏递逗通逼迫遮适", "那": "哪郁部肺郎邻郊廊邮频弊", "邮": "部郁郑鄙邻郎柿卸那肺", "部": "郎郊郁邻郑邮卸都鄙那", "都": "鄙郁解颠部舞廓弊骤锦", "里": "黑累果歪熏辈置衷冤臣", "钟": "种绅秤肿神伸铃粹押柿", "钥": "稍销新铅奶到朝姐租胡", "铁": "钱秩跌核狭锁缺候致梳糕", "银": "根粮倔娘狠狼报强稚镇", "长": "张丧亚辰妆衣来关业虽畏", "门": "们问间闪闷同伺阅阂阔", "问": "们门间闪阔闲阅闻阂闯阐列", "间": "们门问闪阔阂闯同闲阐闹网", "附": "阴掰衔陶困阿俐瓣厨断", "际": "酝阵障隙醉防肺陈缔综", "院": "统坑既恍现陡疏惋隙洗", "面": "西曲南厢两雨画弱尚厕", "韦": "丰书率本木冬术串卓末", "音": "膏青昔晋舍含普旁着奇", "题": "超邀趟匙赠塘越瞻趁趋", "食": "责舍尝含膏盒金晋素会", "饭": "级假板线叛饺饿贩铁缀", "馆": "馈铭锁辖稚销惊帽错镇", "骑": "骄蔚聘脂验特膀骚斩股"};
+// Three wrong answers for "pinyin → characters": the same word with one character swapped for a look-alike.
+// Skips any swap that would read exactly the same, so the pinyin always points to one answer.
+function lookAlikes(w,py){
+  const cs=[...w],syl=pySyllables(py).map(x=>markSyllable(x.base,x.tone).toLowerCase());lkIndex();
+  const same=(c,i)=>(LKALL.get(c)||[]).some(r=>r.py.toLowerCase().replace(/\s/g,"")===syl[i]);
+  const per=cs.map((c,i)=>[...(LOOK[c]||"")].filter(x=>!cs.includes(x)&&!(syl.length===cs.length&&same(x,i))).slice(0,6).map(x=>{const a=cs.slice();a[i]=x;return a.join("")}));
+  const out=[],seen=new Set([w]);
+  for(let r=0;out.length<3&&r<6;r++){const order=shuffled(per.map((_,i)=>i));for(const i of order){const x=per[i][r];if(x&&!seen.has(x)&&out.length<3){seen.add(x);out.push(x)}}}
+  return out;
+}
 let mcOn=false,mcList=[],mcI=0,mcRes=[],mcAnswered=false,mcKind=store.get("bd-mckind","py"),mcCur=null;
 function closeExtras(){ // leave word cards / tone quiz / word list without reloading the practice page
   if(mcOn){mcOn=false;$("mc").hidden=true}
@@ -4350,18 +4364,19 @@ function renderMcKind(){document.querySelectorAll("#mcKind button").forEach(b=>b
 function mcShow(){
   const it=mcList[mcI],[w,py,mean]=it;mcAnswered=false;
   const kind=mcKind==="mix"?(Math.random()<.5?"py":"en"):mcKind;
-  const field=x=>kind==="py"?showPy(x[1]):x[2];
-  // distractors: other words from this set first, then from every set if the set is small
-  const right=field(it),seen=new Set([right]),pick=[];
-  for(const x of [...shuffled(SETS[setIdx].items),...shuffled(SETS.flatMap(t=>t.items))]){if(pick.length>=3)break;const f=field(x);if(x[0]===w||seen.has(f))continue;seen.add(f);pick.push(f)}
+  const field=x=>kind==="py"?showPy(x[1]):kind==="zh"?x[0]:x[2];
+  // distractors: look-alike characters for "zh"; otherwise other words from this set first, then from every set
+  const right=field(it),seen=new Set([right]),pick=kind==="zh"?lookAlikes(w,py):[];pick.forEach(x=>seen.add(x));
+  const len=[...w].length,fb=kind==="zh"?x=>[...x[0]].length===len:()=>true;
+  for(const x of [...shuffled(SETS[setIdx].items),...shuffled(SETS.flatMap(t=>t.items))]){if(pick.length>=3)break;const f=field(x);if(x[0]===w||seen.has(f)||!fb(x))continue;seen.add(f);pick.push(f)}
   mcCur={kind,right,options:shuffled([right,...pick])};
   $("mcBar").style.width=`${mcI/mcList.length*100}%`;
   $("mcMeta").textContent=`Card ${mcI+1} of ${mcList.length}`;
   const ok=mcRes.filter(r=>r.ok).length;$("mcScore").innerHTML=mcRes.length?`<b>${ok}</b> / ${mcRes.length} right`:"";
-  $("mcChar").textContent=w;replay($("mcChar"),"pop");
+  $("mcChar").textContent=kind==="zh"?showPy(py):w;$("mcChar").classList.toggle("pyq",kind==="zh");$("mcChar").classList.toggle("zh",kind!=="zh");replay($("mcChar"),"pop");
   $("mcReveal").textContent="";$("mcReveal").className="tqmean";
-  $("mcAsk").textContent=kind==="py"?"Which pinyin?":"What does it mean?";
-  $("mcOpts").innerHTML=mcCur.options.map((o,i)=>`<button class="${kind==="py"?"pyopt":""}"><span class="k">${i+1}</span></button>`).join("");
+  $("mcAsk").textContent=kind==="py"?"Which pinyin?":kind==="zh"?"Which characters? Look closely, they're all similar.":"What does it mean?";
+  $("mcOpts").innerHTML=mcCur.options.map((o,i)=>`<button class="${kind==="py"?"pyopt":kind==="zh"?"zhopt":""}"><span class="k">${i+1}</span></button>`).join("");
   $("mcOpts").querySelectorAll("button").forEach((b,i)=>{b.append(mcCur.options[i]);b.dataset.o=mcCur.options[i];b.onclick=()=>mcPick(b)});
   $("mcNext").hidden=true;replay($("mcRun"),"swap");
 }
@@ -4371,7 +4386,7 @@ function mcPick(b){
   $("mcOpts").querySelectorAll("button").forEach(x=>{x.disabled=true;if(x.dataset.o===mcCur.right)x.classList.add("right");else if(x===b)x.classList.add("wrong");else x.classList.add("dim")});
   mcRes.push({w,py,mean,pick:b.dataset.o,kind:mcCur.kind,ok});
   record(w,ok);
-  $("mcReveal").textContent=`${showPy(py)}, ${mean}`;$("mcReveal").className="tqmean show";
+  $("mcReveal").innerHTML=mcCur.kind==="zh"?`<span class="zh">${w}</span>, ${mean}`:`${showPy(py)}, ${mean}`;$("mcReveal").className="tqmean show";
   const n=mcRes.filter(r=>r.ok).length;$("mcScore").innerHTML=`<b>${n}</b> / ${mcRes.length} right`;
   speak(w);
   $("mcNext").hidden=false;$("mcNext").textContent=mcI===mcList.length-1?"See results":"Next";
