@@ -134,6 +134,7 @@ input[type="range"]{width:130px;accent-color:var(--jade)}
 .pinyin{font-size:1.9rem;font-weight:600;color:var(--jade);line-height:1.15;letter-spacing:.01em}
 .meaning{color:var(--muted)}
 .hiddeninfo{color:var(--faint);letter-spacing:.3em}
+.lsrow{display:flex;justify-content:center;margin-bottom:12px}
 .wordbox{display:flex;gap:4px}
 .wordbox span{font-family:var(--f-hanzi);font-size:1.25rem;width:38px;height:38px;display:grid;place-items:center;border:1px dashed var(--grid);border-radius:4px;color:var(--faint)}
 .wordbox span.cur{border:1.5px solid var(--jade);color:var(--ink)}
@@ -1192,6 +1193,7 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
             <button class="peek" id="ftPeek" aria-pressed="false"><svg class="ico"><use href="#i-eye"/></svg>Show character</button>
           </div>
           <div class="fc" id="fcBar"></div>
+          <div class="lsrow" id="lsRow" hidden><div class="seg" role="group" aria-label="How to give the word" id="lsQuiet"><button data-q="0">Hear it</button><button data-q="1">Silent: show pinyin</button></div></div>
           <div class="pads" id="padsP"></div>
           <div class="padtools" style="margin-top:12px">
             <button class="btn" id="undoP">Undo stroke</button>
@@ -1697,6 +1699,8 @@ const SETS = [
   {group:"Extra practice", name:"People", items:[["人","rén","person"],["他","tā","he"],["她","tā","she"],["我们","wǒmen","we"],["他们","tāmen","they"],["老师","lǎoshī","teacher"],["学生","xuésheng","student"],["中国","Zhōngguó","China"],["什么","shénme","what"]]},
   {group:"Extra practice", name:"Basics", items:[["一","yī","one"],["二","èr","two"],["三","sān","three"],["十","shí","ten"],["口","kǒu","mouth"],["大","dà","big"],["小","xiǎo","small"],["日","rì","sun; day"],["月","yuè","moon; month"],["号","hào","day of the month (十二号 = the 12th)"],["山","shān","mountain"],["水","shuǐ","water"],["火","huǒ","fire"]]}
 ];
+// Dictation prep: Lessons 5 and 6 shuffled together (added at the end so saved lesson choices keep their place)
+{const a=SETS.find(t=>t.name==="Lesson 5"),b=SETS.find(t=>t.name==="Lesson 6");if(a&&b)SETS.push({group:"Dictation prep",name:"Lessons 5 + 6",items:[...a.items,...b.items]})}
 const CLUE={"他":"he","她":"she"};
 const PASS=65; // shape score needed per character
 
@@ -2042,6 +2046,7 @@ function renderTally(){
 }
 
 /* ---------- practice ---------- */
+let lsQuiet=store.get("bd-lsquiet",false);
 let writer=null,misses=0,strokeNow=0,cp=0,runId=0,started=false,padsP=null,checkedP=false;
 const pickerP=makePicker($("pickerP"),"p");
 const writerModes=["watch","trace","recall"];
@@ -2098,9 +2103,15 @@ function start(){
   const wm=writerModes.includes(mode);
   const nbm=mode==="notebook";
   $("writerArea").hidden=!wm;$("freeArea").hidden=wm||nbm;$("nbArea").hidden=!nbm;document.querySelector("#practice .sizewrap").hidden=nbm;$("ftRow").hidden=mode!=="ftrace";
-  $("pickerP").hidden=mode!=="listen";$("checkRowP").hidden=wm||nbm;
+  $("pickerP").hidden=mode!=="listen"||lsQuiet;$("checkRowP").hidden=wm||nbm;
   $("checkP").disabled=false;$("verdictP").textContent="";$("verdictP").className="verdict";
-  if(mode==="listen"){
+  $("lsRow").hidden=mode!=="listen";document.querySelectorAll("#lsQuiet button").forEach(b=>b.setAttribute("aria-pressed",(b.dataset.q==="1")===lsQuiet));
+  if(mode==="listen"&&lsQuiet){
+    const n=[...item()[0]].length;
+    $("pinyin").className="pinyin";$("pinyin").textContent=showPy(item()[1]);
+    $("meaning").textContent=`${item()[2]}. Write the ${n>1?n+" characters":"character"} from memory.`;
+    pickerP.reset();
+  } else if(mode==="listen"){
     const n=[...item()[0]].length,cl=CLUE[item()[0]];
     $("pinyin").className="pinyin hiddeninfo";$("pinyin").textContent="? ? ?";
     $("meaning").textContent=(cl?`Clue: ${cl}. `:"")+(n>1?`Write the ${n} characters you hear, then the pinyin.`:"Write the character you hear, then the pinyin.");
@@ -2126,7 +2137,7 @@ function checkPractice(){
   if(padsP.empty()){toast("Write the character first");return}
   const [w,py,mean]=item();
   let pr=null;
-  if(mode==="listen"){if(!pickerP.value().trim()){toast("Add the pinyin first");return}pr=pyMatch(pickerP.value(),py);pickerP.lock();revealInfo()}
+  if(mode==="listen"&&!lsQuiet){if(!pickerP.value().trim()){toast("Add the pinyin first");return}pr=pyMatch(pickerP.value(),py);pickerP.lock();revealInfo()}
   checkedP=true;$("checkP").disabled=true;
   const rs=padsP.grade(),shapeOk=rs.every(r=>r.score>=PASS);
   const ok=shapeOk&&(pr===null||pr==="right");
@@ -2143,6 +2154,7 @@ $("undoP").onclick=()=>padsP&&padsP.undo();
 $("clearP").onclick=()=>padsP&&padsP.clear();
 $("checkP").onclick=checkPractice;
 $("again").onclick=start;
+document.querySelectorAll("#lsQuiet button").forEach(b=>b.onclick=()=>{lsQuiet=b.dataset.q==="1";store.set("bd-lsquiet",lsQuiet);start()});
 $("next").onclick=()=>{idx=(idx+1)%SETS[setIdx].items.length;load()};
 $("prev").onclick=()=>{const n=SETS[setIdx].items.length;idx=(idx-1+n)%n;load()};
 document.addEventListener("pointerdown",()=>{started=true},{capture:true});
