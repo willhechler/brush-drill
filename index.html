@@ -1296,7 +1296,7 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
         <h2 id="rvTitle">Review</h2>
         <div class="tools">
           <div class="seg" role="group" aria-label="Which words" id="rvScope">
-            <button data-s="all">All lists</button><button data-s="set">This list</button>
+            <button data-s="all">All lists</button><button data-s="set">This list</button><button data-s="wd">Work down this list</button>
           </div>
           <button class="chip" id="rvExit">Back to practice</button>
         </div>
@@ -1356,6 +1356,7 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
         <div class="nav">
           <button class="btn" id="rvBack">Back to practice</button>
           <button class="btn primary" id="rvMore">Learn new words</button>
+          <button class="btn" id="rvWdReset" hidden>Start the list over</button>
         </div>
       </div>
     </section>
@@ -4048,6 +4049,8 @@ function startRv(extraNew){
   rvOn=true;runId++;try{speechSynthesis.cancel()}catch(e){}
   $("practice").hidden=true;$("quiz").hidden=true;$("rv").hidden=false;
   document.querySelectorAll("#rvScope button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.s===rvScope));
+  if(rvScope==="wd")return rvWdStart();
+  $("rvWdReset").hidden=true;
   const words=[...new Set(rvWords())];
   // due words first (most overdue first), then a few new ones from the current list onward
   const due=srsDue(words).sort((a,b)=>srs[a].due-srs[b].due);
@@ -4061,6 +4064,24 @@ function startRv(extraNew){
   if(!rvQ.length){rvEmpty();return}
   rvShow();window.scrollTo({top:0});
 }
+// Work down this list: every word not yet marked known, shuffled. "Got it"/"Easy" takes a word out for good
+// (shared with the Listen/Freehand list), "Again" brings it back a few cards later, until none are left.
+function rvWdStart(){
+  const K=wdKnown(),words=SETS[setIdx].items.map(x=>x[0]).filter(w=>!K.has(w));
+  rvQ=shuffled([...new Set(words)]).map(w=>({w,kind:"wd"}));
+  rvStats={total:rvQ.length,done:0,again:0,seen:new Set()};
+  $("rvTitle").textContent=`Work down: ${SETS[setIdx].name}`;
+  $("rvDone").hidden=true;$("rvRun").hidden=false;$("rvWdReset").hidden=true;
+  if(!rvQ.length){rvWdDone();return}
+  rvShow();window.scrollTo({top:0});
+}
+function rvWdDone(){
+  $("rvRun").hidden=true;$("rvDone").hidden=false;$("rvBar").style.width="100%";
+  const n=SETS[setIdx].items.length;
+  $("rvFinal").textContent=`All ${n} known`;$("rvFinalTxt").textContent=`in ${SETS[setIdx].name}. 好!`;
+  $("rvUpcoming").innerHTML="";$("rvMore").hidden=true;$("rvWdReset").hidden=false;
+}
+$("rvWdReset").onclick=()=>{store.set(wdKey(),[]);rvWdStart()};
 function rvEmpty(){
   $("rvRun").hidden=true;$("rvDone").hidden=false;$("rvBar").style.width="100%";
   $("rvFinal").textContent="All caught up";$("rvFinalTxt").textContent="";
@@ -4070,9 +4091,11 @@ function rvShow(){
   rvCur=rvQ[0];const it=allWords().get(rvCur.w)||[rvCur.w,"",""];rvFlipped=false;
   $("rvBar").style.width=`${rvStats.done/Math.max(1,rvStats.total)*100}%`;
   $("rvMeta").textContent=`Card ${rvStats.done+1}`;
-  $("rvLeft").innerHTML=`<b>${rvQ.length}</b> left`;
+  const wdOn=rvScope==="wd";
+  if(wdOn){const n=SETS[setIdx].items.length,left=wdLeft();$("rvLeft").innerHTML=`<b>${left}</b> of ${n} left to learn`;$("rvBar").style.width=`${(n-left)/n*100}%`;$("rvMeta").textContent="Mark the ones you know and they drop out"}
+  else $("rvLeft").innerHTML=`<b>${rvQ.length}</b> left`;
   const t=$("rvTag");t.className="rvtag"+(rvCur.kind==="new"?" new":rvCur.kind==="lapse"?" lapse":"");
-  t.textContent=rvCur.kind==="new"?"New word":rvCur.kind==="lapse"?"Missed before":"Due";
+  t.textContent=wdOn?(rvCur.kind==="lapse"?"Still learning":"To learn"):rvCur.kind==="new"?"New word":rvCur.kind==="lapse"?"Missed before":"Due";
   const A=rvAns,S=rvShowS,audioOnly=!S.has("zh")&&!S.has("py")&&!S.has("en");
   $("rvZh").hidden=!S.has("zh");$("rvZh").textContent=it[0];
   $("rvPyQ").hidden=!S.has("py");$("rvPyQ").textContent=showPy(it[1]);
@@ -4111,7 +4134,8 @@ function rvFlip(){
   }
   $("rvChecks").innerHTML=rows.join("");
   $("rvAnswer").hidden=false;$("rvFlipRow").hidden=true;$("rvGrade").hidden=false;
-  [0,1,2].forEach(g=>$("rvI"+g).textContent=srsPreview(rvCur.w,g));
+  [0,1,2].forEach(g=>$("rvI"+g).textContent=rvScope==="wd"?(g?"take it out of the list":"comes back soon"):srsPreview(rvCur.w,g));
+  {const wdOn=rvScope==="wd",G=$("rvGrade");G.querySelector(".easy").hidden=wdOn;G.querySelector(".again b").textContent=wdOn?"Still learning":"Again";G.querySelector(".good b").textContent=wdOn?"I know it":"Got it"}
   $("rvGrade").querySelector(allRight?".good":".again").classList.add("hint"); // suggestion only; your tap decides
   speak(it[0]);
 }
@@ -4119,10 +4143,11 @@ function rvRate(g){
   if(!rvFlipped)return;
   const w=rvCur.w;srsGrade(w,g);record(w,g>0,{noSrs:true});
   rvQ.shift();
+  if(rvScope==="wd"&&g>0){const K=wdKnown();K.add(w);store.set(wdKey(),[...K]);const l=wdLeft();toast(l?`${w} known. ${l} left`:"That was the last one!")}
   if(g===0){rvStats.again++;rvQ.splice(Math.min(rvQ.length,3),0,{w,kind:"lapse"})} // see it again a few cards later
   else rvStats.done++;
   rvStats.seen.add(w);
-  if(rvQ.length)rvShow();else rvFinish();
+  if(rvQ.length)rvShow();else if(rvScope==="wd")rvWdStart();else rvFinish();
 }
 function rvFinish(){
   $("rvRun").hidden=true;$("rvDone").hidden=false;$("rvBar").style.width="100%";
