@@ -286,6 +286,11 @@ input[type="range"]{width:130px;accent-color:var(--jade)}
 .fccount{font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap}
 .fcprog{flex:1;min-width:90px;height:3px;border-radius:2px;background:var(--line);overflow:hidden}
 .fcprog i{display:block;height:100%;background:var(--jade);transition:width .3s ease}
+.wdbar{margin-top:12px}
+.wdbar .fcrow{gap:10px}
+.wdbar .fccount{font-size:.95rem}.wdbar .fccount b{font-size:1.2rem;color:var(--jade-d,var(--jade))}
+.wdbar .wdk{flex-basis:100%;display:flex;gap:8px}.wdbar .wdk .btn{flex:1}
+.wdbar .known{color:var(--jade-d,var(--jade));font-weight:700}
 .fctally{font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
 .fcrate{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
 .fcrate button{border:1px solid var(--line);border-radius:var(--r);padding:13px 10px;font-weight:600;background:var(--card)}
@@ -1206,6 +1211,7 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
 
         <div class="padtools" id="checkRowP" hidden><button class="btn primary" id="checkP">Check</button></div>
         <div class="verdict" id="verdictP" aria-live="polite"></div>
+        <div class="wdbar" id="wdBar" hidden></div>
 
         <div class="nav">
           <button class="btn" id="prev">Previous</button>
@@ -2121,6 +2127,7 @@ function start(){
     pickerP.reset();if(started)speak(item()[0]);
   } else revealInfo();
   if(mode==="ftrace")fcRender();
+  wdRender();
   if(wm)runChar();else if(nbm){renderWordbox();nbReset()}else{renderWordbox();padsP=makePads($("padsP"),item()[0],{guide:mode==="ftrace"})}
 }
 function redrawAll(){if(quizOn)qPads&&qPads.redraw();else if(writerModes.includes(mode))start();else if(mode==="notebook")nbSetup();else padsP&&padsP.redraw()}
@@ -2158,8 +2165,42 @@ $("clearP").onclick=()=>padsP&&padsP.clear();
 $("checkP").onclick=checkPractice;
 $("again").onclick=start;
 document.querySelectorAll("#lsQuiet button").forEach(b=>b.onclick=()=>{lsQuiet=b.dataset.q==="1";store.set("bd-lsquiet",lsQuiet);start()});
-$("next").onclick=()=>{idx=(idx+1)%SETS[setIdx].items.length;load()};
-$("prev").onclick=()=>{const n=SETS[setIdx].items.length;idx=(idx-1+n)%n;load()};
+$("next").onclick=()=>{if(wdActive())return wdNext(1);idx=(idx+1)%SETS[setIdx].items.length;load()};
+$("prev").onclick=()=>{if(wdActive())return wdNext(-1);const n=SETS[setIdx].items.length;idx=(idx-1+n)%n;load()};
+
+/* ---------- work down the list: words you mark as known drop out until none are left ---------- */
+// Saved per lesson, so the count keeps going down across sessions.
+let wd=!!store.get("bd-wd",false);
+const wdModes=["listen","free"];
+const wdKey=()=>"bd-known-"+SETS[setIdx].name;
+const wdKnown=()=>new Set(store.get(wdKey(),[]));
+const wdActive=()=>wd&&wdModes.includes(mode);
+function wdLeft(){const K=wdKnown();return SETS[setIdx].items.filter(x=>!K.has(x[0])).length}
+function wdNext(step){
+  const items=SETS[setIdx].items,K=wdKnown(),n=items.length;
+  for(let k=1;k<=n;k++){const j=((idx+step*k)%n+n)%n;if(!K.has(items[j][0])){idx=j;load();return}}
+  load();
+}
+function wdRender(){
+  const bar=$("wdBar");bar.hidden=!wdModes.includes(mode);if(bar.hidden)return;
+  const n=SETS[setIdx].items.length,left=wdLeft(),w=item()[0],K=wdKnown();
+  if(!wd){
+    bar.innerHTML=`<div class="fcstart"><p><b>Work down the list.</b> Mark the words you know and they drop out, until all ${n} are known.</p><button class="btn primary" id="wdOn">Start</button></div>`;
+    $("wdOn").onclick=()=>{wd=true;store.set("bd-wd",true);if(K.has(w)&&wdLeft())wdNext(1);else wdRender()};return}
+  if(!left){
+    bar.innerHTML=`<div class="fcrow"><span class="fccount"><b>All ${n}</b> known. 好!</span><span style="display:flex;gap:8px"><button class="btn" id="wdReset">Start over</button><button class="chip" id="wdOff">Exit</button></span></div>`;
+  }else{
+    bar.innerHTML=`<div class="fcrow"><span class="fccount"><b>${left}</b> of ${n} left to learn</span><span class="fcprog"><i style="width:${(n-left)/n*100}%"></i></span>
+      <span style="display:flex;gap:6px"><button class="chip" id="wdReset">Reset</button><button class="chip" id="wdOff">Exit</button></span>
+      <div class="wdk">${K.has(w)?`<span class="known" style="flex:1;align-self:center">You marked this one known.</span><button class="btn" id="wdUn">Still learning it</button>`:`<button class="btn" id="wdSkip">Still learning</button><button class="btn primary" id="wdKnow">I know this one</button>`}</div></div>`;
+    if(K.has(w))$("wdUn").onclick=()=>{K.delete(w);store.set(wdKey(),[...K]);wdRender()};
+    else{$("wdKnow").onclick=()=>{K.add(w);store.set(wdKey(),[...K]);const l=wdLeft();toast(l?`${w} done. ${l} left`:"That was the last one!");wdNext(1)};$("wdSkip").onclick=()=>wdNext(1)}
+  }
+  $("wdReset").onclick=()=>{if(!confirmReset())return;store.set(wdKey(),[]);wdRender()};
+  $("wdOff").onclick=()=>{wd=false;store.set("bd-wd",false);wdRender()};
+}
+// two taps to reset, so one stray tap doesn't wipe the progress
+let wdResetAt=0;function confirmReset(){const t=Date.now();if(t-wdResetAt<2500)return true;wdResetAt=t;toast("Tap Reset again to bring back every word");return false}
 document.addEventListener("pointerdown",()=>{started=true},{capture:true});
 
 /* ---------- quiz ---------- */
