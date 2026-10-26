@@ -1723,9 +1723,11 @@ const SETS = [
 ];
 // Dictation prep: Lessons 5 and 6 shuffled together (added at the end so saved lesson choices keep their place)
 // Only the words in each lesson's textbook vocab table (词语表), not words added later from class slides.
-{const BOOK={"Lesson 5":"专业 国际 关系 中文 系 研究生 现代 文学 东边 有 空儿 时候 欢迎 去 玩儿 卫生间 教室 旁边 西边 对","Lesson 6":"大学 早上 几 点 上课 大部分 部分 九 我们 八 五十 分 下课 十 半 太 了 早 讲座 开始 七 现在 差 一 刻 六 一会儿 见"};
- const items=Object.entries(BOOK).flatMap(([n,ws])=>{const t=SETS.find(x=>x.name===n);return t?ws.split(" ").map(w=>t.items.find(x=>x[0]===w)).filter(Boolean):[]});
- if(items.length)SETS.push({group:"Dictation prep",name:"Lessons 5 + 6",items})}
+{const BOOK={"Lesson 5":"专业 国际 关系 中文 系 研究生 现代 文学 东边 有 空儿 时候 欢迎 去 玩儿 卫生间 教室 旁边 西边 对","Lesson 6":"大学 早上 几 点 上课 大部分 部分 九 我们 八 五十 分 下课 十 半 太 了 早 讲座 开始 七 现在 差 一 刻 六 一会儿 见",
+   "Lesson 7":"明天 课 上午 下午 没有 自行车 吧 事 可是 没问题 钥匙 桌子 上 车 下 车棚 里 后边 第一 今天 晚上 时间 电影院 电影 听说 有名 当然"};
+ const pick=ls=>ls.flatMap(n=>{const t=SETS.find(x=>x.name===n);return t?BOOK[n].split(" ").map(w=>t.items.find(x=>x[0]===w)).filter(Boolean):[]});
+ // new dictation sets go at the end so saved lesson choices keep their place
+ for(const [name,ls] of [["Lessons 5 + 6",["Lesson 5","Lesson 6"]],["Lesson 7",["Lesson 7"]]]){const items=pick(ls);if(items.length)SETS.push({group:"Dictation prep",name:name+(ls.length===1?" (book words)":""),items})}}
 const CLUE={"他":"he","她":"she"};
 const PASS=65; // shape score needed per character
 
