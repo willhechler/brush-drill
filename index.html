@@ -1677,12 +1677,13 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
 <div class="sync" id="settings" hidden>
   <div class="syncbox" role="dialog" aria-modal="true" aria-labelledby="setT">
     <h2 id="setT">Settings</h2>
-    <div class="setrow"><div><b>Pencil only</b><span>Only the Apple Pencil writes. Your hand can rest on the screen without tapping anything.</span></div><button class="switch penbtn" id="penP" aria-pressed="false" aria-label="Pencil only"></button></div>
+    <div class="setrow"><div><b>Pencil only</b><span>Only the Apple Pencil writes. Fingers can still tap buttons, and your palm resting on the page while you write is ignored.</span></div><button class="switch penbtn" id="penP" aria-pressed="false" aria-label="Pencil only"></button></div>
     <div class="setrow"><div><b>Grade strokes</b><span>Count stroke number and order in scores. Off scores the shape only.</span></div><button class="switch strictbtn" id="strictP" aria-pressed="false" aria-label="Grade strokes"></button></div>
     <div class="setrow"><div><b>Move my progress</b><span>Copy your review schedule and results to another copy of the app.</span></div><button class="btn" id="openSync">Open</button></div>
-    <div class="syncrow"><button class="btn" id="setClose">Done</button></div>
+    <div class="syncrow"><button class="btn" id="setClose">Done</button><span class="meta" id="bdVer" style="margin-left:auto"></span></div>
   </div>
 </div>
+<script>{const v=document.getElementById("bdVer");const f=()=>{v.textContent=window.BD_VERSION?"Home-screen app, version "+window.BD_VERSION:"Claude version"};f();addEventListener("load",f)}</script>
 <div class="sync" id="sync" hidden>
   <div class="syncbox" role="dialog" aria-modal="true" aria-labelledby="syncT">
     <h2 id="syncT">Move my progress</h2>
@@ -4699,7 +4700,22 @@ renderStrict();renderPen();renderGroups();load();
 </script>
 
 <script>
-// Offline copy: when served over https, keep everything in a local cache so it opens with no connection
-if("serviceWorker" in navigator&&window.isSecureContext&&location.protocol!=="file:")navigator.serviceWorker.register("sw.js").catch(()=>{});
+// Offline copy. Online: every open loads the newest version. Offline: the saved copy opens.
+// While the app sits open in the background it checks for updates when you come back to it,
+// and offers a one-tap refresh instead of reloading in the middle of your work.
+if("serviceWorker" in navigator&&window.isSecureContext&&location.protocol!=="file:"){
+  const had=!!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(reg=>{
+    const check=()=>{if(navigator.onLine)reg.update().catch(()=>{})};
+    document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")check()});
+    setInterval(check,30*60*1000);
+  }).catch(()=>{});
+  let shown=false;
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{if(!had||shown)return;shown=true;
+    const b=document.createElement("button");b.textContent="New version ready. Tap to update";
+    b.style.cssText="position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:20;padding:10px 16px;border-radius:999px;border:0;background:#16a46a;color:#fff;font:700 15px ui-rounded,-apple-system,sans-serif;box-shadow:0 4px 0 #0f7f51";
+    b.onclick=()=>location.reload();document.body.appendChild(b)});
+}
+window.BD_VERSION="3ae00c728e";
 </script>
 </body></html>
