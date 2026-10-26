@@ -1079,6 +1079,8 @@ button,.btn,.chip,.peek,.hear,.seg button,.pgpick button,.modes button,.menu but
 .mpchk .y{background:var(--jade-soft);color:var(--jade-d)}.mpchk .n{background:var(--red-soft);color:var(--red-d);text-decoration:line-through}
 .mpchk small{font-weight:600;opacity:.8}
 #spMapWrap .nav{flex-wrap:wrap}
+/* every tap counts: no double-tap-to-zoom swallowing a quick second tap (pinch zoom still works) */
+html,body,button,a,select,label,input,.tabbar,.seg{touch-action:manipulation}
 /* long option rows (Speak modes, word list) scroll inside themselves on narrow screens instead of pushing the page sideways */
 .qhead .tools{min-width:0;max-width:100%}
 .qhead .tools .seg,.lsrow .seg{max-width:100%;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
@@ -1857,7 +1859,7 @@ let penPref=store.get("bd-pen","auto"),penSeen=false;
 const penOnly=()=>penPref==="on"||(penPref==="auto"&&penSeen);
 const inkAllowed=e=>!penOnly()||e.pointerType==="pen";
 function renderPen(){document.documentElement.classList.toggle("penonly",penOnly());try{if(penOnly())getSelection().removeAllRanges()}catch(e){}document.querySelectorAll(".penbtn").forEach(b=>b.setAttribute("aria-pressed",penOnly()))}
-document.addEventListener("pointerdown",e=>{if(e.pointerType==="pen"&&!penSeen){penSeen=true;renderPen();if(penPref==="auto")toast("Pencil detected. Only the Pencil draws now; fingers can still tap buttons")}},{capture:true});
+document.addEventListener("pointerdown",e=>{if(e.pointerType==="pen"&&!penSeen&&(e.buttons||e.pressure>0||e.type==="pointerdown")){penSeen=true;renderPen();if(penPref==="auto")toast("Pencil detected. Only the Pencil draws now; fingers can still tap buttons")}},{capture:true});
 document.addEventListener("click",e=>{const b=e.target.closest(".penbtn");if(!b)return;penPref=penOnly()?"off":"on";store.set("bd-pen",penPref);renderPen();
   toast(penOnly()?"Pencil only: fingers and palm won't draw":"Fingers can draw again")});
 // Pencil only: fingers and palm never make ink, but a finger can still tap buttons.
@@ -1869,15 +1871,16 @@ document.addEventListener("click",e=>{const b=e.target.closest(".penbtn");if(!b)
   const exempt=e=>e.target&&e.target.closest&&e.target.closest(".penbtn");
   const onInk=e=>e.target&&e.target.closest&&e.target.closest("canvas,.board,#boards,#nb");
   const block=e=>{e.stopImmediatePropagation();if(e.cancelable)e.preventDefault()};
-  const isPalm=e=>penOnly()&&!exempt(e)&&((penDown&&now()<penUntil+2500)||now()<penUntil||onInk(e)); // a missed pen-up stops counting after a few seconds
-  document.addEventListener("pointerdown",e=>{if(e.pointerType==="pen"){penDown=true;penUntil=now()+700}},{capture:true});
-  document.addEventListener("pointermove",e=>{if(e.pointerType==="pen")penUntil=now()+700},{capture:true});
-  for(const t of ["pointerup","pointercancel"])document.addEventListener(t,e=>{if(e.pointerType==="pen"){penDown=false;penUntil=now()+700}},{capture:true});
-  document.addEventListener("pointerdown",e=>{if(e.pointerType==="touch"&&isPalm(e)){palmUntil=now()+900;block(e)}},{capture:true});
+  const isPalm=e=>penOnly()&&!exempt(e)&&((penDown&&now()<penUntil+1500)||now()<penUntil||onInk(e)); // a missed pen-up stops counting after a few seconds
+  // only a Pencil touching the glass counts as writing; newer iPads also report the Pencil hovering above the screen
+  document.addEventListener("pointerdown",e=>{if(e.pointerType==="pen"){penDown=true;penUntil=now()+350}},{capture:true});
+  document.addEventListener("pointermove",e=>{if(e.pointerType==="pen"&&(e.buttons||e.pressure>0))penUntil=now()+350},{capture:true});
+  for(const t of ["pointerup","pointercancel"])document.addEventListener(t,e=>{if(e.pointerType==="pen"){penDown=false;penUntil=now()+350}},{capture:true});
+  document.addEventListener("pointerdown",e=>{if(e.pointerType==="touch"&&isPalm(e)){palmUntil=now()+500;block(e)}},{capture:true});
   for(const t of ["pointermove","pointerup","pointercancel"])
     document.addEventListener(t,e=>{if(e.pointerType==="touch"&&penOnly()&&!exempt(e)&&(now()<palmUntil||onInk(e)))block(e)},{capture:true});
   const hasPen=l=>[...l].some(t=>t.touchType==="stylus");
-  document.addEventListener("touchstart",e=>{if(!penOnly()||exempt(e)||hasPen(e.changedTouches))return;if(isPalm(e)){palmUntil=now()+900;block(e)}},{capture:true,passive:false});
+  document.addEventListener("touchstart",e=>{if(!penOnly()||exempt(e)||hasPen(e.changedTouches))return;if(isPalm(e)){palmUntil=now()+500;block(e)}},{capture:true,passive:false});
   for(const t of ["touchmove","touchend","touchcancel"])
     document.addEventListener(t,e=>{if(!penOnly()||exempt(e)||hasPen(e.changedTouches))return;if(now()<palmUntil||onInk(e))block(e)},{capture:true,passive:false});
   for(const t of ["click","dblclick","mousedown","mouseup","contextmenu","auxclick"])
@@ -4716,6 +4719,6 @@ if("serviceWorker" in navigator&&window.isSecureContext&&location.protocol!=="fi
     b.style.cssText="position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:20;padding:10px 16px;border-radius:999px;border:0;background:#16a46a;color:#fff;font:700 15px ui-rounded,-apple-system,sans-serif;box-shadow:0 4px 0 #0f7f51";
     b.onclick=()=>location.reload();document.body.appendChild(b)});
 }
-window.BD_VERSION="3ae00c728e";
+window.BD_VERSION="5afdcc1122";
 </script>
 </body></html>
