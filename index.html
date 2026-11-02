@@ -3913,6 +3913,12 @@ document.addEventListener("keydown",e=>{
 
 // Short reading passages built from the textbook vocabulary. [word] marks a word to match; "\n" starts a new line.
 const PASSAGES=[
+ {l:10,t:"玛丽：这是我[家]的[照片]。\n张红：你[家]有几[口]人？\n玛丽：五[口]人：[爸爸]、[妈妈]、[哥哥]、[妹妹]和我。我们[还]有一[条][狗]。\n张红：你有[弟弟]吗？\n玛丽：没有，我[只]有一个[哥哥]和一个[妹妹]。",
+  en:"Mary: This is a photo of my family. Zhang Hong: How many people are in your family? Mary: Five: dad, mom, my older brother, my younger sister and me. We also have a dog. Zhang Hong: Do you have a younger brother? Mary: No, I only have one older brother and one younger sister."},
+ {l:10,t:"中国的[家庭][一般]有三[口]人：[爸爸]、[妈妈]和一个[孩子]。我[爷爷][奶奶]家不是[这样]，他们有四个[孩子]，[孩子]很[多]。",
+  en:"A Chinese family usually has three people: dad, mom and one child. My grandpa and grandma's family isn't like this: they have four children, a lot of children."},
+ {l:10,t:"韦力[家]有四[口]人：[爸爸]、[妈妈]、[姐姐]和韦力。他们[还]有两[条][狗]。韦力的[姐姐]有一个[孩子]，是个男孩子。",
+  en:"Wei Li's family has four people: dad, mom, his older sister and Wei Li. They also have two dogs. Wei Li's older sister has one child, a boy."},
  {l:3,t:"A：[这]是[谁]的[书]？\nB：是我[同屋]的。她叫[中村]，是[日本]人。\nA：[那]是什么？\nB：[那]是[汉日词典]，也是她的。",
   en:"A: Whose book is this? B: It's my roommate's. Her name is Nakamura, she's Japanese. A: What's that? B: That's a Chinese-Japanese dictionary. It's hers too."},
  {l:3,t:"我的[朋友]叫张红，她是中国人。[这]是她的[课本]，[那]是她的[词典]。她喜欢[音乐]，也喜欢[日语][杂志]。",
@@ -4730,6 +4736,6 @@ if("serviceWorker" in navigator&&window.isSecureContext&&location.protocol!=="fi
     b.style.cssText="position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:20;padding:10px 16px;border-radius:999px;border:0;background:#16a46a;color:#fff;font:700 15px ui-rounded,-apple-system,sans-serif;box-shadow:0 4px 0 #0f7f51";
     b.onclick=()=>location.reload();document.body.appendChild(b)});
 }
-window.BD_VERSION="a8ce071ca7";
+window.BD_VERSION="c9fb77b859";
 </script>
 </body></html>
