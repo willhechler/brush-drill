@@ -1089,6 +1089,10 @@ html,body,button,a,select,label,input,.tabbar,.seg{touch-action:manipulation}
 .exml.right{border-color:var(--jade);background:var(--jade-soft)}.exml.wrong{border-color:var(--red);background:var(--red-soft)}
 .exbox{flex:0 0 auto;min-width:44px;height:36px;border:2px solid var(--grid);border-radius:10px;display:grid;place-items:center;font-weight:800;color:var(--sky-d,var(--sky))}
 .exbox s{color:var(--red);margin-right:4px}
+.lkhint{text-align:center;margin-top:10px}
+.lkpop{position:fixed;z-index:40;width:min(300px,calc(100vw - 16px))}
+.lkmark{position:fixed;z-index:39;pointer-events:none;border-radius:6px;background:rgba(255,200,40,.28);box-shadow:0 0 0 2px rgba(230,160,0,.5)}
+#exBody .exsent,#exBody .expass,#exBody .tqchar,#slBody .exsent,#slBody .expass,#exBody .exopts .zh,#exBody .exml .zh{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .exgl{margin-top:12px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:10px 12px}
 .exglh{font-weight:800;font-size:.85rem;color:var(--muted);margin-bottom:4px}
 .exgll{padding:6px 0}.exgll .spws{justify-content:flex-start}.exgll.rep{padding-left:18px;border-left:3px solid var(--line);margin-bottom:4px}.exgll.gap{border-top:1px dashed var(--line);padding-top:10px}
@@ -1646,6 +1650,7 @@ html,body,button,a,select,label,input,.tabbar,.seg{touch-action:manipulation}
         <div class="tqtop"><span class="meta" id="exMeta"></span><span class="tqscore" id="exScore"></span></div>
         <div id="exBody" class="exbody"></div>
         <div class="nav"><button class="btn primary" id="exNext" hidden>Next</button></div>
+        <p class="wlhint lkhint">Stuck on a character? Tap it to see what it means. On answer buttons, press and hold.</p>
       </div>
       <div class="sheet summary" id="exDone" hidden>
         <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap"><span class="big" id="exFinal"></span><span class="meaning" id="exFinalTxt"></span></div>
@@ -1671,6 +1676,7 @@ html,body,button,a,select,label,input,.tabbar,.seg{touch-action:manipulation}
         <div class="tqtop"><span class="meta" id="slMeta"></span><span class="tqscore" id="slScore"></span></div>
         <div id="slBody" class="exbody"></div>
         <div class="nav"><button class="btn primary" id="slNext" hidden>Next</button></div>
+        <p class="wlhint lkhint">Stuck on a character? Tap it to see what it means. On answer buttons, press and hold.</p>
       </div>
       <div class="sheet summary" id="slDone" hidden>
         <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap"><span class="big" id="slFinal"></span><span class="meaning" id="slFinalTxt"></span></div>
@@ -4874,7 +4880,7 @@ function exHead(q){
   $("exBar").style.width=`${exI/exQ.length*100}%`;
 }
 function exShow(){
-  if(exI>=exQ.length){exFinish();return}
+  lkClose();if(exI>=exQ.length){exFinish();return}
   const q=exQ[exI];exHead(q);$("exNext").hidden=true;exPicker=null;
   ({match:exMatch,place:exPlace,fill:exFill,ask:exAsk,py:exPy,dlg:exDlg})[q.k](q.it,q);
   replay($("exRun"),"swap");
@@ -5264,7 +5270,7 @@ function slHead(q){
   $("slBar").style.width=`${slI/slQ.length*100}%`;
 }
 function slShow(){
-  if(slI>=slQ.length){slFinish();return}
+  lkClose();if(slI>=slQ.length){slFinish();return}
   const q=slQ[slI];slHead(q);$("slNext").hidden=true;slRun++;
   ({wd:slWd,num:slNum,qa:slQa,dlg:slDlg,say:slSay,ans:slAns,sit:slSit})[q.k](q.it,q);
   replay($("slRun"),"swap");
@@ -5425,6 +5431,73 @@ $("slNext").onclick=()=>{slI++;slShow()};
 $("slAgain").onclick=()=>slBuild();
 $("slRetry").onclick=()=>slBuild(slMiss.slice());
 
+// tap (or press and hold, on buttons) any character in Exam practice or the speaking & listening exam to see the word it's in
+function lkWordIn(text,pos){
+  const L=lkIndex();let s0=pos,len=1;
+  outer:for(let n=Math.min(4,text.length);n>1;n--)for(let st=Math.max(0,pos-n+1);st<=pos&&st+n<=text.length;st++){const c=text.slice(st,st+n);if(!/^[㐀-鿿]+$/.test(c))continue;if(c==="十分"&&text[st+n]==="钟")continue;if(L.has(c)){s0=st;len=n;break outer}}
+  return text.slice(s0,s0+len);
+}
+function lkCardHtml(w){
+  const L=lkIndex(),hit=L.get(w),len=[...w].length;
+  const sy=hit?hit.py.split(/\s+/).flatMap(x=>{const out=[];let m;const re=/[^aeiouüāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]*[aeiouüāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]+(?:ng|n(?![aeiouüāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ])|r(?![aeiouüāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]))?/gi;while((m=re.exec(x)))out.push(m[0]);return out}):[];
+  const partOf=(ch,i)=>{const all=LKALL.get(ch)||[],want=sy.length===len?lkBare(sy[i]):"";const m=want&&all.filter(x=>lkBare(x.py)===want).sort((a,b)=>a.r-b.r)[0];return m?{py:m.py,en:m.en}:L.get(ch)};
+  const parts=len>1?`<div class="parts">${[...w].map((ch,i)=>{const x=partOf(ch,i);return `<div><span class="zh">${ch}</span>${x?`${x.py}  ${x.en.split(/;\s*/)[0]}`:""}</div>`}).join("")}</div>`:"";
+  return `<div class="hd"><span class="hz">${w}</span><span class="py">${hit?hit.py:""}</span><button class="say" aria-label="Hear ${w}"><svg class="ico"><use href="#i-sound"/></svg></button></div>
+    <div class="en">${hit?exEsc(hit.en):"Not in the dictionary."}</div>${parts}${hit&&hit.book?`<div class="src">In your list: ${exEsc(hit.book)}</div>`:""}`;
+}
+function lkClose(){const p=$("lkPop");if(p)p.remove();const m=document.querySelector(".lkmark");if(m)m.remove()}
+// which character is under this point, and the run of text it sits in
+function lkHit(x,y){
+  let node,off;
+  if(document.caretRangeFromPoint){const r=document.caretRangeFromPoint(x,y);if(!r)return null;node=r.startContainer;off=r.startOffset}
+  else if(document.caretPositionFromPoint){const r=document.caretPositionFromPoint(x,y);if(!r)return null;node=r.offsetNode;off=r.offset}
+  if(!node||node.nodeType!==3)return null;
+  const t=node.data;
+  for(const o of [off,off-1]){if(o<0||o>=t.length||!/[㐀-鿿]/.test(t[o]))continue;
+    const rg=document.createRange();rg.setStart(node,o);rg.setEnd(node,o+1);const b=rg.getBoundingClientRect();
+    if(x>=b.left-3&&x<=b.right+3&&y>=b.top-3&&y<=b.bottom+3)return {node,o,rect:b}}
+  return null;
+}
+function lkShowAt(h){
+  lkClose();
+  const t=h.node.data,w=lkWordIn(t,h.o);
+  // where the word starts in this text node, to mark it on screen
+  let st=h.o;for(let s=Math.max(0,h.o-3);s<=h.o;s++)if(t.slice(s,s+w.length)===w&&s+w.length>h.o){st=s;break}
+  const rg=document.createRange();rg.setStart(h.node,st);rg.setEnd(h.node,Math.min(t.length,st+w.length));const r=rg.getBoundingClientRect();
+  const mk=document.createElement("div");mk.className="lkmark";mk.style.cssText=`left:${r.left-2}px;top:${r.top-2}px;width:${r.width+4}px;height:${r.height+4}px`;document.body.appendChild(mk);
+  const p=document.createElement("div");p.id="lkPop";p.className="pglook lkpop";p.setAttribute("role","dialog");p.innerHTML=lkCardHtml(w);
+  p.querySelector(".say").onclick=e=>{e.stopPropagation();speak(w)};
+  p.addEventListener("click",e=>e.stopPropagation());
+  document.body.appendChild(p);
+  const vw=document.documentElement.clientWidth,vh=window.innerHeight;
+  let left=Math.max(8,Math.min(r.left-8,vw-p.offsetWidth-8)),top=r.bottom+8;
+  if(top+p.offsetHeight>vh-80&&r.top-p.offsetHeight-8>8)top=r.top-p.offsetHeight-8;
+  p.style.left=left+"px";p.style.top=top+"px";
+}
+const LK_ZONES="#exBody,#slBody";
+let lkHold=null,lkSwallow=false;
+// is looking this up allowed right now? (not the word whose pinyin you're being asked for)
+function lkAllowed(el){
+  if(el.closest(".tqchar")&&exOn&&exQ[exI]&&exQ[exI].k==="py"&&!$("exCheck").hidden){toast("This one tests the pinyin. Answer first, then tap it.");return false}
+  return true;
+}
+document.addEventListener("pointerdown",e=>{
+  const z=e.target.closest&&e.target.closest(LK_ZONES);if(!z||e.target.closest(".lkpop"))return;
+  clearTimeout(lkHold&&lkHold.t);
+  const x=e.clientX,y=e.clientY;
+  lkHold={x,y,t:setTimeout(()=>{const h=lkHit(x,y);if(h&&lkAllowed(e.target)){lkSwallow=true;lkShowAt(h);try{navigator.vibrate&&navigator.vibrate(10)}catch(_){}}},480)};
+},true);
+const lkCancel=e=>{if(lkHold&&(!e||e.type!=="pointermove"||Math.hypot(e.clientX-lkHold.x,e.clientY-lkHold.y)>10)){clearTimeout(lkHold.t);lkHold=null}};
+document.addEventListener("pointermove",lkCancel,true);document.addEventListener("pointerup",()=>{if(lkHold){clearTimeout(lkHold.t);lkHold=null}},true);document.addEventListener("pointercancel",lkCancel,true);
+document.addEventListener("click",e=>{
+  if(lkSwallow){lkSwallow=false;e.preventDefault();e.stopPropagation();return}
+  if(e.target.closest&&e.target.closest(".lkpop"))return;
+  const z=e.target.closest&&e.target.closest(LK_ZONES);
+  if(z&&!e.target.closest("button,input,a,summary,.picker")){const h=lkHit(e.clientX,e.clientY);if(h){if(lkAllowed(e.target))lkShowAt(h);return}}
+  lkClose();
+},true);
+document.addEventListener("contextmenu",e=>{if(e.target.closest&&e.target.closest(LK_ZONES)&&lkHit(e.clientX,e.clientY))e.preventDefault()},true);
+window.addEventListener("scroll",lkClose,{passive:true});window.addEventListener("resize",lkClose);
 /* ---------- word cards ---------- */
 // A character on each card; pick its pinyin or English meaning from four choices taken from the set's other words.
 // Characters that look like each vocab character (computed from stroke shapes), most similar first.
@@ -5574,6 +5647,6 @@ if("serviceWorker" in navigator&&window.isSecureContext&&location.protocol!=="fi
     b.style.cssText="position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:20;padding:10px 16px;border-radius:999px;border:0;background:#16a46a;color:#fff;font:700 15px ui-rounded,-apple-system,sans-serif;box-shadow:0 4px 0 #0f7f51";
     b.onclick=()=>location.reload();document.body.appendChild(b)});
 }
-window.BD_VERSION="3dcbf5a986";
+window.BD_VERSION="994203e95d";
 </script>
 </body></html>
