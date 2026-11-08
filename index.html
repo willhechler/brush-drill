@@ -1100,7 +1100,7 @@ html,body,button,a,select,label,input,.tabbar,.seg{touch-action:manipulation}
 .slopts.zhopts button{font-size:1.2rem}
 .slopts button.right{border-color:var(--jade);background:var(--jade-soft)}
 .slopts button.wrong{border-color:var(--red);opacity:.85}
-.slopts button:disabled{color:var(--ink)}
+.slopts button.locked{color:var(--ink);cursor:default}
 .slplay{justify-content:center;margin:6px 0 12px}
 .slprompt{font-size:1.25rem;font-weight:700;padding:8px 4px;text-align:center}
 .slmicrow{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:14px 0 8px}
@@ -1913,7 +1913,7 @@ function dueCountAll(){return srsDue([...allWords().keys()]).length}
 function speak(text){
   try{const s=window.speechSynthesis;if(!s)throw 0;s.cancel();
     const u=new SpeechSynthesisUtterance(text);u.lang="zh-CN";u.rate=.75;
-    const v=s.getVoices().find(v=>/^zh[-_]?(cn|hans)?/i.test(v.lang));if(v)u.voice=v;s.speak(u);
+    const v=(typeof zhVoices==="function"?zhVoices()[0]:null);if(v)u.voice=v;s.speak(u);
   }catch(e){toast("Speech isn't available on this device")}
 }
 
@@ -2974,7 +2974,7 @@ function spGloss(zh,py){
 function sayThen(text,cb){
   let fired=false;const go=()=>{if(!fired){fired=true;cb&&cb()}};
   try{const s=window.speechSynthesis;s.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="zh-CN";u.rate=spRate();
-    const v=s.getVoices().find(v=>/^zh[-_]?(cn|hans)?/i.test(v.lang));if(v)u.voice=v;u.onend=go;u.onerror=go;s.speak(u)}catch(e){}
+    const v=(typeof zhVoices==="function"?zhVoices()[0]:null);if(v)u.voice=v;u.onend=go;u.onerror=go;s.speak(u)}catch(e){}
   setTimeout(go,1200+[...text].length*380); // in case speech never reports the end
 }
 let spPatKind=store.get("bd-sppkind","b"),spOn=false,spSet=store.get("bd-spset","s5"),spMode=store.get("bd-spmode","dlg"),spHint=store.get("bd-sphint","en"),spSlow=store.get("bd-spslow",false);
@@ -4965,7 +4965,7 @@ function exFill(it,q){
     if(f.length>=blanks[sel].length){const nx=fill.findIndex((v,i)=>!v.length&&i>sel);if(nx>=0)sel=nx;else{const any=fill.findIndex(v=>!v.length);if(any>=0)sel=any}}draw()});
   $("exClr").onclick=()=>{if(done)return;fill[sel]=[];draw()};
   $("exCheck").onclick=()=>{done=true;let ok=0;
-    bl.forEach((x,i)=>{const good=fill[i].join()===blanks[i].join();if(good)ok++;x.classList.remove("sel");x.classList.add(good?"right":"wrong");x.disabled=true;
+    bl.forEach((x,i)=>{const good=fill[i].join()===blanks[i].join();if(good)ok++;x.classList.remove("sel");x.classList.add(good?"right":"wrong");x.classList.add("locked");
       if(!good)x.innerHTML=`<s>${fill[i].map(k=>exEsc(it.o[k])).join("")}</s> ${blanks[i].map(k=>exEsc(it.o[k])).join("")}`});
     $("exCheck").hidden=true;$("exClr").hidden=true;
     $("exFb").innerHTML=exWhy(ok===blanks.length,ok===blanks.length?"Every blank is right.":`${ok} of ${blanks.length} right. Corrections are shown in the passage.`);exScore(q,ok)};
@@ -5288,10 +5288,14 @@ function slPlay(lines,done){
     i++;slUtter(txt,who.indexOf(sp)%2===1,()=>setTimeout(step,450))};
   step();
 }
+// Mandarin voices only: on the iPad the voice list also has Cantonese (zh-HK) and Taiwanese (zh-TW) voices
+function zhVoices(){let vs=[];try{vs=speechSynthesis.getVoices()}catch(e){}
+  const n=v=>(v.lang||"").toLowerCase().replace("_","-");
+  const cn=vs.filter(v=>/^(zh-cn|zh-hans|cmn)/.test(n(v)));return cn.length?cn:vs.filter(v=>n(v)==="zh"||/^zh-(sg|hans)/.test(n(v)))}
 function slUtter(text,alt,cb){
   let fired=false;const go=()=>{if(!fired){fired=true;cb&&cb()}};
-  try{const s=window.speechSynthesis;const u=new SpeechSynthesisUtterance(text);u.lang="zh-CN";u.rate=spRate();u.pitch=alt?.75:1.15;
-    const vs=s.getVoices().filter(v=>/^zh[-_]?(cn|hans)?/i.test(v.lang));const v=vs[alt&&vs.length>1?1:0];if(v)u.voice=v;u.onend=go;u.onerror=go;s.speak(u)}catch(e){}
+  try{const s=window.speechSynthesis;if(s.paused)s.resume();const u=new SpeechSynthesisUtterance(text);u.lang="zh-CN";u.rate=spRate();u.pitch=alt?.85:1.05;
+    const vs=zhVoices();const v=vs[alt&&vs.length>1?1:0];if(v)u.voice=v;u.onend=go;u.onerror=go;s.speak(u)}catch(e){}
   setTimeout(go,1500+[...text].length*420);
 }
 const slHearBtn=(lab="Play again")=>`<div class="nav slplay"><button class="btn quiet" id="slHear"><svg class="ico"><use href="#i-sound"/></svg>${lab}</button></div>`;
@@ -5301,7 +5305,7 @@ function slChoice(q,opts,right,reveal,fmt){
   const b=$("slOpts"),order=shuffled(opts.map((_,i)=>i));let done=false;
   b.innerHTML=order.map(i=>`<button data-i="${i}">${fmt?fmt(opts[i]):exEsc(opts[i])}</button>`).join("");
   b.querySelectorAll("button").forEach(x=>x.onclick=()=>{if(done)return;done=true;const i=+x.dataset.i,ok=i===right;
-    b.querySelectorAll("button").forEach(y=>{const j=+y.dataset.i;y.classList.toggle("right",j===right);y.classList.toggle("wrong",j===i&&!ok);y.disabled=true});
+    b.querySelectorAll("button").forEach(y=>{const j=+y.dataset.i;y.classList.toggle("right",j===right);y.classList.toggle("wrong",j===i&&!ok);y.classList.add("locked")});
     $("slFb").innerHTML=exWhy(ok,(ok?"Right. ":"Not quite. ")+reveal);slScore(q,ok)});
 }
 // LISTENING 1: hear a word, pick its meaning
@@ -5446,16 +5450,19 @@ function lkCardHtml(w){
     <div class="en">${hit?exEsc(hit.en):"Not in the dictionary."}</div>${parts}${hit&&hit.book?`<div class="src">In your list: ${exEsc(hit.book)}</div>`:""}`;
 }
 function lkClose(){const p=$("lkPop");if(p)p.remove();const m=document.querySelector(".lkmark");if(m)m.remove()}
-// which character is under this point, and the run of text it sits in
-function lkHit(x,y){
-  let node,off;
-  if(document.caretRangeFromPoint){const r=document.caretRangeFromPoint(x,y);if(!r)return null;node=r.startContainer;off=r.startOffset}
-  else if(document.caretPositionFromPoint){const r=document.caretPositionFromPoint(x,y);if(!r)return null;node=r.offsetNode;off=r.offset}
-  if(!node||node.nodeType!==3)return null;
-  const t=node.data;
-  for(const o of [off,off-1]){if(o<0||o>=t.length||!/[㐀-鿿]/.test(t[o]))continue;
-    const rg=document.createRange();rg.setStart(node,o);rg.setEnd(node,o+1);const b=rg.getBoundingClientRect();
-    if(x>=b.left-3&&x<=b.right+3&&y>=b.top-3&&y<=b.bottom+3)return {node,o,rect:b}}
+// which character is under this point: walk the text under the tapped element (works even where text can't be selected, as on the iPad)
+function lkHit(x,y,el){
+  if(!el)el=document.elementFromPoint(x,y);if(!el)return null;
+  const roots=[el];if(el.parentElement)roots.push(el.parentElement);let best=null,bd=17; // the nearest character within a fingertip
+  for(const root of roots){
+    const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let node;
+    while((node=w.nextNode())){const t=node.data;if(!/[㐀-鿿]/.test(t))continue;
+      const rg=document.createRange();rg.selectNodeContents(node);const nb=rg.getBoundingClientRect();
+      if(x<nb.left-bd||x>nb.right+bd||y<nb.top-bd||y>nb.bottom+bd)continue;
+      for(let o=0;o<t.length;o++){if(!/[㐀-鿿]/.test(t[o]))continue;rg.setStart(node,o);rg.setEnd(node,o+1);
+        for(const b of rg.getClientRects()){const dx=Math.max(b.left-x,0,x-b.right),dy=Math.max(b.top-y,0,y-b.bottom),d=Math.hypot(dx,dy);if(d<bd){bd=d;best={node,o,rect:b}}}}}
+    if(best)return best;
+  }
   return null;
 }
 function lkShowAt(h){
@@ -5475,28 +5482,38 @@ function lkShowAt(h){
   p.style.left=left+"px";p.style.top=top+"px";
 }
 const LK_ZONES="#exBody,#slBody";
-let lkHold=null,lkSwallow=false;
+let lkDown=null,lkSwallow=false;
 // is looking this up allowed right now? (not the word whose pinyin you're being asked for)
 function lkAllowed(el){
   if(el.closest(".tqchar")&&exOn&&exQ[exI]&&exQ[exI].k==="py"&&!$("exCheck").hidden){toast("This one tests the pinyin. Answer first, then tap it.");return false}
   return true;
 }
+// a tap on a character looks it up. Inside an answer button that hasn't been used yet, a tap still answers; press and hold to look it up instead.
+// Question lines (the matching rows) look up and select at the same time. Once the question is done, every character is a tap away.
+function lkQuestionDone(){return (exOn&&!$("exNext").hidden)||(slOn&&!$("slNext").hidden)}
+function lkTapOK(el){const b=el.closest("button,input,a,summary,.picker,.spmic");return !b||b.matches(".exml,.exblank.right,.exblank.wrong")||b.classList.contains("locked")||lkQuestionDone()}
 document.addEventListener("pointerdown",e=>{
-  const z=e.target.closest&&e.target.closest(LK_ZONES);if(!z||e.target.closest(".lkpop"))return;
-  clearTimeout(lkHold&&lkHold.t);
-  const x=e.clientX,y=e.clientY;
-  lkHold={x,y,t:setTimeout(()=>{const h=lkHit(x,y);if(h&&lkAllowed(e.target)){lkSwallow=true;lkShowAt(h);try{navigator.vibrate&&navigator.vibrate(10)}catch(_){}}},480)};
+  lkKeep=false;const z=e.target.closest&&e.target.closest(LK_ZONES);lkDown=null;if(!z||e.target.closest(".lkpop"))return;
+  const x=e.clientX,y=e.clientY,el=e.target;
+  lkDown={x,y,el,t0:Date.now(),held:false,t:setTimeout(()=>{if(!lkDown)return;const h=lkHit(x,y,el);if(h&&lkAllowed(el)){lkDown.held=true;lkSwallow=true;lkShowAt(h);try{navigator.vibrate&&navigator.vibrate(10)}catch(_){}}},650)};
 },true);
-const lkCancel=e=>{if(lkHold&&(!e||e.type!=="pointermove"||Math.hypot(e.clientX-lkHold.x,e.clientY-lkHold.y)>10)){clearTimeout(lkHold.t);lkHold=null}};
-document.addEventListener("pointermove",lkCancel,true);document.addEventListener("pointerup",()=>{if(lkHold){clearTimeout(lkHold.t);lkHold=null}},true);document.addEventListener("pointercancel",lkCancel,true);
+document.addEventListener("pointermove",e=>{if(lkDown&&Math.hypot(e.clientX-lkDown.x,e.clientY-lkDown.y)>12){clearTimeout(lkDown.t);lkDown=null}},true);
+document.addEventListener("pointercancel",()=>{if(lkDown){clearTimeout(lkDown.t);lkDown=null}},true);
+document.addEventListener("pointerup",e=>{
+  const d=lkDown;lkDown=null;if(!d)return;clearTimeout(d.t);if(d.held)return;
+  if(!lkTapOK(d.el))return;
+  const h=lkHit(d.x,d.y,d.el);if(!h)return;
+  if(!lkAllowed(d.el))return;
+  lkShowAt(h);d.el.closest(".exml")||(lkSwallow=!!d.el.closest("button"));lkKeep=true;
+},true);
+let lkKeep=false;
 document.addEventListener("click",e=>{
   if(lkSwallow){lkSwallow=false;e.preventDefault();e.stopPropagation();return}
   if(e.target.closest&&e.target.closest(".lkpop"))return;
-  const z=e.target.closest&&e.target.closest(LK_ZONES);
-  if(z&&!e.target.closest("button,input,a,summary,.picker")){const h=lkHit(e.clientX,e.clientY);if(h){if(lkAllowed(e.target))lkShowAt(h);return}}
+  if(lkKeep){lkKeep=false;return} // the tap that just opened a card
   lkClose();
 },true);
-document.addEventListener("contextmenu",e=>{if(e.target.closest&&e.target.closest(LK_ZONES)&&lkHit(e.clientX,e.clientY))e.preventDefault()},true);
+document.addEventListener("contextmenu",e=>{if(e.target.closest&&e.target.closest(LK_ZONES)&&lkHit(e.clientX,e.clientY,e.target))e.preventDefault()},true);
 window.addEventListener("scroll",lkClose,{passive:true});window.addEventListener("resize",lkClose);
 /* ---------- word cards ---------- */
 // A character on each card; pick its pinyin or English meaning from four choices taken from the set's other words.
@@ -5647,6 +5664,6 @@ if("serviceWorker" in navigator&&window.isSecureContext&&location.protocol!=="fi
     b.style.cssText="position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:20;padding:10px 16px;border-radius:999px;border:0;background:#16a46a;color:#fff;font:700 15px ui-rounded,-apple-system,sans-serif;box-shadow:0 4px 0 #0f7f51";
     b.onclick=()=>location.reload();document.body.appendChild(b)});
 }
-window.BD_VERSION="994203e95d";
+window.BD_VERSION="be42154814";
 </script>
 </body></html>
