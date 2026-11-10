@@ -1862,6 +1862,9 @@ const SETS = [
  // new dictation sets go at the end so saved lesson choices keep their place
  for(const [name,ls] of [["Lessons 5 + 6",["Lesson 5","Lesson 6"]],["Lesson 7",["Lesson 7"]],["Lesson 8",["Lesson 8"]],["Lesson 10",["Lesson 10"]],["Lesson 11",["Lesson 11"]],["Lessons 10 + 11",["Lesson 10","Lesson 11"]],["Lessons 1–11 (exam)",["Lesson 1","Lesson 2","Lesson 3","Lesson 4","Lesson 5","Lesson 6","Lesson 7","Lesson 8","Lesson 9","Lesson 10","Lesson 11"]]]){let items=pick(ls);{const seen=new Set();items=items.filter(x=>!seen.has(x[0])&&seen.add(x[0]))} /* each word once */if(items.length)SETS.push({group:"Dictation prep",name:name+(ls.length===1?" (book words)":""),items})}}
 {const seen=new Set(),items=[];for(let n=1;n<=11;n++){const s=SETS.find(t=>t.name==="Speaking "+n);if(s)s.items.forEach(x=>{if(!seen.has(x[0])){seen.add(x[0]);items.push(x)}})}if(items.length)SETS.push({group:"Boya Speaking",name:"Speaking 1–11 (exam)",items})}
+{const day=new Date().toDateString();let h=0;for(const c of day)h=(h*31+c.charCodeAt(0))>>>0;const rnd=()=>{h=(h*1664525+1013904223)>>>0;return h/4294967296};
+  const mixUp=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]]}};
+  for(const t of SETS)if(/1–11 \(exam\)$/.test(t.name))mixUp(t.items)}
 const CLUE={"他":"he","她":"she"};
 const PASS=65; // shape score needed per character
 
@@ -4047,6 +4050,22 @@ document.addEventListener("keydown",e=>{
 
 // Short reading passages built from the textbook vocabulary. [word] marks a word to match; "\n" starts a new line.
 const PASSAGES=[
+ // mixed passages: each one draws on words from several lessons, for the Lessons 1–11 review
+ {mix:1,t:"你好！我[叫]玛丽，是[留学生]。我的[专业]是[中文]。我[家]有五[口]人：[爸爸]、[妈妈]、[哥哥]、[妹妹][和]我。我[最][喜欢][秋天]，[因为][秋天]不[冷]也不[热]，很[舒服]。",en:"Hello! My name is Mary and I'm an international student. My major is Chinese. There are five people in my family: dad, mom, older brother, younger sister and me. I like autumn best, because autumn is neither cold nor hot; it's very comfortable."},
+ {mix:1,t:"[今天][星期五]，[天气]很好。[上午]我们有[课]，[下午][没有][课]。[晚上][八][点]，我[和][同屋]去[电影院][看电影]。[电影院]在[学校][东边]，[骑][自行车][十][分钟][就][到]。",en:"Today is Friday and the weather is very nice. We have class in the morning but none in the afternoon. At eight in the evening my roommate and I are going to the cinema to see a movie. The cinema is east of the school; it's just ten minutes by bike."},
+ {mix:1,t:"[售货员]：[您][要][什么]？\n我：我[要][两][瓶][水][和][一个面包]，[还][要][一盒牛奶]。[一共][多少钱]？\n[售货员]：[一共][九][块]五。\n我：[谢谢]！\n[售货员]：[不客气]。[欢迎][下次][再][来]！",en:"Clerk: What would you like? Me: I'd like two bottles of water and a bread, and a carton of milk too. How much altogether? Clerk: 9.50 altogether. Me: Thanks! Clerk: You're welcome. Come again next time!"},
+ {mix:1,t:"A：[请问]，[图书馆]在[哪儿]？\nB：在[办公楼][北边]。你[想]去[图书馆][做][什么]？\nA：我[想][看][汉语]书，[还][想][看][杂志]。\nB：我也去[图书馆]。我们[现在]去[吧]！",en:"A: Excuse me, where is the library? B: North of the office building. What do you want to do at the library? A: I want to read Chinese books, and magazines too. B: I'm going to the library too. Let's go now!"},
+ {mix:1,t:"这是我家的[照片]。这是我[爷爷][和][奶奶]，他们在[北京]。[北京]的[冬天]很[冷]，[常常][下][雪]，[差不多][零下]十[度]。我[哥哥][喜欢][冬天]，[可是]我不[喜欢]。我[最][喜欢][夏天]，[因为]我的[爱好]是[游泳]。",en:"This is a photo of my family. These are my grandpa and grandma; they're in Beijing. Winter in Beijing is very cold and it often snows, about ten below zero. My older brother likes winter, but I don't. I like summer best, because my hobby is swimming."},
+ {mix:1,t:"A：你[周末]有[空儿]吗？\nB：有，什么[事儿]？\nA：我们去[超市][买][牛奶][和][面包][吧]。\nB：好！[超市]在[哪儿]？[怎么][走]？\nA：[坐][公共汽车][十][分钟][就][到]。\nB：那我们[几][点]去？\nA：[下午][三][点][半][吧]。",en:"A: Are you free this weekend? B: Yes, what's up? A: Let's go to the supermarket to buy milk and bread. B: Sure! Where's the supermarket? How do we get there? A: It's just ten minutes by bus. B: Then what time should we go? A: How about 3:30 in the afternoon?"},
+ {mix:1,t:"[同学][们]，我[来][介绍][一下儿]：这是我的[朋友]大卫。他是[美国人]，是[研究生]，[专业]是[现代][文学]。他很[喜欢][音乐]，也[喜欢][看电影]。[认识][你们]很[高兴]！",en:"Classmates, let me introduce: this is my friend David. He's American and a graduate student; his major is modern literature. He really likes music, and he likes watching movies too. Nice to meet you all!"},
+ {mix:1,t:"我[一般][早上][七][点][起床]，[七][点][半][吃早饭]，[八][点][上课]。[下午]我[常常]去[图书馆][写作业]。[晚上]我在[宿舍][看书]，[十][点][半][睡觉]。[星期六]不[上课]，我[想][和][朋友]去[看电影]。",en:"I usually get up at seven in the morning, eat breakfast at half past seven and start class at eight. In the afternoon I often go to the library to do homework. In the evening I read in my dorm and go to bed at half past ten. There's no class on Saturday, so I want to go see a movie with friends."},
+ {mix:1,t:"[明天]是[星期天]，我[想]去[朋友][家][玩儿]。她[家]在[学校][西边]。她[家]有[两][条][狗]。我[想][买][一些][香蕉][和][咖啡]，[可是]我不[知道]她[喜欢][不][喜欢]。",en:"Tomorrow is Sunday and I want to go to my friend's place to hang out. Her home is west of the school. Her family has two dogs. I want to buy some bananas and coffee, but I don't know whether she likes them."},
+ {mix:1,t:"A：[对不起]，[请问]王[老师]在[办公室]吗？\nB：不在，她在[教室][上课]。\nA：她[几][点][下课]？\nB：[差][一][刻][十][点]。\nA：[谢谢]！\nB：[不用谢]。",en:"A: Excuse me, is Teacher Wang in the office? B: No, she's teaching in the classroom. A: What time does she finish class? B: A quarter to ten. A: Thanks! B: Don't mention it."},
+ {mix:1,t:"[今天][天气][不太]好，有[风]，[还][下][雨]。我不[想]去[超市][了]。我在[宿舍][看][杂志]，[同屋]在[写作业]。听说[明天]是[晴天]，我们[想][骑][自行车]去[玩儿]。",en:"The weather isn't great today; it's windy and raining too. I don't feel like going to the supermarket anymore. I'm reading a magazine in the dorm, and my roommate is doing homework. I heard tomorrow will be sunny, so we want to go out by bike."},
+ {mix:1,t:"A：你好，我是玛丽。你[现在]有[时间]吗？\nB：[对不起]，我[现在][没空]，[一会儿]我[给]你[打][电话]。\nA：[没关系]。[一会儿][见]！",en:"A: Hi, it's Mary. Do you have time now? B: Sorry, I'm busy right now. I'll call you in a little while. A: No problem. See you in a bit!"},
+ {mix:1,t:"这[个][学期]我们有[很多][课]。[星期一][到][星期五][上午][都]有[课]，[星期三][下午][还]有[讲座]。[周末][没有][课]，我[常常][骑][自行车]去[超市]。",en:"This semester we have a lot of classes. From Monday to Friday there's class every morning, and on Wednesday afternoon there's also a lecture. There's no class on weekends, so I often bike to the supermarket."},
+ {mix:1,t:"A：你好！你[叫][什么][名字]？\nB：我[叫]山本。\nA：你是[哪][国][人]？\nB：我是日本[人]。我是[国际][关系][系]的[研究生]。\nA：你的[宿舍]在[哪儿]？\nB：在[图书馆][后边]。",en:"A: Hi! What's your name? B: My name is Yamamoto. A: Which country are you from? B: I'm Japanese. I'm a graduate student in the international relations department. A: Where's your dorm? B: Behind the library."},
+ {mix:1,t:"[早上]我[常常][吃][包子][和][馒头]，[喝][一][杯][牛奶]。我[哥哥]不[喜欢][牛奶]，他[只][喝][咖啡]。我们[家]的[狗][也][喜欢][吃][包子]！",en:"In the morning I often eat baozi and mantou and drink a glass of milk. My older brother doesn't like milk; he only drinks coffee. Our family's dog likes eating baozi too!"},
  {l:11,t:"A：今天[天气][怎么样]？\nB：[不太]好，有[风]，还[下][雨]。\nA：[冷]吗？\nB：[不太][冷]，十五[度]。\nA：明天呢？\nB：听说明天是[晴天]。",
   en:"A: What's the weather like today? B: Not great. It's windy and it's raining too. A: Is it cold? B: Not very cold, fifteen degrees. A: What about tomorrow? B: I heard tomorrow will be sunny."},
  {l:11,t:"上海的[夏天]很[热]，[冬天][比较][冷]，不[常][下][雪]。[春天]和[秋天]不[冷]不[热]，很[舒服]。我[最][喜欢]的[季节]是[秋天]。",
@@ -4558,7 +4577,11 @@ const pgChosen=()=>SETS.filter(t=>pgSets.has(t.name));
 const pgWords=()=>new Set(pgChosen().flatMap(t=>t.items.map(x=>x[0])));
 const pgCount=(p,W)=>(p.t.match(/\[[^\]]+\]/g)||[]).filter(x=>W.has(x.slice(1,-1))).length;
 // passages that use at least 3 words from the chosen lists
-function pgPool(){const W=pgWords();return PASSAGES.filter(p=>pgCount(p,W)>=3)}
+// When the chosen lists cover several lessons (like Lessons 1–11), use the mixed passages, so each passage pulls words from many lessons
+function pgLessonSpread(W){const seen=new Set();for(const t of SETS){const m=/^Lesson (\d+)$/.exec(t.name);if(m&&t.items.some(x=>W.has(x[0])))seen.add(+m[1])}return seen.size}
+function pgPool(){const W=pgWords(),all=PASSAGES.filter(p=>pgCount(p,W)>=3);
+  if(pgLessonSpread(W)>=3){const mixed=all.filter(p=>p.mix);if(mixed.length>=3)return mixed}
+  return all.filter(p=>!p.mix||pgLessonSpread(W)>=2)}
 function pgSummary(){
   const n=pgChosen().map(t=>t.name);
   $("pgSum").textContent=(n.length?(n.length>3?n.slice(0,3).join(", ")+` and ${n.length-3} more`:n.join(", ")):"No word lists picked")+(pgOrder==="weak"?", weak words first":"");
@@ -5691,6 +5714,6 @@ if("serviceWorker" in navigator&&window.isSecureContext&&location.protocol!=="fi
     b.style.cssText="position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:20;padding:10px 16px;border-radius:999px;border:0;background:#16a46a;color:#fff;font:700 15px ui-rounded,-apple-system,sans-serif;box-shadow:0 4px 0 #0f7f51";
     b.onclick=()=>location.reload();document.body.appendChild(b)});
 }
-window.BD_VERSION="33a19c8fdf";
+window.BD_VERSION="75576af15e";
 </script>
 </body></html>
