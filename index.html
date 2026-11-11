@@ -1090,6 +1090,8 @@ html,body,button,a,select,label,input,.tabbar,.seg{touch-action:manipulation}
 .exbox{flex:0 0 auto;min-width:44px;height:36px;border:2px solid var(--grid);border-radius:10px;display:grid;place-items:center;font-weight:800;color:var(--sky-d,var(--sky))}
 .exbox s{color:var(--red);margin-right:4px}
 .rvhard[aria-pressed="true"]{border-color:var(--sun-d);border-bottom-color:var(--sun-d);background:var(--sun-soft);color:#6b5300}
+.omsay{font-size:1.45rem;line-height:1.7}.ompy{color:var(--sky-d);font-weight:700;font-size:.95rem;margin-top:2px}
+mark.omme{background:var(--sun-soft);color:inherit;border-bottom:3px solid var(--sun-d);border-radius:4px;padding:0 2px}
 .omchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .omchips button{border:2px solid var(--line);border-bottom-width:3px;border-radius:12px;background:var(--card);padding:4px 10px;display:flex;flex-direction:column;align-items:center;line-height:1.2}
 .omchips button .zh{font-size:1.1rem}.omchips button small{font-size:.68rem;color:var(--muted)}
@@ -4692,7 +4694,7 @@ function lkIndex(){
   for(const [h,py,en,rank] of (PYDICT||[])){const r=rank+(bad.test(en)?10:0);const b=best.get(h);if(!b||r<b.r)best.set(h,{r,py,en});
     if(h.length===1&&!bad.test(en)){if(!LKALL.has(h))LKALL.set(h,[]);LKALL.get(h).push({py:lkPy(py),en:lkClean(en).split(/;\s*/)[0],r})}}
   for(const [h,{py,en}] of best)if(!LK.has(h))LK.set(h,{py:lkPy(py),en:lkClean(en).split(/;\s*/).slice(0,3).join("; ")});
-  for(const [h,py,en] of [["人文","rénwén","humanities"],["学院","xuéyuàn","college, school (in a university)"],["交通","jiāotōng","transportation; Jiao Tong"],["外滩","Wàitān","the Bund"],["迪士尼","Díshìní","Disney"]])if(!LK.has(h))LK.set(h,{py,en});
+  for(const [h,py,en] of [["人文","rénwén","humanities"],["学院","xuéyuàn","college, school (in a university)"],["交通","jiāotōng","transportation; Jiao Tong"],["外滩","Wàitān","the Bund"],["迪士尼","Díshìní","Disney"],["一起","yìqǐ","together"],["平时","píngshí","usually, normally"]])LK.set(h,{py,en,...(LK.get(h)&&LK.get(h).book?{book:LK.get(h).book}:{})});
   return LK;
 }
 function pgLookup(el){
@@ -5761,6 +5763,12 @@ function omMic(id,targets,done){
       toast(e==="not-allowed"||e==="service-not-allowed"?"The microphone isn't allowed here. Say it out loud, then check the answer.":e==="no-speech"?"Didn't hear anything. Try again.":"Listening isn't working here. Say it out loud, then check the answer.")}};
 }
 // ---- Part 1: build your introduction, then practise it
+let omView=store.get("bd-omview","script");
+// your own answers, highlighted inside the sentence
+function omMark(z){const vals=["name","country","age","eat","drink","hobby","together"].map(k=>omMe[k]).filter(Boolean).sort((a,b)=>b.length-a.length);
+  let out=exEsc(z);for(const v of vals){const e=exEsc(v);out=out.split(e).join(`\u0000${e}\u0001`)}return out.replace(/\u0000/g,'<mark class="omme">').replace(/\u0001/g,"</mark>")}
+function omPyOf(z){const L=lkIndex(),P={"，":", ","。":". ","！":"! ","？":"? ","、":", "};
+  return spWords(z).map(x=>x.w?(x.dpy||[...x.w].map(c=>{const h=L.get(c);return h?h.py:c}).join("")):(P[x.p]??x.p)).join(" ").replace(/ ([,.!?])/g,"$1").replace(/\s+/g," ").trim()}
 function omP1(){
   const m=omMe,chips=(k,list)=>`<div class="omchips">${list.map(([z,e])=>`<button data-k="${k}" data-v="${z}" aria-pressed="${m[k]===z}"><span class="zh">${z}</span><small>${e}</small></button>`).join("")}</div>`;
   const field=(k,lab,list)=>`<div class="omf"><label for="omIn_${k}">${lab}</label><input class="zh" id="omIn_${k}" data-k="${k}" value="${exEsc(m[k])}" autocomplete="off" autocapitalize="off" spellcheck="false">${list?chips(k,list):""}</div>`;
@@ -5769,13 +5777,16 @@ function omP1(){
     <details class="omform"${store.get("bd-omformopen",true)?" open":""}><summary>Your details</summary>
     ${field("name","Name 名字")}${field("country","Country 国",OM_COUNTRY)}${field("age","Age 岁 (say it in characters, like 二十四)")}${field("eat","I like eating 我喜欢吃……",OM_EAT)}${field("drink","I like drinking 喜欢喝……",OM_DRINK)}${field("hobby","In my free time I like 我平时喜欢……",OM_HOBBY)}${field("together","We can … together 一起……",OM_TOGETHER)}
     </details>
-    <div class="omintro">${S.map(([z,e],i)=>`<div class="omis${omIntroMode==="drill"&&i===omIntroI?" cur":""}">${spGloss(z,"")}<div class="slen">${exEsc(e)}</div></div>`).join("")}</div>
+    <div class="rvopts omview"><span class="lab">Show it as</span><div class="pgpick" id="omView"><button data-v="script">Script</button><button data-v="py">Script + pinyin</button><button data-v="word">Word by word</button></div></div>
+    <div class="omintro">${S.map(([z,e],i)=>`<div class="omis${omIntroMode==="drill"&&i===omIntroI?" cur":""}">${omView==="word"?spGloss(z,""):`<div class="omsay zh">${omMark(z)}</div>${omView==="py"?`<div class="ompy">${exEsc(omPyOf(z))}</div>`:""}`}<div class="slen">${exEsc(e)}</div></div>`).join("")}</div>
+    <p class="wlhint">The <mark class="omme">highlighted</mark> parts are yours: change them in Your details above. Everything else is the exam's own sentence; say it as it is.</p>
     <div class="nav"><button class="btn quiet" id="omHearAll"><svg class="ico"><use href="#i-sound"/></svg>Hear it all</button><button class="btn primary" id="omDrill">Practise sentence by sentence</button></div>
     <div id="omDrillBox"></div>`;
   $("omBody").querySelector(".omform").ontoggle=e=>store.set("bd-omformopen",e.target.open);
   const save=()=>{store.set("bd-omme",omMe)};
   $("omBody").querySelectorAll(".omchips button").forEach(b=>b.onclick=()=>{omMe[b.dataset.k]=b.dataset.v;save();omP1()});
   $("omBody").querySelectorAll(".omf input").forEach(i=>i.onchange=()=>{const v=i.value.trim();if(v){omMe[i.dataset.k]=v;save();omP1()}});
+  document.querySelectorAll("#omView button").forEach(b=>{b.setAttribute("aria-pressed",b.dataset.v===omView);b.onclick=()=>{omView=b.dataset.v;store.set("bd-omview",omView);omP1()}});
   $("omHearAll").onclick=()=>{const run=omRun,lines=omIntro().map(x=>x[0]);let k=0;const step=()=>{if(run!==omRun||k>=lines.length)return;slUtter(lines[k++],false,()=>setTimeout(step,250))};step()};
   $("omDrill").onclick=()=>{omIntroI=0;omIntroDrill()};
 }
@@ -6033,6 +6044,6 @@ if("serviceWorker" in navigator&&window.isSecureContext&&location.protocol!=="fi
     b.style.cssText="position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:20;padding:10px 16px;border-radius:999px;border:0;background:#16a46a;color:#fff;font:700 15px ui-rounded,-apple-system,sans-serif;box-shadow:0 4px 0 #0f7f51";
     b.onclick=()=>location.reload();document.body.appendChild(b)});
 }
-window.BD_VERSION="46fcee6df7";
+window.BD_VERSION="f51e536ff3";
 </script>
 </body></html>
