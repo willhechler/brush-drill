@@ -2913,7 +2913,7 @@ function spListen(onPartial){
 
 const SP_ORDER={"请问，银行在哪儿？": "请问 + place + 在 + 哪儿？", "在那边。": "在 + where (the subject is dropped)", "远吗？": "adjective + 吗？", "有点儿远，在食堂旁边。": "有点儿 + adjective，在 + place + 旁边", "食堂在哪儿？": "place + 在 + 哪儿？", "我带你去吧。": "I + 带 + you + 去 + 吧", "谢谢你！": "谢谢 + person", "山本，学校附近有书店吗？": "name，place + 附近 + 有 + thing + 吗？", "有。": "answer a 有 question with just 有", "不远。": "不 + adjective", "怎么走？": "怎么 + verb？", "出学校大门一直往前走。": "出 + place，一直 + 往 + direction + 走", "然后呢？": "然后 + 呢？", "走二百米，再往左拐。": "走 + distance，再 + 往 + direction + 拐", "王山，你家离学校远吗？": "name，A + 离 + B + 远吗？", "不远，就在学校附近。": "不远，就 + 在 + place + 附近", "从你家到学校多长时间？": "从 + A + 到 + B + 多长时间？", "走路十五分钟。": "how you go + time", "去你家怎么走？": "去 + place + 怎么走？", "出学校大门往右拐。": "出 + place + 往 + direction + 拐", "然后一直走吗？": "然后 + 一直 + verb + 吗？", "一直往前走，就到了。": "一直往前走，就 + 到 + 了"};
 // word-by-word glosses: split a line into dictionary words and give each its own pinyin and meaning
-const SP_NAMES={"交通大学":"Jiao Tong University","人文学院":"School of Humanities","外滩":"the Bund","迪士尼":"Disneyland","南京东路":"East Nanjing Road","豫园":"Yuyuan Garden","拿铁":"latte","巧克力":"chocolate","蛋糕":"cake","微信":"WeChat","支付宝":"Alipay","前台":"front desk","大卫":"David (name)","金老师":"Ms Jin","司机":"driver","上海":"Shanghai","北京":"Beijing","人民广场":"People's Square","上海站":"Shanghai Station","北京饭店":"Beijing Hotel","纽约":"New York","伦敦":"London","玛莎":"Masha (name)","山本":"Yamamoto (name)","王山":"Wang Shan (name)","欧文":"Owen (name)","心美":"Xinmei (name)","玛丽":"Mary (name)","大卫":"David (name)","中国学生":"Chinese student","同学":"classmate"};
+const SP_NAMES={"交通":"Jiao Tong (transportation)","人文":"humanities","学院":"college, school (in a university)","外滩":"the Bund","迪士尼":"Disneyland","南京东路":"East Nanjing Road","豫园":"Yuyuan Garden","拿铁":"latte","巧克力":"chocolate","蛋糕":"cake","微信":"WeChat","支付宝":"Alipay","前台":"front desk","大卫":"David (name)","金老师":"Ms Jin","司机":"driver","上海":"Shanghai","北京":"Beijing","人民广场":"People's Square","上海站":"Shanghai Station","北京饭店":"Beijing Hotel","纽约":"New York","伦敦":"London","玛莎":"Masha (name)","山本":"Yamamoto (name)","王山":"Wang Shan (name)","欧文":"Owen (name)","心美":"Xinmei (name)","玛丽":"Mary (name)","大卫":"David (name)","中国学生":"Chinese student","同学":"classmate"};
 const SP_GL={"请":"please","您好":"hello (polite)","坐":"ride, take","几":"which number","路":"(bus) route","号":"number","线":"line","换":"switch, transfer","站":"station, stop","得":"must (děi)","能":"can","直接":"directly","停":"stop","门口":"entrance","张":"(for tickets)","往返":"round-trip","单程":"one-way","机票":"plane ticket","车票":"ticket","车":"bus, car","过":"(have done)","没":"not (did not)","多少":"how much","钱":"money","块":"yuan","您":"you (polite)","地铁":"subway","出租车":"taxi","哪个":"which","买":"buy","要":"want to, need to","下个月":"next month","周末":"weekend","两":"two","在":"at, in","去":"go","有":"have, there is","不":"not","吗":"(question)","呢":"(and…?)","吧":"(suggestion)","了":"(done)","的":"'s, of","就":"just, right","再":"then","往":"toward","走":"walk, go","拐":"turn","出":"exit","到":"to, arrive","从":"from","离":"from (distance)","多":"how","长":"long","我":"I","你":"you","他":"he","家":"home","这儿":"here","那边":"over there","哪儿":"where","二百":"200","一百":"100","三百":"300","十五":"fifteen","二十":"twenty","了":"(done)","住":"live","自己":"own","不客气":"you're welcome","谢谢":"thank you","请问":"excuse me","然后":"then","一直":"straight on","先":"first","第":"(ordinal)","个":"(measure word)","米":"meters","分钟":"minutes","教学楼":"teaching building","旁边":"next to","对面":"across from","附近":"nearby","哪儿":"where","怎么":"how"};
 function zhVal(z){const D={零:0,一:1,二:2,两:2,三:3,四:4,五:5,六:6,七:7,八:8,九:9};let t=0,cur=0;
   for(const c of z){if(c in D)cur=D[c];else if(c==="十"){t+=(cur||1)*10;cur=0}else if(c==="百"){t+=(cur||1)*100;cur=0}else return null}return t+cur}
@@ -4692,6 +4692,7 @@ function lkIndex(){
   for(const [h,py,en,rank] of (PYDICT||[])){const r=rank+(bad.test(en)?10:0);const b=best.get(h);if(!b||r<b.r)best.set(h,{r,py,en});
     if(h.length===1&&!bad.test(en)){if(!LKALL.has(h))LKALL.set(h,[]);LKALL.get(h).push({py:lkPy(py),en:lkClean(en).split(/;\s*/)[0],r})}}
   for(const [h,{py,en}] of best)if(!LK.has(h))LK.set(h,{py:lkPy(py),en:lkClean(en).split(/;\s*/).slice(0,3).join("; ")});
+  for(const [h,py,en] of [["人文","rénwén","humanities"],["学院","xuéyuàn","college, school (in a university)"],["交通","jiāotōng","transportation; Jiao Tong"],["外滩","Wàitān","the Bund"],["迪士尼","Díshìní","Disney"]])if(!LK.has(h))LK.set(h,{py,en});
   return LK;
 }
 function pgLookup(el){
@@ -5615,7 +5616,7 @@ const omEn=(list,v)=>{const h=list.find(x=>x[0]===v);if(h)return h[1];const L=lk
 function omIntro(){const m=omMe;return [
   [`你好！我叫${m.name}。`,`Hello! My name is ${m.name}.`],
   [`我是${m.country}人，今年${m.age}岁。`,`I'm ${omEn(OM_COUNTRY,m.country)}, and I'm ${zhVal(m.age)??m.age} this year.`],
-  ["我是上海交通大学人文学院的学生，我在这里学习汉语。","I'm a student at the School of Humanities of Shanghai Jiao Tong University, and I study Chinese here."],
+  ["我是上海交通大学人文学院的学生，我在这里学习汉语。","I'm a student of Shanghai Jiao Tong University's 人文学院 (humanities college), and I study Chinese here."],
   [`我喜欢吃${m.eat}，喜欢喝${m.drink}。`,`I like eating ${omEn(OM_EAT,m.eat)} and drinking ${omEn(OM_DRINK,m.drink)}.`],
   [`我平时喜欢${m.hobby}。`,`In my free time I like ${omEn(OM_HOBBY,m.hobby)}.`],
   [`有时间我们可以一起${m.together}！`,`When we have time we can ${omEn(OM_TOGETHER,m.together)} together!`],
@@ -6036,6 +6037,6 @@ if("serviceWorker" in navigator&&window.isSecureContext&&location.protocol!=="fi
     b.style.cssText="position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:20;padding:10px 16px;border-radius:999px;border:0;background:#16a46a;color:#fff;font:700 15px ui-rounded,-apple-system,sans-serif;box-shadow:0 4px 0 #0f7f51";
     b.onclick=()=>location.reload();document.body.appendChild(b)});
 }
-window.BD_VERSION="a5d7a7d4a5";
+window.BD_VERSION="66bea35a03";
 </script>
 </body></html>
