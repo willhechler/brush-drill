@@ -2913,7 +2913,7 @@ function spListen(onPartial){
 
 const SP_ORDER={"请问，银行在哪儿？": "请问 + place + 在 + 哪儿？", "在那边。": "在 + where (the subject is dropped)", "远吗？": "adjective + 吗？", "有点儿远，在食堂旁边。": "有点儿 + adjective，在 + place + 旁边", "食堂在哪儿？": "place + 在 + 哪儿？", "我带你去吧。": "I + 带 + you + 去 + 吧", "谢谢你！": "谢谢 + person", "山本，学校附近有书店吗？": "name，place + 附近 + 有 + thing + 吗？", "有。": "answer a 有 question with just 有", "不远。": "不 + adjective", "怎么走？": "怎么 + verb？", "出学校大门一直往前走。": "出 + place，一直 + 往 + direction + 走", "然后呢？": "然后 + 呢？", "走二百米，再往左拐。": "走 + distance，再 + 往 + direction + 拐", "王山，你家离学校远吗？": "name，A + 离 + B + 远吗？", "不远，就在学校附近。": "不远，就 + 在 + place + 附近", "从你家到学校多长时间？": "从 + A + 到 + B + 多长时间？", "走路十五分钟。": "how you go + time", "去你家怎么走？": "去 + place + 怎么走？", "出学校大门往右拐。": "出 + place + 往 + direction + 拐", "然后一直走吗？": "然后 + 一直 + verb + 吗？", "一直往前走，就到了。": "一直往前走，就 + 到 + 了"};
 // word-by-word glosses: split a line into dictionary words and give each its own pinyin and meaning
-const SP_NAMES={"交通":"Jiao Tong (transportation)","人文":"humanities","学院":"college, school (in a university)","外滩":"the Bund","迪士尼":"Disneyland","南京东路":"East Nanjing Road","豫园":"Yuyuan Garden","拿铁":"latte","巧克力":"chocolate","蛋糕":"cake","微信":"WeChat","支付宝":"Alipay","前台":"front desk","大卫":"David (name)","金老师":"Ms Jin","司机":"driver","上海":"Shanghai","北京":"Beijing","人民广场":"People's Square","上海站":"Shanghai Station","北京饭店":"Beijing Hotel","纽约":"New York","伦敦":"London","玛莎":"Masha (name)","山本":"Yamamoto (name)","王山":"Wang Shan (name)","欧文":"Owen (name)","心美":"Xinmei (name)","玛丽":"Mary (name)","大卫":"David (name)","中国学生":"Chinese student","同学":"classmate"};
+const SP_NAMES={"交通":"Jiao Tong (transportation)","人文":"humanities","学院":"college, school (in a university)","外滩":"the Bund","迪士尼":"Disneyland","南京东路":"East Nanjing Road","豫园":"Yuyuan Garden","拿铁":"latte","巧克力":"chocolate","蛋糕":"cake","微信":"WeChat","支付宝":"Alipay","前台":"front desk","大卫":"David (name)","金老师":"Ms Jin","银行卡":"bank card","现金":"cash","买单":"pay the bill","几位":"how many people","号口":"exit number","司机":"driver","上海":"Shanghai","北京":"Beijing","人民广场":"People's Square","上海站":"Shanghai Station","北京饭店":"Beijing Hotel","纽约":"New York","伦敦":"London","玛莎":"Masha (name)","山本":"Yamamoto (name)","王山":"Wang Shan (name)","欧文":"Owen (name)","心美":"Xinmei (name)","玛丽":"Mary (name)","大卫":"David (name)","中国学生":"Chinese student","同学":"classmate"};
 const SP_GL={"请":"please","您好":"hello (polite)","坐":"ride, take","几":"which number","路":"(bus) route","号":"number","线":"line","换":"switch, transfer","站":"station, stop","得":"must (děi)","能":"can","直接":"directly","停":"stop","门口":"entrance","张":"(for tickets)","往返":"round-trip","单程":"one-way","机票":"plane ticket","车票":"ticket","车":"bus, car","过":"(have done)","没":"not (did not)","多少":"how much","钱":"money","块":"yuan","您":"you (polite)","地铁":"subway","出租车":"taxi","哪个":"which","买":"buy","要":"want to, need to","下个月":"next month","周末":"weekend","两":"two","在":"at, in","去":"go","有":"have, there is","不":"not","吗":"(question)","呢":"(and…?)","吧":"(suggestion)","了":"(done)","的":"'s, of","就":"just, right","再":"then","往":"toward","走":"walk, go","拐":"turn","出":"exit","到":"to, arrive","从":"from","离":"from (distance)","多":"how","长":"long","我":"I","你":"you","他":"he","家":"home","这儿":"here","那边":"over there","哪儿":"where","二百":"200","一百":"100","三百":"300","十五":"fifteen","二十":"twenty","了":"(done)","住":"live","自己":"own","不客气":"you're welcome","谢谢":"thank you","请问":"excuse me","然后":"then","一直":"straight on","先":"first","第":"(ordinal)","个":"(measure word)","米":"meters","分钟":"minutes","教学楼":"teaching building","旁边":"next to","对面":"across from","附近":"nearby","哪儿":"where","怎么":"how"};
 function zhVal(z){const D={零:0,一:1,二:2,两:2,三:3,四:4,五:5,六:6,七:7,八:8,九:9};let t=0,cur=0;
   for(const c of z){if(c in D)cur=D[c];else if(c==="十"){t+=(cur||1)*10;cur=0}else if(c==="百"){t+=(cur||1)*100;cur=0}else return null}return t+cur}
@@ -5645,95 +5645,91 @@ function omCards(){const m=omMe,n=omNow();return [
  {n:"10",qs:[["咖啡多少钱一杯？","How much is a cup of coffee?",[["三十块一杯。","Thirty kuai a cup."]]],["这个巧克力蛋糕呢？","And this chocolate cake?",[["三十五块。","Thirty-five kuai."]]]],note:"In the exam, read the prices off the card the teacher shows you."}
 ]}
 // Part 3: role-play cards. T = 金老师 (variants as [Chinese, English, label]); Y = you: [accepted answers], English, what to do; Q = a question about what you heard
-// Lines follow the Speaking book's patterns (请问…在哪儿？ 远吗？ 您要什么？ 太贵了，…行吗？ 你怎么了？ 喂，请问…在吗？ …), kept short like its dialogues
+// Role-play lines follow the teacher's example conversations from class (C–H); A and B use the same style
 const OM_SC=[
  {id:"A",zh:"在医院",en:"At the hospital",card:"金老师是医生，你是病人。告诉医生你头疼，嗓子也疼，可能感冒了。医生会给你量体温、开药。听医生怎么说，并作出回应。",cardEn:"Ms Jin is the doctor and you are the patient. Tell her you have a headache and a sore throat, and that you think you might have a cold. The doctor will take your temperature and prescribe some medicine. Listen and respond.",
-  lines:[["T","你怎么了？","What's wrong?"],
-   ["Y",["我头疼，嗓子也疼。","医生，我头疼，嗓子也疼。"],"I have a headache, and a sore throat too.","Say you have a headache and a sore throat."],
+  lines:[["T","您好，你怎么了？","Hello, what's wrong?"],
+   ["Y",["医生，我头疼，嗓子也疼。","我头疼，嗓子也疼。"],"Doctor, I have a headache, and a sore throat too.","Say you have a headache and a sore throat."],
    ["T","发烧吗？","Do you have a fever?"],
-   ["Y",["不知道。我可能感冒了。","我不知道，可能感冒了。"],"I don't know. Maybe I have a cold.","Say you don't know; maybe you have a cold."],
-   ["T",[["试一下体温吧。三十八度五，你发烧了。","Let's take your temperature. 38.5; you have a fever."],["试一下体温吧。三十七度八，有点儿发烧。","Let's take your temperature. 37.8; a slight fever."]]],
+   ["Y",["我不知道。我可能感冒了。","不知道，我可能感冒了。"],"I don't know. I might have a cold.","Say you don't know; you might have a cold."],
+   ["T",[["好的，试一下体温吧。三十八度五，你发烧了。","Okay, let's take your temperature. 38.5, you have a fever."],["好的，试一下体温吧。三十七度八，有点儿发烧。","Okay, let's take your temperature. 37.8, a slight fever."]]],
    ["Y",["要打针吗？","我要打针吗？"],"Do I need an injection?","Ask if you need an injection."],
-   ["T",[["不用打针。你感冒了，吃点儿药吧。这个药一天三次，一次两片。","No injection. You have a cold; take some medicine. This medicine: three times a day, two pills each time."],["不用。这是感冒颗粒，一天三次。多喝水，多休息，少吃冰的。","No. Here are cold granules, three times a day. Drink lots of water, rest, and don't eat much icy food."]]],
+   ["T",[["不用打针。你感冒了，吃点儿药吧。这个药一天三次，一次两片。","No injection. You have a cold; take some medicine. Three times a day, two pills each time."],["不用。这是感冒颗粒，一天三次。多喝水，多休息。","No. Here are cold granules, three times a day. Drink lots of water and rest."]]],
    ["Y",["好的，谢谢医生！","谢谢医生！"],"Okay, thank you, doctor!","Thank the doctor."]]},
  {id:"B",zh:"在咖啡馆",en:"At a café",card:"金老师是咖啡馆店员，你是顾客。你要买一杯热拿铁和一块巧克力蛋糕。",cardEn:"Ms Jin works at the café and you are a customer. Order a hot latte and a slice of chocolate cake.",
   lines:[["T","您好，您要什么？","Hello, what would you like?"],
-   ["Y",["我要一杯拿铁，热的。","我要一杯热拿铁。","来一杯热拿铁。"],"A latte, hot, please.","Order a hot latte."],
-   ["T","还要别的吗？","Anything else?"],
-   ["Y",["还要一块巧克力蛋糕。","我还要一块巧克力蛋糕。"],"A slice of chocolate cake too.","Order a slice of chocolate cake."],
-   ["Y",["一共多少钱？"],"How much altogether?","Ask how much it is altogether."],
-   ["T",[["一共五十八块。","Fifty-eight altogether."],["一共六十二块。","Sixty-two altogether."]]],
-   ["Y",["给您一百块。","给你一百块。"],"Here's a hundred.","Pay with a 100 note."],
-   ["T",[["找您四十二块。","Here's 42 change."],["找您三十八块。","Here's 38 change."]]],
+   ["Y",["我要一杯热拿铁和一块巧克力蛋糕。","我要一杯热拿铁，一块巧克力蛋糕。"],"I'd like a hot latte and a slice of chocolate cake.","Order a hot latte and a slice of chocolate cake."],
+   ["T","好的。还要别的吗？","Okay. Anything else?"],
+   ["Y",["不用了，谢谢！"],"No, thanks!","Say no thanks."],
+   ["T",[["好的，一共五十八元。怎么支付？","Okay, 58 yuan altogether. How will you pay?"],["好的，一共六十二元。怎么支付？","Okay, 62 yuan altogether. How will you pay?"]]],
+   ["Y",["好的，微信。","好的，支付宝。","好的，现金。","好的，银行卡。"],"WeChat, please.","Say how you'll pay (WeChat / Alipay / cash / bank card)."],
+   ["T","好的，我扫您。","Okay, I'll scan you."],
    ["Y",["谢谢！"],"Thanks!","Say thanks."]]},
  {id:"C",zh:"在酒店",en:"At a hotel",card:"金老师是酒店前台工作人员，你是住客。你在房间里打电话给前台，告诉对方房间的灯坏了，也没有热水。",cardEn:"Ms Jin is the receptionist and you are a hotel guest. Call reception from your room. Explain that the light in your room is not working and there is no hot water.",
-  lines:[["T","喂，你好！有什么事吗？","Hello! What can I do for you?"],
-   ["Y",["你好，我房间的灯坏了。","喂，你好！我房间的灯坏了，不亮了。","你好，我房间的灯不亮了。"],"Hello, the light in my room is broken.","Say the light in your room is broken."],
-   ["T","你住哪个房间？","Which room are you in?"],
-   ["Y",["我住三零八房间。","三零八。"],"Room 308.","Say your room number (e.g. 308)."],
-   ["T","好，我马上去修。","Okay, I'll come fix it right away."],
-   ["Y",["还有，房间里没有热水。","房间里也没有热水。","还有，没有热水。"],"Also, there's no hot water in the room.","Say there's also no hot water."],
-   ["T","知道了，一会儿就去看看。","Got it, someone will take a look in a moment."],
-   ["Y",["谢谢！","好的，谢谢！"],"Thanks!","Say thanks."],
-   ["T","不客气。","You're welcome."]]},
+  lines:[["T","您好，这里是前台。","Hello, this is reception."],
+   ["Y",["你好，这里是五零二房间。","你好，这里是502房间。"],"Hello, this is room 502.","Say hello and give your room number (502)."],
+   ["T","好的，有事吗？","Okay, what's the matter?"],
+   ["Y",["我房间的灯坏了。","我房间的灯不亮了。"],"The light in my room is broken.","Say the light in your room is broken / not working."],
+   ["T","好的，我一会儿去看看。","Okay, I'll come have a look in a bit."],
+   ["Y",["我房间也没有热水。"],"There's no hot water in my room either.","Say there's no hot water either."],
+   ["T","好的，对不起，我马上去看看。","Okay, sorry, I'll come look right away."],
+   ["Y",["好的，谢谢！"],"Okay, thanks!","Say okay, thanks."]]},
  {id:"D",zh:"打电话找朋友",en:"A phone call",card:"你打电话给金老师，想找你的朋友大卫。听金老师说大卫在哪儿、在做什么、几点回家。告诉金老师，你打大卫的手机，可是没人接。",cardEn:"Ring Ms Jin and ask to speak to your friend David. Listen to find out where he is, what he is doing and what time he will be home. Tell Ms Jin that you rang David's mobile, but he did not answer.",
-  lines:[["T","喂，你好！","Hello!"],
-   ["Y",["喂，你好！请问大卫在吗？","喂，请问大卫在吗？","你好，请问大卫在吗？"],"Hello! Is David there, please?","Ask if David is there."],
-   ["T","他不在。","He's not here."],
-   ["Y",["他在哪儿？","他去哪儿了？"],"Where is he?","Ask where he is."],
-   ["T",[["他在图书馆看书。","He's reading at the library.","at the library, reading"],["他在超市买水果。","He's buying fruit at the supermarket.","at the supermarket, buying fruit"],["他在教室上课。","He's in class in the classroom.","in the classroom, having class"]]],
-   ["Y",["他几点回来？","他什么时候回来？","他几点回家？"],"What time will he be back?","Ask what time he'll be home."],
-   ["T",[["可能晚上七点回来。你有什么事吗？","Maybe at 7 p.m. What's it about?","7 p.m."],["可能下午五点半回来。你有什么事吗？","Maybe at 5:30 p.m. What's it about?","5:30 p.m."],["可能晚上九点回来。你有什么事吗？","Maybe at 9 p.m. What's it about?","9 p.m."]]],
-   ["Y",["我打他的手机，可是没人接。","我打他的手机，没人接。"],"I called his mobile, but nobody answered.","Say you called his mobile but nobody answered."],
-   ["T","好，他回来以后给你打电话。","Okay, he'll call you when he's back."],
-   ["Y",["谢谢您！再见！","好的，谢谢！再见！"],"Thank you! Goodbye!","Thank her and say goodbye."],
-   ["Q","Where is David, and what's he doing?",4],["Q","What time will he be home?",6]]},
+  lines:[["Y",["你好，是金老师吗？"],"Hello, is this Ms Jin?","Ask if this is Ms Jin."],
+   ["T","是的，您是哪位？","Yes. Who's calling?"],
+   ["Y",["我是{name}，我想找我的朋友大卫。他在教室吗？","我是{name}，我想找我的朋友大卫。他在教室里吗？","我是{name}，我想找我的朋友大卫。"],"I'm {name}. I'm looking for my friend David. Is he in the classroom?","Say who you are, that you're looking for David, and ask if he's in the classroom."],
+   ["T",[["他在教室，他在上课。","He's in the classroom; he's in class.","in the classroom, having class"],["他不在教室，他在图书馆，他在看书。","He's not in the classroom; he's at the library, reading.","at the library, reading"],["他不在教室，他在宿舍，他在睡觉。","He's not in the classroom; he's in the dorm, sleeping.","in the dorm, sleeping"]]],
+   ["Y",["他几点回家？"],"What time will he go home?","Ask what time he'll go home."],
+   ["T",[["我们下午四点一刻下课。","We finish class at 4:15 p.m.","4:15 p.m."],["他下午五点半回家。","He goes home at 5:30 p.m.","5:30 p.m."],["他晚上七点回家。","He goes home at 7 p.m.","7 p.m."]]],
+   ["Y",["我打了大卫的手机，可是没人接。","我打了他的手机，可是没人接。"],"I called David's mobile, but nobody answered.","Say you called David's mobile but nobody answered."],
+   ["T","他可能没带手机。","He might not have his phone with him."],
+   ["Y",["好的，谢谢老师！再见！","好的，谢谢！"],"Okay, thank you! Goodbye!","Thank her and say goodbye."],
+   ["Q","Where is David, and what's he doing?",3],["Q","What time?",5]]},
  {id:"E",zh:"在银行",en:"At the bank",card:"金老师是银行职员，你是客户。你要把500美元换成人民币，还要取3000元人民币。",cardEn:"Ms Jin works at the bank and you are a customer. Ask to exchange 500 US dollars for Chinese yuan and to withdraw 3,000 yuan.",
-  lines:[["T","您好，您办什么？","Hello, what can I do for you?"],
-   ["Y",["我要换钱。","我要换美元。","我要换人民币。"],"I want to change money.","Say you want to change money."],
-   ["T","换多少？","How much?"],
-   ["Y",["五百美元。","换五百美元。","我要换五百美元。"],"Five hundred US dollars.","Say 500 US dollars."],
-   ["T","请填一下单子，写一下护照号码。","Please fill out the form and write your passport number."],
-   ["Y",["好的。","好的，写好了。"],"Okay.","Say okay."],
-   ["T","还办什么？","Anything else?"],
-   ["Y",["我还要取三千块人民币。","还要取三千块钱。","我还要取三千元人民币。"],"I also want to withdraw 3,000 yuan.","Say you also want to withdraw 3,000 yuan."],
-   ["T","请输入密码。","Please enter your PIN."],
-   ["Y",["好了。"],"Done.","Say done."],
-   ["T","这是三千元人民币，请数一下。","Here's 3,000 yuan; please count it."],
-   ["Y",["正好，谢谢！","对，谢谢！"],"Exactly right, thanks!","Say it's exactly right and thank her."]]},
+  lines:[["Y",["你好，我要换五百美元到人民币。","你好，我要换500美元到人民币。"],"Hello, I want to change 500 US dollars into RMB.","Say you want to change 500 US dollars into RMB."],
+   ["T","好的，请给我你的护照和银行卡。","Okay, please give me your passport and bank card."],
+   ["Y",["好的，给你。"],"Okay, here you go.","Hand them over."],
+   ["T","好的，现在一美元换七人民币，一共三千五百元。","Okay, right now 1 US dollar is 7 RMB, so 3,500 yuan altogether."],
+   ["Y",["好的，谢谢。我还要取三千元人民币。","好的，谢谢。我还要取3000元人民币。"],"Okay, thanks. I also want to withdraw 3,000 yuan.","Thank her and say you also want to withdraw 3,000 yuan."],
+   ["T","好的，没问题。这里是三千元，请数一数。","Sure, no problem. Here's 3,000 yuan; please count it."],
+   ["Y",["好的。"],"Okay.","Say okay."],
+   ["T","好的，请在这里写你的名字。","Okay, please write your name here."],
+   ["Y",["好的！"],"Okay!","Say okay."],
+   ["T","好了，这里是你的护照和银行卡。","Done. Here are your passport and bank card."],
+   ["Y",["谢谢！"],"Thanks!","Say thanks."]]},
  {id:"F",zh:"问路",en:"Asking for directions",card:"问金老师从交通大学到外滩怎么走。听完路线后，在黑板上画出来。",cardEn:"Ask Ms Jin how to get from Shanghai Jiao Tong University to the Bund. Listen to the directions, then draw the route on the board.",
-  lines:[["Y",["金老师，请问，从交通大学到外滩怎么走？","请问，从交通大学到外滩怎么走？","请问，去外滩怎么走？"],"Ms Jin, excuse me, how do I get from Jiao Tong University to the Bund?","Ask how to get from Jiao Tong University to the Bund."],
-   ["T",[["坐地铁十号线，在南京东路站下车。出站往右拐，一直往前走，走十分钟就到了。","Take Metro Line 10 and get off at East Nanjing Road. Come out, turn right, go straight ahead; ten minutes and you're there.","Line 10 → East Nanjing Road → turn right → straight, 10 min"],
-     ["先坐十号线，在豫园站下车，然后往左拐，一直往前走，就到了。","First take Line 10 and get off at Yuyuan Garden, then turn left and go straight ahead, and you're there.","Line 10 → Yuyuan Garden → turn left → straight"],
-     ["出学校大门往左拐，走二百米就是交通大学站。坐十号线，在南京东路站下车，然后一直往前走。","Out the main gate, turn left; 200 meters on is Jiaotong University station. Take Line 10, get off at East Nanjing Road, then go straight ahead.","Gate → turn left 200 m → Line 10 → East Nanjing Road → straight"],
-     ["坐出租车吧，不远，三十分钟就到。","Take a taxi; it's not far, 30 minutes.","Taxi, 30 min"]]],
+  lines:[["Y",["你好老师，请问从上海交通大学到外滩怎么走？","老师，请问从上海交通大学到外滩怎么走？"],"Hello teacher, excuse me, how do I get from Shanghai Jiao Tong University to the Bund?","Ask how to get from Shanghai Jiao Tong University to the Bund."],
+   ["T",[["先走到交通大学地铁站四号口，坐十号线，六站，到南京东路二号口，然后往东走十五分钟就到了。","First walk to Jiaotong University metro station, Exit 4. Take Line 10 for six stops to East Nanjing Road, Exit 2, then walk east fifteen minutes and you're there.","Exit 4 → Line 10, 6 stops → East Nanjing Rd Exit 2 → walk east 15 min"],
+     ["先走到交通大学地铁站三号口，坐十号线，五站，到豫园一号口，然后往东走十分钟就到了。","First walk to Jiaotong University metro station, Exit 3. Take Line 10 for five stops to Yuyuan Garden, Exit 1, then walk east ten minutes and you're there.","Exit 3 → Line 10, 5 stops → Yuyuan Garden Exit 1 → walk east 10 min"],
+     ["先走到交通大学地铁站四号口，坐十号线，六站，到南京东路七号口，然后往东走十分钟就到了。","First walk to Jiaotong University metro station, Exit 4. Take Line 10 for six stops to East Nanjing Road, Exit 7, then walk east ten minutes and you're there.","Exit 4 → Line 10, 6 stops → East Nanjing Rd Exit 7 → walk east 10 min"],
+     ["先走到交通大学地铁站二号口，坐十号线，六站，到南京东路二号口，然后往北走五分钟就到了。","First walk to Jiaotong University metro station, Exit 2. Take Line 10 for six stops to East Nanjing Road, Exit 2, then walk north five minutes and you're there.","Exit 2 → Line 10, 6 stops → East Nanjing Rd Exit 2 → walk north 5 min"]]],
    ["Q","Which route did Ms Jin describe? (You'd draw this on the board.)",1],
-   ["Y",["谢谢老师！","谢谢您！"],"Thank you!","Thank her."]]},
+   ["Y",["好的，谢谢老师！"],"Okay, thank you, teacher!","Thank her."]]},
  {id:"G",zh:"在餐厅",en:"At a restaurant",card:"金老师是服务员，你是顾客。你要点菜，吃完后请服务员拿账单并结账。",cardEn:"Ms Jin is the waitress and you are a customer. Order your food. When you have finished eating, ask for the bill and pay.",
-  lines:[["T","你要什么？","What would you like?"],
-   ["Y",["来一个宫保鸡丁。","我要一个宫保鸡丁。","来一个红烧牛肉。"],"A Kung Pao chicken, please.","Order a dish."],
-   ["T","主食要什么？","What staple food?"],
-   ["Y",["来一碗米饭。","一碗米饭。","来一碗面条儿。"],"A bowl of rice.","Order a bowl of rice."],
-   ["T","喝什么？","What to drink?"],
-   ["Y",["来一瓶啤酒。","来一瓶水。"],"A bottle of beer.","Order a drink."],
-   ["Y",["服务员，结账！","服务员，结账。"],"Waiter, the bill!","(After eating) Ask for the bill."],
-   ["T",[["一共八十五块。","Eighty-five altogether."],["一共六十八块。","Sixty-eight altogether."]]],
-   ["Y",["给您一百块。","给你一百块。"],"Here's a hundred.","Pay with a 100 note."],
-   ["T",[["找您十五块。","Here's 15 change."],["找您三十二块。","Here's 32 change."]]],
-   ["Y",["谢谢！很好吃！","谢谢！"],"Thanks! It was delicious!","Thank her and say it was tasty."]]},
+  lines:[["T","您好，几位？","Hello, how many people?"],
+   ["Y",["两位。","一位。"],"Two.","Say how many people (two)."],
+   ["T","好的，请到这边。","Okay, this way please."],
+   ["Y",["好的，谢谢。"],"Okay, thanks.","Say okay, thanks."],
+   ["T","您要吃点什么？","What would you like to eat?"],
+   ["Y",["我要一个宫保鸡丁，两碗米饭。","我要一个红烧牛肉，两碗米饭。","我要一碗面条儿。"],"I'd like a Kung Pao chicken and two bowls of rice.","Order: 我要……"],
+   ["T","好的。还要别的吗？","Okay. Anything else?"],
+   ["Y",["我还要一瓶啤酒。","不用了，谢谢！","我还要两瓶水。"],"I'd also like a bottle of beer. / No, thanks!","Order one more thing, or say no thanks."],
+   ["Y",["服务员，我要买单！","服务员，我要结账！"],"Waiter, the bill please!","(After eating) Ask for the bill."],
+   ["T",[["好的，一共八十五元。怎么支付？","Okay, 85 yuan altogether. How will you pay?"],["好的，一共六十八元。怎么支付？","Okay, 68 yuan altogether. How will you pay?"]]],
+   ["Y",["好的，微信。","好的，支付宝。","好的，现金。","好的，银行卡。"],"WeChat, please.","Say how you'll pay (WeChat / Alipay / cash / bank card)."],
+   ["T","好的，我扫您。","Okay, I'll scan you."],
+   ["Y",["谢谢！"],"Thanks!","Say thanks."]]},
  {id:"H",zh:"在水果店",en:"At a fruit shop",card:"金老师是水果店店主，你是顾客。你要买水果，告诉店主你要什么水果、要多少，并结账。",cardEn:"Ms Jin runs a fruit shop and you are a customer. Tell her what fruit you would like and how much you want, then pay.",
-  lines:[["T","您要什么？","What would you like?"],
-   ["Y",["苹果多少钱一斤？","请问，苹果多少钱一斤？"],"How much are apples per jin?","Ask how much apples are per jin."],
-   ["T","八块。","Eight."],
-   ["Y",["太贵了，六块行吗？","太贵了，六块钱行吗？"],"Too expensive. Is six okay?","Say it's too expensive and offer 6."],
-   ["T","行，要几斤？","Okay, how many jin?"],
-   ["Y",["两斤。","我要两斤。"],"Two jin.","Say two jin."],
-   ["T","还要别的吗？","Anything else?"],
-   ["Y",["还要五个香蕉。","我还要五个香蕉。"],"Five bananas too.","Say you also want five bananas."],
-   ["Y",["一共多少钱？"],"How much altogether?","Ask how much altogether."],
-   ["T","一共二十块。","Twenty altogether."],
-   ["Y",["给您二十块。","给你二十块。"],"Here's twenty.","Pay 20 kuai."],
-   ["T","谢谢！","Thank you!"]]}
+  lines:[["T","您好，您要什么？","Hello, what would you like?"],
+   ["Y",["我要一斤苹果。","我要一斤苹果和一斤香蕉。","我要两斤苹果。","我要一斤香蕉。"],"I'd like a jin of apples (and a jin of bananas).","Say what fruit and how much: 我要……一斤……（和……）"],
+   ["T","好的。","Okay."],
+   ["Y",["多少钱？"],"How much is it?","Ask how much."],
+   ["T",[["八块，还要别的吗？","Eight kuai. Anything else?"],["十二块，还要别的吗？","Twelve kuai. Anything else?"]]],
+   ["Y",["不用了，谢谢！","我还要一斤香蕉。"],"No, thanks!","Say no thanks (or order more: 我还要……)."],
+   ["T",[["好的，一共八元。怎么支付？","Okay, 8 yuan altogether. How will you pay?"],["好的，一共十二元。怎么支付？","Okay, 12 yuan altogether. How will you pay?"]]],
+   ["Y",["好的，微信。","好的，支付宝。","好的，现金。","好的，银行卡。"],"WeChat, please.","Say how you'll pay (WeChat / Alipay / cash / bank card)."],
+   ["T","好的，我扫您。","Okay, I'll scan you."],
+   ["Y",["谢谢！"],"Thanks!","Say thanks."]]}
 ];
 let omOn=false,omPart=store.get("bd-ompart","p1"),omText=store.get("bd-omtext",false),omRun=0,omSc=null,omPick=[],omI=0,omRes=[],omCardQ=[],omCardI=0,omIntroMode=store.get("bd-omim","read"),omIntroI=0;
 function omOff(){if(omOn){omOn=false;omRun++;$("om").hidden=true;try{speechSynthesis.cancel()}catch(e){}try{spListen.cur&&spListen.cur.abort()}catch(e){}}}
@@ -5840,7 +5836,7 @@ function omP3(){
 }
 function omScStart(sc){
   omRun++;omSc=sc;omI=0;omRes=[];
-  omPick=sc.lines.map(l=>l[0]==="T"&&Array.isArray(l[1])?Math.floor(Math.random()*l[1].length):0);
+  {const r=Math.random();omPick=sc.lines.map(l=>l[0]==="T"&&Array.isArray(l[1])?(sc.id==="H"?Math.floor(r*l[1].length):Math.floor(Math.random()*l[1].length)):0)}
   $("omBody").innerHTML=`<div class="omscard"><div class="omsh"><b>${sc.id}</b> <span class="zh">${sc.zh}</span> · ${sc.en}</div><div class="zh omsz">${exEsc(sc.card)}</div><details><summary>English</summary>${exEsc(sc.cardEn)}</details></div>
     <div class="nav"><button class="btn" id="omScBack">All cards</button><button class="btn primary" id="omScGo">Start the conversation</button></div><div class="omchat" id="omChat"></div><div id="omTurn"></div>`;
   $("omScBack").onclick=omP3;
@@ -5868,7 +5864,7 @@ function omScStep(){
       $("omQONext").onclick=()=>{omI++;omScStep()}});
     return}
   // your turn
-  const [,acc,en,goal]=l;let done=false;
+  const nm=x=>x.split("{name}").join(omMe.name),acc=l[1].map(nm),en=nm(l[2]),goal=l[3];let done=false;
   $("omTurn").innerHTML=`<div class="omturn"><div class="spwho">Your turn</div><div class="slprompt">${exEsc(goal)}</div>${omMicHtml("omYM")}
     <div class="nav"><button class="btn quiet" id="omYHint">Hint</button><button class="btn quiet" id="omYShow">Show answer</button></div><div id="omYFb"></div>
     <div class="nav slself" id="omYSelf" hidden><button class="btn" id="omYNo">I missed it</button><button class="btn primary" id="omYYes">I said it right</button></div></div>`;
@@ -6037,6 +6033,6 @@ if("serviceWorker" in navigator&&window.isSecureContext&&location.protocol!=="fi
     b.style.cssText="position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:20;padding:10px 16px;border-radius:999px;border:0;background:#16a46a;color:#fff;font:700 15px ui-rounded,-apple-system,sans-serif;box-shadow:0 4px 0 #0f7f51";
     b.onclick=()=>location.reload();document.body.appendChild(b)});
 }
-window.BD_VERSION="66bea35a03";
+window.BD_VERSION="46fcee6df7";
 </script>
 </body></html>
