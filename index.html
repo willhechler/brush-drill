@@ -1090,6 +1090,7 @@ html,body,button,a,select,label,input,.tabbar,.seg{touch-action:manipulation}
 .exbox{flex:0 0 auto;min-width:44px;height:36px;border:2px solid var(--grid);border-radius:10px;display:grid;place-items:center;font-weight:800;color:var(--sky-d,var(--sky))}
 .exbox s{color:var(--red);margin-right:4px}
 .rvhard[aria-pressed="true"]{border-color:var(--sun-d);border-bottom-color:var(--sun-d);background:var(--sun-soft);color:#6b5300}
+.omqen{color:var(--muted);font-size:.95rem;margin:2px 0 4px}
 .omsay{font-size:1.45rem;line-height:1.7}.ompy{color:var(--sky-d);font-weight:700;font-size:.95rem;margin-top:2px}
 mark.omme{background:var(--sun-soft);color:inherit;border-bottom:3px solid var(--sun-d);border-radius:4px;padding:0 2px}
 .omchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
@@ -1721,6 +1722,7 @@ mark.omme{background:var(--sun-soft);color:inherit;border-bottom:3px solid var(-
       </div>
       <details class="opts"><summary><svg class="ico"><use href="#i-set"/></svg><span class="sum" id="omSum"></span><span class="chg"></span></summary><div class="optbody">
         <div class="rvopts"><span class="lab">Show 金老师's words</span><button class="switch" id="omText" aria-pressed="false" aria-label="Show the teacher's words"></button></div>
+        <div class="rvopts"><span class="lab">Show her questions in English</span><button class="switch" id="omEnQ" aria-pressed="false" aria-label="Show the teacher's questions in English"></button></div>
         <p class="wlhint">The real test is spoken, so 金老师's lines play as audio and stay hidden until you tap them. Slow audio follows the Speak setting. Tap any character to look it up.</p>
       </div></details>
       <div class="sheet"><div id="omBody" class="exbody"></div></div>
@@ -2915,7 +2917,7 @@ function spListen(onPartial){
 
 const SP_ORDER={"请问，银行在哪儿？": "请问 + place + 在 + 哪儿？", "在那边。": "在 + where (the subject is dropped)", "远吗？": "adjective + 吗？", "有点儿远，在食堂旁边。": "有点儿 + adjective，在 + place + 旁边", "食堂在哪儿？": "place + 在 + 哪儿？", "我带你去吧。": "I + 带 + you + 去 + 吧", "谢谢你！": "谢谢 + person", "山本，学校附近有书店吗？": "name，place + 附近 + 有 + thing + 吗？", "有。": "answer a 有 question with just 有", "不远。": "不 + adjective", "怎么走？": "怎么 + verb？", "出学校大门一直往前走。": "出 + place，一直 + 往 + direction + 走", "然后呢？": "然后 + 呢？", "走二百米，再往左拐。": "走 + distance，再 + 往 + direction + 拐", "王山，你家离学校远吗？": "name，A + 离 + B + 远吗？", "不远，就在学校附近。": "不远，就 + 在 + place + 附近", "从你家到学校多长时间？": "从 + A + 到 + B + 多长时间？", "走路十五分钟。": "how you go + time", "去你家怎么走？": "去 + place + 怎么走？", "出学校大门往右拐。": "出 + place + 往 + direction + 拐", "然后一直走吗？": "然后 + 一直 + verb + 吗？", "一直往前走，就到了。": "一直往前走，就 + 到 + 了"};
 // word-by-word glosses: split a line into dictionary words and give each its own pinyin and meaning
-const SP_NAMES={"交通":"Jiao Tong (transportation)","人文":"humanities","学院":"college, school (in a university)","外滩":"the Bund","迪士尼":"Disneyland","南京东路":"East Nanjing Road","豫园":"Yuyuan Garden","拿铁":"latte","巧克力":"chocolate","蛋糕":"cake","微信":"WeChat","支付宝":"Alipay","前台":"front desk","大卫":"David (name)","金老师":"Ms Jin","银行卡":"bank card","现金":"cash","买单":"pay the bill","几位":"how many people","号口":"exit number","司机":"driver","上海":"Shanghai","北京":"Beijing","人民广场":"People's Square","上海站":"Shanghai Station","北京饭店":"Beijing Hotel","纽约":"New York","伦敦":"London","玛莎":"Masha (name)","山本":"Yamamoto (name)","王山":"Wang Shan (name)","欧文":"Owen (name)","心美":"Xinmei (name)","玛丽":"Mary (name)","大卫":"David (name)","中国学生":"Chinese student","同学":"classmate"};
+const SP_NAMES={"交通":"Jiao Tong (transportation)","人文":"humanities","学院":"college, school (in a university)","外滩":"the Bund","迪士尼":"Disneyland","南京东路":"East Nanjing Road","豫园":"Yuyuan Garden","拿铁":"latte","巧克力":"chocolate","蛋糕":"cake","微信":"WeChat","支付宝":"Alipay","前台":"front desk","大卫":"David (name)","金老师":"Ms Jin","银行卡":"bank card","奶茶":"milk tea","徐汇区":"Xuhui District","头痛":"headache","痛":"to hurt","现金":"cash","买单":"pay the bill","几位":"how many people","号口":"exit number","司机":"driver","上海":"Shanghai","北京":"Beijing","人民广场":"People's Square","上海站":"Shanghai Station","北京饭店":"Beijing Hotel","纽约":"New York","伦敦":"London","玛莎":"Masha (name)","山本":"Yamamoto (name)","王山":"Wang Shan (name)","欧文":"Owen (name)","心美":"Xinmei (name)","玛丽":"Mary (name)","大卫":"David (name)","中国学生":"Chinese student","同学":"classmate"};
 const SP_GL={"请":"please","您好":"hello (polite)","坐":"ride, take","几":"which number","路":"(bus) route","号":"number","线":"line","换":"switch, transfer","站":"station, stop","得":"must (děi)","能":"can","直接":"directly","停":"stop","门口":"entrance","张":"(for tickets)","往返":"round-trip","单程":"one-way","机票":"plane ticket","车票":"ticket","车":"bus, car","过":"(have done)","没":"not (did not)","多少":"how much","钱":"money","块":"yuan","您":"you (polite)","地铁":"subway","出租车":"taxi","哪个":"which","买":"buy","要":"want to, need to","下个月":"next month","周末":"weekend","两":"two","在":"at, in","去":"go","有":"have, there is","不":"not","吗":"(question)","呢":"(and…?)","吧":"(suggestion)","了":"(done)","的":"'s, of","就":"just, right","再":"then","往":"toward","走":"walk, go","拐":"turn","出":"exit","到":"to, arrive","从":"from","离":"from (distance)","多":"how","长":"long","我":"I","你":"you","他":"he","家":"home","这儿":"here","那边":"over there","哪儿":"where","二百":"200","一百":"100","三百":"300","十五":"fifteen","二十":"twenty","了":"(done)","住":"live","自己":"own","不客气":"you're welcome","谢谢":"thank you","请问":"excuse me","然后":"then","一直":"straight on","先":"first","第":"(ordinal)","个":"(measure word)","米":"meters","分钟":"minutes","教学楼":"teaching building","旁边":"next to","对面":"across from","附近":"nearby","哪儿":"where","怎么":"how"};
 function zhVal(z){const D={零:0,一:1,二:2,两:2,三:3,四:4,五:5,六:6,七:7,八:8,九:9};let t=0,cur=0;
   for(const c of z){if(c in D)cur=D[c];else if(c==="十"){t+=(cur||1)*10;cur=0}else if(c==="百"){t+=(cur||1)*100;cur=0}else return null}return t+cur}
@@ -5611,14 +5613,14 @@ const OM_DRINK=[["咖啡","coffee"],["茶","tea"],["水","water"],["可乐","col
 const OM_HOBBY=[["看电影","watching movies"],["游泳","swimming"],["看书","reading"],["听音乐","listening to music"],["打篮球","playing basketball"],["踢足球","playing soccer"],["跑步","running"],["玩儿游戏","playing games"]];
 const OM_TOGETHER=[["去吃饭","go out to eat"],["去看电影","go see a movie"],["喝咖啡","get coffee"],["去游泳","go swimming"],["打篮球","play basketball"],["去玩儿","hang out"]];
 const OM_COUNTRY=[["美国","American"],["英国","British"],["法国","French"],["德国","German"],["日本","Japanese"],["韩国","Korean"],["俄罗斯","Russian"]];
-const OM_ME_DEF={name:"韦力",country:"美国",age:"二十四",eat:"饺子",drink:"咖啡",hobby:"看电影",together:"去吃饭"};
+const OM_ME_DEF={addr:"徐汇区",name:"韦力",country:"美国",age:"二十四",eat:"饺子",drink:"咖啡",hobby:"看电影",together:"去吃饭"};
 let omMe=Object.assign({},OM_ME_DEF,store.get("bd-omme",{}));
 const omEn=(list,v)=>{const h=list.find(x=>x[0]===v);if(h)return h[1];const L=lkIndex().get(v);return L?pgShort(L.en):v};
 // the self-introduction, sentence by sentence: [Chinese, English]
 function omIntro(){const m=omMe;return [
   [`你好！我叫${m.name}。`,`Hello! My name is ${m.name}.`],
   [`我是${m.country}人，今年${m.age}岁。`,`I'm ${omEn(OM_COUNTRY,m.country)}, and I'm ${zhVal(m.age)??m.age} this year.`],
-  ["我是上海交通大学人文学院的学生，我在这里学习汉语。","I'm a student of Shanghai Jiao Tong University's 人文学院 (humanities college), and I study Chinese here."],
+  ["我是上海交通大学人文学院的学生，我在这里学汉语。","I'm a student of Shanghai Jiao Tong University's 人文学院 (humanities college), and I study Chinese here."],
   [`我喜欢吃${m.eat}，喜欢喝${m.drink}。`,`I like eating ${omEn(OM_EAT,m.eat)} and drinking ${omEn(OM_DRINK,m.drink)}.`],
   [`我平时喜欢${m.hobby}。`,`In my free time I like ${omEn(OM_HOBBY,m.hobby)}.`],
   [`有时间我们可以一起${m.together}！`,`When we have time we can ${omEn(OM_TOGETHER,m.together)} together!`],
@@ -5635,38 +5637,35 @@ function omNow(){const d=new Date(),h=d.getHours(),mi=d.getMinutes(),W="日一�
 function omCards(){const m=omMe,n=omNow();return [
  {n:"01",qs:[["你叫什么名字？","What's your name?",[[`我叫${m.name}。`,`My name is ${m.name}.`]]],["你是哪国人？","Which country are you from?",[[`我是${m.country}人。`,`I'm ${omEn(OM_COUNTRY,m.country)}.`]]]]},
  {n:"02",qs:[["今天几月几号？","What's the date today?",[n.date]],["星期几？","What day of the week?",[n.day]],["现在几点？","What time is it now?",[n.time]]]},
- {n:"03",qs:[["你明天有汉语课吗？","Do you have Chinese class tomorrow?",[["有，明天上午有汉语课。","Yes, I have Chinese class tomorrow morning."],["没有，明天没有汉语课。","No, there's no Chinese class tomorrow."]]],
-   ["几点开始上课？","What time does class start?",[["八点上课。","Class is at eight."],["上午八点开始上课。","Class starts at 8 a.m."]]],["几点下课？","What time does class end?",[["十一点半下课。","Class ends at 11:30."]]]]},
- {n:"04",qs:[["你一般几点起床？","What time do you usually get up?",[["我一般七点起床。","I usually get up at seven."]]],["几点睡觉？","What time do you go to bed?",[["十一点睡觉。","At eleven."]]]]},
- {n:"05",qs:[["你要吃点什么？","What would you like to eat?",[[`来一碗面条儿。`,"A bowl of noodles."],[`我要${m.eat}。`,`I'd like ${omEn(OM_EAT,m.eat)}.`]]],["喝点什么？","What would you like to drink?",[["来一瓶水。","A bottle of water."],[`我要一杯${m.drink}。`,`A cup of ${omEn(OM_DRINK,m.drink)}.`]]]]},
- {n:"06",qs:[["你家离学校远吗？","Is your home far from school?",[["不远，就在学校附近。","Not far, it's right near the school."],["有点儿远。","A bit far."]]],
-   ["怎么走？","How do you get there?",[["出学校大门往右拐，一直往前走，就到了。","Go out the main gate, turn right, go straight ahead, and you're there."],["走路十五分钟。","Fifteen minutes on foot."]]]]},
- {n:"07",qs:[["从交通大学去迪士尼怎么走？","How do you get from Jiao Tong University to Disney?",[["坐地铁十一号线。能直接到，不用换车。","Take Metro Line 11. It goes straight there; no need to transfer."]]]]},
- {n:"08",qs:[["你哪儿不舒服？","Where do you feel unwell?",[["我头疼，嗓子也疼，可能感冒了。","I have a headache and a sore throat; maybe I have a cold."],["我发烧了，还咳嗽。","I have a fever, and a cough too."]]]]},
- {n:"09",qs:[["你住在哪里？","Where do you live?",[["我住留学生楼。","I live in the international students' building."],["我住在学校附近。","I live near the school."]]]]},
+ {n:"03",qs:[["你明天有汉语课吗？","Do you have Chinese class tomorrow? (She may ask 昨天 / 今天 instead.)",[["我明天有汉语课。","I have Chinese class tomorrow."],["我明天没有汉语课。","I don't have Chinese class tomorrow."]]],
+   ["几点开始上课？","What time does class start?",[["明天十点十分开始上课。","Class starts at 10:10 tomorrow."]]],["几点下课？","What time does class end?",[["下午四点一刻下课。","Class ends at 4:15 p.m."]]]]},
+ {n:"04",qs:[["你一般几点起床？几点睡觉？","What time do you usually get up? What time do you go to bed?",[["我一般早上七点起床，晚上十一点睡觉。","I usually get up at 7 a.m. and go to bed at 11 p.m."]]]]},
+ {n:"05",qs:[["你要吃点什么？喝点什么？","What would you like to eat? And to drink?",[["我要吃面包，我要喝咖啡。","I'd like to eat bread, and I'd like to drink coffee."],["我要吃面包，我要喝奶茶。","I'd like bread and milk tea."],[`我要吃${m.eat}，我要喝${m.drink}。`,`I'd like ${omEn(OM_EAT,m.eat)} and ${omEn(OM_DRINK,m.drink)}.`]]]]},
+ {n:"06",qs:[["你家离学校远吗？怎么走？","Is your home far from school? How do you get there?",[["我家离学校不太远。先坐地铁十号线，然后走五分钟。","My home isn't too far from school. First take Metro Line 10, then walk five minutes."],["我家离学校很近。先出学校大门，然后往右拐，走十分钟。","My home is very close. First go out the main gate, then turn right and walk ten minutes."],["我家离学校很远。坐地铁十号线四十分钟。","My home is far from school: 40 minutes on Metro Line 10."]]]]},
+ {n:"07",qs:[["从交通大学去迪士尼怎么走？","How do you get from Jiao Tong University to Disney?",[["先坐地铁十一号线十五站，四十五分钟，到迪士尼地铁站一号口，然后走九分钟。","First take Metro Line 11 for 15 stops, 45 minutes, to Disneyland station Exit 1, then walk nine minutes."]]]]},
+ {n:"08",qs:[["你哪儿不舒服？","Where do you feel unwell?",[["我头痛。","I have a headache."],["我发烧了。","I have a fever."],["我嗓子痛。","I have a sore throat."]]]]},
+ {n:"09",qs:[["你住在哪里？","Where do you live?",[[`我住在上海${m.addr}。`,"I live in Shanghai, at the address you filled in (district, road, building, room)."]]]],note:"Say it like the sheet: 我住在上海徐汇区（district）……路（road）……号楼（building）……室（room）. Fill in your address under Part 1 → Your details."},
  {n:"10",qs:[["咖啡多少钱一杯？","How much is a cup of coffee?",[["三十块一杯。","Thirty kuai a cup."]]],["这个巧克力蛋糕呢？","And this chocolate cake?",[["三十五块。","Thirty-five kuai."]]]],note:"In the exam, read the prices off the card the teacher shows you."}
 ]}
 // Part 3: role-play cards. T = 金老师 (variants as [Chinese, English, label]); Y = you: [accepted answers], English, what to do; Q = a question about what you heard
 // Role-play lines follow the teacher's example conversations from class (C–H); A and B use the same style
 const OM_SC=[
  {id:"A",zh:"在医院",en:"At the hospital",card:"金老师是医生，你是病人。告诉医生你头疼，嗓子也疼，可能感冒了。医生会给你量体温、开药。听医生怎么说，并作出回应。",cardEn:"Ms Jin is the doctor and you are the patient. Tell her you have a headache and a sore throat, and that you think you might have a cold. The doctor will take your temperature and prescribe some medicine. Listen and respond.",
-  lines:[["T","您好，你怎么了？","Hello, what's wrong?"],
-   ["Y",["医生，我头疼，嗓子也疼。","我头疼，嗓子也疼。"],"Doctor, I have a headache, and a sore throat too.","Say you have a headache and a sore throat."],
-   ["T","发烧吗？","Do you have a fever?"],
-   ["Y",["我不知道。我可能感冒了。","不知道，我可能感冒了。"],"I don't know. I might have a cold.","Say you don't know; you might have a cold."],
-   ["T",[["好的，试一下体温吧。三十八度五，你发烧了。","Okay, let's take your temperature. 38.5, you have a fever."],["好的，试一下体温吧。三十七度八，有点儿发烧。","Okay, let's take your temperature. 37.8, a slight fever."]]],
-   ["Y",["要打针吗？","我要打针吗？"],"Do I need an injection?","Ask if you need an injection."],
-   ["T",[["不用打针。你感冒了，吃点儿药吧。这个药一天三次，一次两片。","No injection. You have a cold; take some medicine. Three times a day, two pills each time."],["不用。这是感冒颗粒，一天三次。多喝水，多休息。","No. Here are cold granules, three times a day. Drink lots of water and rest."]]],
-   ["Y",["好的，谢谢医生！","谢谢医生！"],"Okay, thank you, doctor!","Thank the doctor."]]},
+  lines:[["T","你好，您怎么了？","Hello, what's wrong?"],
+   ["Y",["我头疼。嗓子疼。我可能感冒了。","我头疼，嗓子疼，我可能感冒了。","我头疼，嗓子也疼，我可能感冒了。"],"I have a headache. My throat hurts. I might have a cold.","Say you have a headache and a sore throat, and might have a cold."],
+   ["T","先试一下体温。","First, let's take your temperature."],
+   ["Y",["好的。"],"Okay.","Say okay."],
+   ["T",[["三十八度八，你发烧了。我给你开点儿药。","38.8, you have a fever. I'll prescribe you some medicine."],["三十八度五，你发烧了。我给你开点儿药。","38.5, you have a fever. I'll prescribe you some medicine."]]],
+   ["Y",["好的，谢谢医生。"],"Okay, thank you, doctor.","Thank the doctor."]]},
  {id:"B",zh:"在咖啡馆",en:"At a café",card:"金老师是咖啡馆店员，你是顾客。你要买一杯热拿铁和一块巧克力蛋糕。",cardEn:"Ms Jin works at the café and you are a customer. Order a hot latte and a slice of chocolate cake.",
-  lines:[["T","您好，您要什么？","Hello, what would you like?"],
-   ["Y",["我要一杯热拿铁和一块巧克力蛋糕。","我要一杯热拿铁，一块巧克力蛋糕。"],"I'd like a hot latte and a slice of chocolate cake.","Order a hot latte and a slice of chocolate cake."],
-   ["T","好的。还要别的吗？","Okay. Anything else?"],
-   ["Y",["不用了，谢谢！"],"No, thanks!","Say no thanks."],
-   ["T",[["好的，一共五十八元。怎么支付？","Okay, 58 yuan altogether. How will you pay?"],["好的，一共六十二元。怎么支付？","Okay, 62 yuan altogether. How will you pay?"]]],
-   ["Y",["好的，微信。","好的，支付宝。","好的，现金。","好的，银行卡。"],"WeChat, please.","Say how you'll pay (WeChat / Alipay / cash / bank card)."],
-   ["T","好的，我扫您。","Okay, I'll scan you."],
-   ["Y",["谢谢！"],"Thanks!","Say thanks."]]},
+  lines:[["T","您好，您要喝什么？","Hello, what would you like to drink?"],
+   ["Y",["我要一杯拿铁，和一块巧克力蛋糕。","我要一杯拿铁和一块巧克力蛋糕。"],"I'd like a latte, and a slice of chocolate cake.","Order a latte and a slice of chocolate cake."],
+   ["T","拿铁你要热的还是冰的？","Do you want the latte hot or iced?"],
+   ["Y",["我要热的。"],"Hot, please.","Say you want it hot."],
+   ["T",[["好的，一共三十五块，怎么支付？","Okay, 35 kuai altogether. How will you pay?"],["好的，一共四十二块，怎么支付？","Okay, 42 kuai altogether. How will you pay?"]]],
+   ["Y",["支付宝可以吗？","微信可以吗？"],"Can I use Alipay?","Ask if you can pay with Alipay."],
+   ["T","可以，我扫你。","Yes, I'll scan you."],
+   ["Y",["好的，谢谢！"],"Okay, thanks!","Say okay, thanks."]]},
  {id:"C",zh:"在酒店",en:"At a hotel",card:"金老师是酒店前台工作人员，你是住客。你在房间里打电话给前台，告诉对方房间的灯坏了，也没有热水。",cardEn:"Ms Jin is the receptionist and you are a hotel guest. Call reception from your room. Explain that the light in your room is not working and there is no hot water.",
   lines:[["T","您好，这里是前台。","Hello, this is reception."],
    ["Y",["你好，这里是五零二房间。","你好，这里是502房间。"],"Hello, this is room 502.","Say hello and give your room number (502)."],
@@ -5674,18 +5673,18 @@ const OM_SC=[
    ["Y",["我房间的灯坏了。","我房间的灯不亮了。"],"The light in my room is broken.","Say the light in your room is broken / not working."],
    ["T","好的，我一会儿去看看。","Okay, I'll come have a look in a bit."],
    ["Y",["我房间也没有热水。"],"There's no hot water in my room either.","Say there's no hot water either."],
-   ["T","好的，对不起，我马上去看看。","Okay, sorry, I'll come look right away."],
+   ["T","好的，对不起，我马上就去。","Okay, sorry, I'll come right away."],
    ["Y",["好的，谢谢！"],"Okay, thanks!","Say okay, thanks."]]},
  {id:"D",zh:"打电话找朋友",en:"A phone call",card:"你打电话给金老师，想找你的朋友大卫。听金老师说大卫在哪儿、在做什么、几点回家。告诉金老师，你打大卫的手机，可是没人接。",cardEn:"Ring Ms Jin and ask to speak to your friend David. Listen to find out where he is, what he is doing and what time he will be home. Tell Ms Jin that you rang David's mobile, but he did not answer.",
   lines:[["Y",["你好，是金老师吗？"],"Hello, is this Ms Jin?","Ask if this is Ms Jin."],
-   ["T","是的，您是哪位？","Yes. Who's calling?"],
-   ["Y",["我是{name}，我想找我的朋友大卫。他在教室吗？","我是{name}，我想找我的朋友大卫。他在教室里吗？","我是{name}，我想找我的朋友大卫。"],"I'm {name}. I'm looking for my friend David. Is he in the classroom?","Say who you are, that you're looking for David, and ask if he's in the classroom."],
+   ["T",[["是的，您是哪位？","Yes. Who's calling?"],["是的，您是谁？","Yes. Who is this?"]]],
+   ["Y",["我是{name}，我想找我的朋友大卫。他在教室里吗？","我是{name}，我想找我的朋友大卫。他在教室吗？","我是{name}，我想找我的朋友大卫。"],"I'm {name}. I'm looking for my friend David. Is he in the classroom?","Say who you are, that you're looking for David, and ask if he's in the classroom."],
    ["T",[["他在教室，他在上课。","He's in the classroom; he's in class.","in the classroom, having class"],["他不在教室，他在图书馆，他在看书。","He's not in the classroom; he's at the library, reading.","at the library, reading"],["他不在教室，他在宿舍，他在睡觉。","He's not in the classroom; he's in the dorm, sleeping.","in the dorm, sleeping"]]],
    ["Y",["他几点回家？"],"What time will he go home?","Ask what time he'll go home."],
    ["T",[["我们下午四点一刻下课。","We finish class at 4:15 p.m.","4:15 p.m."],["他下午五点半回家。","He goes home at 5:30 p.m.","5:30 p.m."],["他晚上七点回家。","He goes home at 7 p.m.","7 p.m."]]],
-   ["Y",["我打了大卫的手机，可是没人接。","我打了他的手机，可是没人接。"],"I called David's mobile, but nobody answered.","Say you called David's mobile but nobody answered."],
+   ["Y",["我打了他的手机，可是没人接。","我打了大卫的手机，可是没人接。"],"I called David's mobile, but nobody answered.","Say you called David's mobile but nobody answered."],
    ["T","他可能没带手机。","He might not have his phone with him."],
-   ["Y",["好的，谢谢老师！再见！","好的，谢谢！"],"Okay, thank you! Goodbye!","Thank her and say goodbye."],
+   ["Y",["好的，谢谢老师！","好的，谢谢老师！再见！"],"Okay, thank you, teacher!","Thank her."],
    ["Q","Where is David, and what's he doing?",3],["Q","What time?",5]]},
  {id:"E",zh:"在银行",en:"At the bank",card:"金老师是银行职员，你是客户。你要把500美元换成人民币，还要取3000元人民币。",cardEn:"Ms Jin works at the bank and you are a customer. Ask to exchange 500 US dollars for Chinese yuan and to withdraw 3,000 yuan.",
   lines:[["Y",["你好，我要换五百美元到人民币。","你好，我要换500美元到人民币。"],"Hello, I want to change 500 US dollars into RMB.","Say you want to change 500 US dollars into RMB."],
@@ -5744,7 +5743,7 @@ function omDraw(){
   omRun++;try{speechSynthesis.cancel()}catch(e){}
   document.querySelectorAll("#omPart button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.p===omPart));
   $("omText").setAttribute("aria-pressed",omText);
-  $("omSum").textContent=`Ms Jin's words ${omText?"shown":"audio only (tap to show)"}`;
+  omSumTxt();
   ({p1:omP1,p2:omP2,p3:omP3})[omPart]();
 }
 const omMicHtml=id=>`<div class="slmicrow"><button class="spmic" id="${id}" aria-label="Say it"><svg class="ico" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></button><span class="lab" id="${id}Lab">${SR?"Tap and say it":"Say it out loud"}</span></div><div class="spheard" id="${id}Heard"></div>`;
@@ -5775,7 +5774,7 @@ function omP1(){
   const S=omIntro();
   $("omBody").innerHTML=`<p class="tqask">Part 1 · 自我介绍 Self-introduction (30 marks). Fill in your details, then practise saying it.</p>
     <details class="omform"${store.get("bd-omformopen",true)?" open":""}><summary>Your details</summary>
-    ${field("name","Name 名字")}${field("country","Country 国",OM_COUNTRY)}${field("age","Age 岁 (say it in characters, like 二十四)")}${field("eat","I like eating 我喜欢吃……",OM_EAT)}${field("drink","I like drinking 喜欢喝……",OM_DRINK)}${field("hobby","In my free time I like 我平时喜欢……",OM_HOBBY)}${field("together","We can … together 一起……",OM_TOGETHER)}
+    ${field("name","Name 名字")}${field("country","Country 国",OM_COUNTRY)}${field("age","Age 岁 (say it in characters, like 二十四)")}${field("eat","I like eating 我喜欢吃……",OM_EAT)}${field("drink","I like drinking 喜欢喝……",OM_DRINK)}${field("hobby","In my free time I like 我平时喜欢……",OM_HOBBY)}${field("together","We can … together 一起……",OM_TOGETHER)}${field("addr","Where you live, for card 09: 我住在上海…… (区 district, 路 road, 号楼 building, 室 room)")}
     </details>
     <div class="rvopts omview"><span class="lab">Show it as</span><div class="pgpick" id="omView"><button data-v="script">Script</button><button data-v="py">Script + pinyin</button><button data-v="word">Word by word</button></div></div>
     <div class="omintro">${S.map(([z,e],i)=>`<div class="omis${omIntroMode==="drill"&&i===omIntroI?" cur":""}">${omView==="word"?spGloss(z,""):`<div class="omsay zh">${omMark(z)}</div>${omView==="py"?`<div class="ompy">${exEsc(omPyOf(z))}</div>`:""}`}<div class="slen">${exEsc(e)}</div></div>`).join("")}</div>
@@ -5823,7 +5822,7 @@ function omCardRun(){
     if(qi>=card.qs.length){omCardI++;omCardRun();return}
     const [q,qe,ans]=card.qs[qi];
     $("omBody").innerHTML=`<div class="tqtop"><span class="meta">Card ${card.n} · ${omCardI+1} of ${omCardQ.length}${card.qs.length>1?` · question ${qi+1} of ${card.qs.length}`:""}</span></div>
-      <div class="omteacher"><span class="who">金老师</span><div class="ombub">${omText?`<div class="zh omq">${exEsc(q)}</div>`:`<button class="chip" id="omShowQ">Show the question</button>`}</div><button class="btn quiet" id="omHearQ"><svg class="ico"><use href="#i-sound"/></svg>Again</button></div>
+      <div class="omteacher"><span class="who">金老师</span><div class="ombub">${omText?`<div class="zh omq">${exEsc(q)}</div>`:`<button class="chip" id="omShowQ">Show the question</button>`}${omEnQ?`<div class="slen omqen">${exEsc(qe)}</div>`:""}</div><button class="btn quiet" id="omHearQ"><svg class="ico"><use href="#i-sound"/></svg>Again</button></div>
       <p class="tqask">Answer out loud in a full sentence.</p>${omMicHtml("omQM")}
       <div class="nav"><button class="btn quiet" id="omQShow">Show a good answer</button></div><div id="omQFb"></div>
       <div class="nav slself" id="omQSelf" hidden><button class="btn" id="omQNo">I need more practice</button><button class="btn primary" id="omQYes">I answered it</button></div>${card.note?`<p class="wlhint">${card.note}</p>`:""}`;
@@ -5857,7 +5856,7 @@ function omTLine(i){const l=omSc.lines[i];return Array.isArray(l[1])?l[1][omPick
 function omBubble(zh,en,mine){
   const el=document.createElement("div");el.className="omline"+(mine?" me":"");
   const hide=!mine&&!omText;
-  el.innerHTML=`<span class="who">${mine?"你":"金老师"}</span><div class="ombub">${hide?`<button class="chip omreveal">Show what she said</button><div hidden>`:"<div>"}${spGloss(zh,"")}<div class="slen">${exEsc(en)}</div></div><button class="say" aria-label="Hear it"><svg class="ico"><use href="#i-sound"/></svg></button></div>`;
+  el.innerHTML=`<span class="who">${mine?"你":"金老师"}</span><div class="ombub">${hide&&omEnQ?`<div class="slen omqen">${exEsc(en)}</div>`:""}${hide?`<button class="chip omreveal">Show what she said</button><div hidden>`:"<div>"}${spGloss(zh,"")}<div class="slen">${exEsc(en)}</div></div><button class="say" aria-label="Hear it"><svg class="ico"><use href="#i-sound"/></svg></button></div>`;
   el.querySelector(".say").onclick=()=>slUtter(zh,!mine);
   const r=el.querySelector(".omreveal");if(r)r.onclick=()=>{r.nextElementSibling.hidden=false;r.remove()};
   $("omChat").appendChild(el);el.scrollIntoView({block:"nearest",behavior:"smooth"});
@@ -5892,7 +5891,10 @@ function omScDone(){
   $("omScAll").onclick=omP3;$("omScRe").onclick=()=>omScStart(omSc);$("omScNew").onclick=()=>{let s;do s=OM_SC[Math.floor(Math.random()*OM_SC.length)];while(s===omSc);omScStart(s)};
 }
 document.querySelectorAll("#omPart button").forEach(b=>b.onclick=()=>{omPart=b.dataset.p;store.set("bd-ompart",omPart);omDraw()});
-$("omText").onclick=()=>{omText=!omText;store.set("bd-omtext",omText);$("omText").setAttribute("aria-pressed",omText);$("omSum").textContent=`Ms Jin's words ${omText?"shown":"audio only (tap to show)"}`};
+let omEnQ=store.get("bd-omenq",false);
+function omSumTxt(){$("omSum").textContent=`金老师: ${omText?"Chinese shown":"audio only"}${omEnQ?", English shown":""}`;$("omEnQ").setAttribute("aria-pressed",omEnQ)}
+$("omEnQ").onclick=()=>{omEnQ=!omEnQ;store.set("bd-omenq",omEnQ);omSumTxt();if(omPart==="p2"&&$("omQM"))document.querySelectorAll(".ombub").forEach(b=>{const e=b.querySelector(".omqen");if(e)e.hidden=!omEnQ});if(omPart==="p2"&&$("omQM")&&omEnQ&&!document.querySelector(".omqen"))toast("Shows from the next question")};
+$("omText").onclick=()=>{omText=!omText;store.set("bd-omtext",omText);$("omText").setAttribute("aria-pressed",omText);omSumTxt()};
 $("startOm").onclick=startOm;
 
 /* ---------- word cards ---------- */
@@ -6044,6 +6046,6 @@ if("serviceWorker" in navigator&&window.isSecureContext&&location.protocol!=="fi
     b.style.cssText="position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:20;padding:10px 16px;border-radius:999px;border:0;background:#16a46a;color:#fff;font:700 15px ui-rounded,-apple-system,sans-serif;box-shadow:0 4px 0 #0f7f51";
     b.onclick=()=>location.reload();document.body.appendChild(b)});
 }
-window.BD_VERSION="f51e536ff3";
+window.BD_VERSION="ac6c477c31";
 </script>
 </body></html>
