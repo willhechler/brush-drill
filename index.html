@@ -1091,6 +1091,21 @@ html,body,button,a,select,label,input,.tabbar,.seg{touch-action:manipulation}
 .exbox s{color:var(--red);margin-right:4px}
 .rvhard[aria-pressed="true"]{border-color:var(--sun-d);border-bottom-color:var(--sun-d);background:var(--sun-soft);color:#6b5300}
 .omqen{color:var(--muted);font-size:.95rem;margin:2px 0 4px}
+.pphead{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.pphead b{font-size:1.15rem}
+.ppsec{display:flex;flex-direction:column;gap:10px;border-top:2px solid var(--line);padding-top:14px}.ppsec h3{margin:0;font-size:1.05rem}
+.ppgrp{display:flex;flex-direction:column;gap:8px;background:var(--well);border-radius:14px;padding:10px 12px}
+.pprow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 4px;border-radius:10px}.pprow .zh{font-size:1.15rem}
+.ppcol{flex-direction:column;align-items:stretch}.ppn{color:var(--muted);font-weight:700;margin-right:4px}
+.ppsel{font-size:1rem;padding:4px 8px;border:2px solid var(--line);border-radius:10px;background:var(--card)}
+.ppopts{display:flex;flex-direction:column;gap:4px;border-top:1px dashed var(--line);padding-top:8px}.ppopts.inline{flex-direction:row;flex-wrap:wrap;gap:6px 16px;border:0;padding:0}
+.ppopts b{color:var(--sky-d)}.ppslot.picked{background:var(--sun);border-color:var(--sun-d);color:#3a2c00}
+.expass input.ppshort{width:5.5em!important;min-width:0!important;display:inline-block!important;padding:2px 6px!important;font-size:1.05rem!important;margin:0 2px!important;height:auto!important;vertical-align:baseline}
+.expass .ppfix{font-size:.85rem}
+.ppblank{white-space:nowrap}
+.pppy{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}.ppbig{font-size:1.6rem!important;text-align:center}
+.ppfix:empty{display:none}.ppfix{font-weight:700;font-size:.95rem}
+.ppok{background:var(--jade-soft)}.ppok .ppfix{color:var(--jade-d)}.ppno{background:var(--red-soft)}.ppno .ppfix{color:var(--red-d)}
+.ppblank.ppok,.ppblank.ppno{border-radius:8px;padding:0 4px}
 .omsay{font-size:1.45rem;line-height:1.7}.ompy{color:var(--sky-d);font-weight:700;font-size:.95rem;margin-top:2px}
 mark.omme{background:var(--sun-soft);color:inherit;border-bottom:3px solid var(--sun-d);border-radius:4px;padding:0 2px}
 .omchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
@@ -1670,7 +1685,7 @@ mark.omme{background:var(--sun-soft);color:inherit;border-bottom:3px solid var(-
       <div class="qhead">
         <h2>Exam practice</h2>
         <div class="tools"><div class="seg" role="group" aria-label="What to practise" id="exMode">
-          <button data-m="full">Full test</button><button data-m="mock">The mock</button><button data-m="match">Matching</button><button data-m="place">Word place</button><button data-m="fill">Fill in</button><button data-m="ask">Questions</button><button data-m="py">Pinyin</button><button data-m="dlg">Dialogues</button>
+          <button data-m="full">Full test</button><button data-m="mock">The mock</button><button data-m="match">Matching</button><button data-m="place">Word place</button><button data-m="fill">Fill in</button><button data-m="ask">Questions</button><button data-m="py">Pinyin</button><button data-m="dlg">Dialogues</button><button data-m="papers">5 practice papers</button>
         </div></div>
       </div>
       <div class="bar"><i id="exBar" style="width:0"></i></div>
@@ -1680,6 +1695,7 @@ mark.omme{background:var(--sun-soft);color:inherit;border-bottom:3px solid var(-
         <div class="nav"><button class="btn primary" id="exNext" hidden>Next</button></div>
         <p class="wlhint lkhint">Stuck on a character? Tap it to see what it means. On answer buttons, press and hold.</p>
       </div>
+      <div class="sheet" id="exPaper" hidden></div>
       <div class="sheet summary" id="exDone" hidden>
         <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap"><span class="big" id="exFinal"></span><span class="meaning" id="exFinalTxt"></span></div>
         <div id="exParts"></div>
@@ -4951,6 +4967,8 @@ function exPyPool(){
   const seen=new Set(EX.py.map(x=>x[0]));return [...EX.py,...words.filter(x=>!seen.has(x[0]))];
 }
 function exBuild(list){
+  if(!list&&exMode==="papers"){exPapersHome();return}
+  $("exPaper").hidden=true;
   const take=(k,arr,n)=>shuffled(arr).slice(0,n).map(it=>({k,it}));
   const mk=m=>EX[m];
   if(list)exQ=list;
@@ -5119,6 +5137,116 @@ $("startEx").onclick=startEx;
 $("exNext").onclick=()=>{exI++;exShow()};
 $("exAgain").onclick=()=>exBuild();
 $("exRetry").onclick=()=>exBuild(exMiss.slice());
+/* ---------- practice papers: five full reading & writing papers on one scrolling page each ---------- */
+EX.match.push(["你常常去图书馆吗？","常常去，我喜欢在那儿看书。","often"],["你家有狗吗？","有，我家有两条狗。","have"],["你明天去看电影吗？","不去，我明天有课。","go"],
+  ["你要喝咖啡吗？","不喝，我要一杯水。","drink"],["这本词典是谁的？","是我朋友的。","whose"],["上海的夏天热吗？","很热，差不多三十五度。","hot"],["你几点吃早饭？","七点半。","time"],
+  ["你的同屋是哪国人？","他是日本人。","country"],["学校的超市在哪儿？","在宿舍楼东边。","where"],["一瓶水多少钱？","两块。","money"],["你喜欢游泳吗？","很喜欢，我常常游泳。","like"],
+  ["今天星期几？","星期四。","day"],["你怎么去学校？","骑自行车去。","route"]);
+EX.place.push({s:"今天 A 天气 B 冷 C。",w:"比较",a:"B",f:"今天天气比较冷。",y:"比较 goes right before the adjective: 比较冷."},
+  {s:"我 A 认识 B 那个 C 留学生。",w:"不",a:"A",f:"我不认识那个留学生。",y:"不 goes right before the verb 认识."},
+  {s:"A 我们 B 是 C 美国人。",w:"都",a:"B",f:"我们都是美国人。",y:"都 goes after the people and before 是."},
+  {s:"他 A 去 B 图书馆 C 看书。",w:"常常",a:"A",f:"他常常去图书馆看书。",y:"常常 goes before the verb 去."},
+  {s:"我 A 有 B 一个 C 妹妹。",w:"还",a:"A",f:"我还有一个妹妹。",y:"还 (also) goes before 有."},
+  {s:"这 A 是 B 我 C 词典。",w:"的",a:"C",f:"这是我的词典。",y:"Owner + 的 + thing: 我的词典."},
+  {s:"昨天 A 我 B 去 C 超市。",w:"没",a:"B",f:"昨天我没去超市。",y:"没 goes right before the verb 去."},
+  {s:"我 A 喝 B 两杯 C 咖啡。",w:"要",a:"A",f:"我要喝两杯咖啡。",y:"要 (want to) goes before the verb 喝."},
+  {s:"我 A 同屋 B 是 C 日本人。",w:"的",a:"A",f:"我的同屋是日本人。",y:"Owner + 的 + person: 我的同屋."},
+  {s:"他们 A 下午 B 三点 C 上课。",w:"一般",a:"A",f:"他们一般下午三点上课。",y:"一般 comes after the subject, before the time."},
+  {s:"冬天 A 是 B 冷的 C 季节。",w:"最",a:"B",f:"冬天是最冷的季节。",y:"最 goes right before the adjective: 最冷."});
+EX.fill.push({o:["点","半","起床","睡觉","早饭"],t:"我早上七{0}{2}，七点{1}吃{4}，晚上十一点{3}。"},
+  {o:["块","瓶","一共","多少钱","给"],t:"A：一瓶水{3}？\nB：两{0}。\nA：我要三{1}。\nB：{2}六块。\nA：{4}你钱。"},
+  {o:["爸爸","妈妈","哥哥","口","只"],t:"我家有五{3}人：{0}、{1}、{2}和我，还有一{4}狗。"});
+EX.ask.push({s:"我[七点]起床。",a:["你几点起床"],y:"Clock time → 几点. 我 becomes 你."},{s:"他的爱好是[看电影]。",a:["他的爱好是什么"],y:"A thing or activity → 什么."},
+  {s:"今天[星期三]。",a:["今天星期几"],y:"Day of the week → 星期几."},{s:"我坐[公共汽车]去学校。",a:["你怎么去学校"],y:"How you get somewhere → 怎么."},
+  {s:"一杯咖啡[十二块]。",a:["一杯咖啡多少钱"],y:"A price → 多少钱."});
+EX.dlg.push({l:["A：你喜欢冬天吗？","B：___。"],w:"不太",a:["不太喜欢","我不太喜欢冬天","我不太喜欢"],e:"I don't really like it."},
+  {l:["A：___？","B：我有两个哥哥。"],w:"几",a:["你有几个哥哥"],e:"How many older brothers do you have?"},
+  {l:["A：你今天去超市吗？","B：___。"],w:"时间",a:["我今天没有时间","我没有时间","今天没有时间","不去，我今天没有时间"],e:"I don't have time today."},
+  {l:["A：北京的冬天常常下雪吗？","B：___。"],w:"常常",a:["常常下雪","北京的冬天常常下雪","北京冬天常常下雪"],e:"Yes, it often snows."},
+  {l:["A：你的爱好是什么？","B：___。"],w:"游泳",a:["我的爱好是游泳","我喜欢游泳","游泳"],e:"My hobby is swimming."},
+  {l:["A：___？","B：我家有四口人。"],w:"几",a:["你家有几口人"],e:"How many people are in your family?"});
+const PAPER_N=5,PAPER_SIZE={place:9,fill:2,ask:6,py:10,dlg:4};
+function paperRng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function paperShuffle(a,seed){const r=paperRng(seed),b=a.slice();for(let i=b.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+// the same five papers every time; each paper takes its own slice of every pool, so they barely overlap
+function paperBuild(k){
+  const slice=(arr,n,seed)=>{const s=paperShuffle(arr,seed),out=[];for(let i=0;i<n;i++)out.push(s[(k*n+i)%s.length]);return out};
+  const pairs=paperShuffle(EX.match,101),used=new Set(),groups=[];
+  for(let g=0;g<2;g++){const kinds=new Set(),grp=[];
+    for(let i=0;i<pairs.length*2&&grp.length<5;i++){const p=pairs[(k*10+g*5+i)%pairs.length];if(used.has(p)||kinds.has(p[2]))continue;used.add(p);kinds.add(p[2]);grp.push(p)}
+    groups.push(grp)}
+  return {match:groups,place:slice(EX.place,PAPER_SIZE.place,202),fill:slice(EX.fill,PAPER_SIZE.fill,303),ask:slice(EX.ask,PAPER_SIZE.ask,404),py:slice(exPyPool(),PAPER_SIZE.py,505),dlg:slice(EX.dlg,PAPER_SIZE.dlg,606)};
+}
+const paperKey=k=>`bd-paper-${k}`;
+let paperK=null,paperP=null,paperA=null;
+function exPapersHome(){
+  $("exRun").hidden=true;$("exDone").hidden=true;$("exPaper").hidden=false;$("exBar").style.width="0";
+  $("exPaper").innerHTML=`<p class="tqask">Five full practice papers in the midterm's format: Lessons 1–11. Scroll through, answer everything, then hand in at the bottom. Your answers are saved as you go.</p>
+    <div class="omcards">${Array.from({length:PAPER_N},(_,k)=>{const st=store.get(paperKey(k),null),n=st?Object.values(st.a||{}).filter(v=>v!==""&&v!=null).length:0;
+      return `<button class="omcard" data-k="${k}"><b>${k+1}</b><span>Practice paper ${k+1}<br><small>${st&&st.done?`Handed in: ${st.score} / ${st.max}`:n?`${n} answers so far`:"Not started"}</small></span></button>`}).join("")}</div>`;
+  $("exPaper").querySelectorAll(".omcard").forEach(b=>b.onclick=()=>paperOpen(+b.dataset.k));
+}
+function paperOpen(k){paperK=k;paperP=paperBuild(k);const st=store.get(paperKey(k),{a:{},done:false});paperA=st.a||{};paperRender(st.done);window.scrollTo({top:$("ex").offsetTop-10})}
+function paperSave(done,score,max){store.set(paperKey(paperK),{a:paperA,done:!!done,score,max})}
+const paperBlanks=f=>{const b=[];f.t.replace(/\{([\d,]+)\}/g,(_,n)=>{b.push(n.split(",").map(Number));return ""});return b};
+function paperRender(done){
+  const P=paperP,L="ABCDE",E=exEsc,inp=(key,ph,cls)=>`<input class="exin zh ppin ${cls||""}" data-key="${key}" value="${E(paperA[key]||"")}" placeholder="${ph}" autocomplete="off" autocapitalize="off" spellcheck="false"${done?" disabled":""}>`;
+  let h=`<div class="pphead"><button class="btn" id="ppBack">All papers</button><b>Practice paper ${paperK+1}</b><span class="meta" id="ppCount"></span></div><div id="ppScoreTop"></div>`;
+  h+=`<section class="ppsec"><h3>一、Match each line with the right reply</h3>`;
+  P.match.forEach((g,gi)=>{const order=paperShuffle(g.map((_,i)=>i),900+paperK*7+gi);
+    h+=`<div class="ppgrp"><div class="ppq">${g.map((p,i)=>`<div class="pprow" data-item="m${gi}-${i}"><span class="zh">${i+1}）${E(p[0])}</span><select class="ppsel" data-key="m${gi}-${i}"${done?" disabled":""}><option value="">—</option>${order.map((j,x)=>`<option value="${j}"${paperA[`m${gi}-${i}`]===String(j)?" selected":""}>${L[x]}</option>`).join("")}</select><span class="ppfix"></span></div>`).join("")}</div>
+      <div class="ppopts">${order.map((j,x)=>`<div><b>${L[x]}</b> <span class="zh">${E(g[j][1])}</span></div>`).join("")}</div></div>`});
+  h+=`</section><section class="ppsec"><h3>二、Put the word in the right place (tap the letter)</h3>`;
+  P.place.forEach((it,i)=>{const parts=it.s.split(/\s*(?<![A-Za-z])([A-D])(?![A-Za-z])\s*/);
+    h+=`<div class="pprow ppplace" data-item="p${i}"><span class="ppn">${i+1}.</span><span class="zh exword">（${E(it.w)}）</span><span class="zh">${parts.map((p,j)=>j%2?`<button class="exslot ppslot${paperA["p"+i]===p?" picked":""}" data-key="p${i}" data-l="${p}"${done?" disabled":""}>${p}</button>`:E(p)).join("")}</span><span class="ppfix"></span></div>`});
+  h+=`</section><section class="ppsec"><h3>三、Fill in the blanks with the options (write the word, or its letter)</h3>`;
+  P.fill.forEach((f,i)=>{let n=0;const body=E(f.t).replace(/\{([\d,]+)\}/g,()=>{const key=`f${i}-${n}`;n++;return `<span class="ppblank" data-item="${key}">（${n}）${inp(key,"","ppshort")}<span class="ppfix"></span></span>`}).replace(/\n/g,"<br>");
+    h+=`<div class="ppgrp"><div class="ppopts inline">${f.o.map((o,k)=>`<span><b>${"ABCDEFG"[k]}</b> <span class="zh">${E(o)}</span></span>`).join("")}</div><div class="expass zh">${body}</div></div>`});
+  h+=`</section><section class="ppsec"><h3>四、Ask a question about the underlined part</h3>`;
+  P.ask.forEach((it,i)=>{h+=`<div class="pprow ppcol" data-item="a${i}"><div class="zh"><span class="ppn">${i+1}.</span> ${E(it.s).replace(/\[(.+?)\]/,"<u>$1</u>")}</div>${inp("a"+i,"Write the question in characters")}<span class="ppfix"></span></div>`});
+  h+=`</section><section class="ppsec"><h3>五、Write the pinyin with tones</h3><p class="wlhint">Tone marks or numbers both work: nǐ hǎo or ni3 hao3.</p><div class="pppy">`;
+  P.py.forEach((it,i)=>{h+=`<div class="pprow ppcol" data-item="y${i}"><div class="zh ppbig">${E(it[0])}</div>${inp("y"+i,"pinyin","ppy")}<span class="ppfix"></span></div>`});
+  h+=`</div></section><section class="ppsec"><h3>六、Complete the dialogues with the word in brackets</h3>`;
+  P.dlg.forEach((it,i)=>{h+=`<div class="pprow ppcol" data-item="d${i}"><div class="zh"><span class="ppn">${i+1}.</span> <b class="exword">（${E(it.w)}）</b><br>${it.l.map(l=>E(l).replace("___",'<span class="exgap">＿＿＿＿</span>')).join("<br>")}</div>${inp("d"+i,"Write the missing part in characters")}<span class="ppfix"></span></div>`});
+  h+=`</section><div id="ppScore"></div><div class="nav">${done?`<button class="btn" id="ppAll">All papers</button><button class="btn primary" id="ppAgain">Clear and try again</button>`:`<button class="btn primary" id="ppHand">Hand in</button>`}</div>`;
+  $("exPaper").innerHTML=h;
+  const count=()=>{const keys=paperKeys(),n=keys.filter(k=>paperA[k]!=null&&paperA[k]!=="").length;$("ppCount").textContent=`${n} of ${keys.length} answered`};
+  $("exPaper").querySelectorAll(".ppin").forEach(x=>x.oninput=()=>{paperA[x.dataset.key]=x.value;paperSave();count()});
+  $("exPaper").querySelectorAll(".ppsel").forEach(x=>x.onchange=()=>{paperA[x.dataset.key]=x.value;paperSave();count()});
+  $("exPaper").querySelectorAll(".ppslot").forEach(x=>x.onclick=()=>{const key=x.dataset.key;paperA[key]=paperA[key]===x.dataset.l?"":x.dataset.l;
+    $("exPaper").querySelectorAll(`.ppslot[data-key="${key}"]`).forEach(y=>y.classList.toggle("picked",paperA[key]===y.dataset.l));paperSave();count()});
+  $("ppBack").onclick=exPapersHome;
+  if($("ppHand"))$("ppHand").onclick=()=>{const keys=paperKeys(),left=keys.filter(k=>paperA[k]==null||paperA[k]==="").length;
+    if(left&&!$("ppHand").dataset.sure){$("ppHand").dataset.sure=1;$("ppHand").textContent=`${left} left blank. Tap again to hand in anyway`;return}paperMark()};
+  if($("ppAgain"))$("ppAgain").onclick=()=>{paperA={};store.set(paperKey(paperK),{a:{},done:false});paperRender(false)};
+  if($("ppAll"))$("ppAll").onclick=exPapersHome;
+  count();if(done)paperMark(true);
+}
+function paperKeys(){const P=paperP,k=[];P.match.forEach((g,gi)=>g.forEach((_,i)=>k.push(`m${gi}-${i}`)));P.place.forEach((_,i)=>k.push("p"+i));
+  P.fill.forEach((f,i)=>paperBlanks(f).forEach((_,n)=>k.push(`f${i}-${n}`)));P.ask.forEach((_,i)=>k.push("a"+i));P.py.forEach((_,i)=>k.push("y"+i));P.dlg.forEach((_,i)=>k.push("d"+i));return k}
+// mark everything; typed answers that don't match exactly can be accepted by you ("mine is right too")
+function paperMark(again){
+  const P=paperP,E=exEsc,L="ABCDE",sec={m:[0,0,"Matching"],p:[0,0,"Word place"],f:[0,0,"Fill in"],a:[0,0,"Questions"],y:[0,0,"Pinyin"],d:[0,0,"Dialogues"]};
+  const ok0=paperA.__ok||{};
+  const mark=(key,good,fix,sk,selfOk)=>{const el=$("exPaper").querySelector(`[data-item="${key}"]`);if(!el)return;const g=good||ok0[key];sec[sk][1]++;if(g)sec[sk][0]++;
+    el.classList.toggle("ppok",!!g);el.classList.toggle("ppno",!g);const fx=el.querySelector(".ppfix");
+    fx.innerHTML=g?(good?"✓":`✓ <small>(you marked it right)</small>`):`✗ <span class="zh">${fix}</span>${selfOk?` <button class="chip ppself" data-key="${key}">Mine is right too</button>`:""}`};
+  P.match.forEach((g,gi)=>{const order=paperShuffle(g.map((_,i)=>i),900+paperK*7+gi);g.forEach((p,i)=>{const key=`m${gi}-${i}`;mark(key,paperA[key]===String(i),`${L[order.indexOf(i)]} ${E(p[1])}`,"m")})});
+  P.place.forEach((it,i)=>mark("p"+i,paperA["p"+i]===it.a,`${it.a}: ${E(it.f)}`,"p"));
+  P.fill.forEach((f,i)=>paperBlanks(f).forEach((bl,n)=>{const key=`f${i}-${n}`,v=exNorm(paperA[key]),word=bl.map(x=>f.o[x]).join(""),lets=bl.map(x=>"ABCDEFG"[x]).join("");
+    mark(key,v&&(v===exNorm(word)||v.toUpperCase().replace(/[^A-G]/g,"")===lets&&/^[A-Ga-g\s,]+$/.test(paperA[key])),`${lets} ${E(word)}`,"f")}));
+  P.ask.forEach((it,i)=>{const v=exNorm(paperA["a"+i]);mark("a"+i,v&&it.a.some(a=>exNorm(a)===v),`${E(it.a[0])}？`,"a",!!v)});
+  P.py.forEach((it,i)=>{const v=(paperA["y"+i]||"").trim(),r=v?pyMatch(v,it[1]):"wrong";mark("y"+i,r==="right",`${E(showPy(it[1]))}${r==="tone"?" (check the tones)":""}`,"y")});
+  P.dlg.forEach((it,i)=>{const v=exNorm(paperA["d"+i]),pre=it.l.find(l=>l.includes("___")).split("___")[0].replace(/^[AB]：/,""),acc=it.a.flatMap(a=>[a,pre+a]);
+    mark("d"+i,v&&acc.some(a=>exNorm(a)===v),`${E(it.a[0])}`,"d",!!v)});
+  const score=Object.values(sec).reduce((n,s)=>n+s[0],0),max=Object.values(sec).reduce((n,s)=>n+s[1],0),pct=Math.round(score/max*100);
+  const box=`<div class="verdict ${pct>=60?"ok":"no"}"><b>${score} / ${max}</b> (${pct}%) · ${Object.values(sec).map(s=>`${s[2]} ${s[0]}/${s[1]}`).join(" · ")}</div>`;
+  $("ppScore").innerHTML=box;$("ppScoreTop").innerHTML=box;
+  paperSave(true,score,max);
+  if(!again){paperRender(true);window.scrollTo({top:$("ex").offsetTop-10});toast(`${score} / ${max}`);return}
+  $("exPaper").querySelectorAll(".ppself").forEach(b=>b.onclick=()=>{const ok=paperA.__ok||{};ok[b.dataset.key]=1;paperA.__ok=ok;paperMark(true)});
+}
+
 
 /* ---------- speaking & listening exam (Boya Speaking Lessons 1–11) ---------- */
 // qa: [lesson, tag, question, question in English, model reply, reply in English]. Wrong replies come from other tags.
@@ -5573,7 +5701,7 @@ function lkShowAt(h){
   if(top+p.offsetHeight>vh-80&&r.top-p.offsetHeight-8>8)top=r.top-p.offsetHeight-8;
   p.style.left=left+"px";p.style.top=top+"px";
 }
-const LK_ZONES="#exBody,#slBody,#omBody";
+const LK_ZONES="#exBody,#slBody,#omBody,#exPaper";
 let lkDown=null,lkSwallow=false;
 // is looking this up allowed right now? (not the word whose pinyin you're being asked for)
 function lkAllowed(el){
@@ -6046,6 +6174,6 @@ if("serviceWorker" in navigator&&window.isSecureContext&&location.protocol!=="fi
     b.style.cssText="position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:20;padding:10px 16px;border-radius:999px;border:0;background:#16a46a;color:#fff;font:700 15px ui-rounded,-apple-system,sans-serif;box-shadow:0 4px 0 #0f7f51";
     b.onclick=()=>location.reload();document.body.appendChild(b)});
 }
-window.BD_VERSION="ac6c477c31";
+window.BD_VERSION="0884d78af0";
 </script>
 </body></html>
